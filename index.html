@@ -122,6 +122,17 @@ header.top h1{font-size:20px;margin:0;font-weight:650;letter-spacing:-.01em}
 .pend .pa{font-size:13px;font-variant-numeric:tabular-nums;color:var(--ink2)}
 .pend .pa.in{color:var(--good-ink)}
 .done{font-size:13px;color:var(--good-ink);padding:6px}
+.pend .pl{flex:1;min-width:0;cursor:pointer}
+.pend .pl .pn{display:block}
+.pend .pd{display:block;font-size:12px;color:var(--muted)}
+.pend .pd.late{color:var(--crit-ink)}
+.pend.ok .pn,.pend.ok .pa{color:var(--muted)}
+.pend .okm{color:var(--good-ink);font-weight:700;width:30px;text-align:center}
+.pend .empty{padding:6px 4px;text-align:left}
+#toast{pointer-events:none}#toast.show{pointer-events:auto}
+#toast button{margin-left:12px;border:0;background:transparent;color:inherit;font:inherit;font-weight:700;text-decoration:underline;cursor:pointer;padding:0}
+.prev .dup{font-size:11px;color:var(--good-ink);margin-top:2px}
+.prev .rtag{font-size:11px;color:var(--accent);margin-top:2px}
 .more{font-size:12px;color:var(--muted);padding:4px 6px}
 .track .fill.warnfill{background:var(--warn)}
 .warntag{color:var(--warn-ink);font-weight:600}
@@ -355,10 +366,10 @@ a.clip{text-decoration:none;margin-left:6px}
   <section id="tab-resumen">
     <div class="card ai" id="aiCard">
       <div class="row">
-        <textarea id="aiTxt" rows="1" placeholder="Escribe o dicta tus movimientos, o sube la foto de un ticket. Ej.: hoy fui a comer y gasté 500, ayer pagué la luz 2000 entre los 3"></textarea>
+        <textarea id="aiTxt" rows="1" placeholder="Escribe o dicta tus gastos, o sube tu estado de cuenta o un ticket. Ej.: hoy fui a comer y gasté 500"></textarea>
         <div class="btns">
           <button class="btn mic" id="aiMic" title="Dictar con el micrófono">🎤</button>
-          <button class="btn mic" id="aiPhoto" title="Foto de un ticket, comprobante o captura de pantalla">📷</button>
+          <button class="btn mic" id="aiPhoto" title="Subir estado de cuenta, ticket o captura (foto o PDF)">📄</button>
           <input type="file" id="aiFile" accept="image/*,application/pdf" multiple hidden>
           <button class="btn primary" id="aiGo">Interpretar</button>
         </div>
@@ -375,6 +386,10 @@ a.clip{text-decoration:none;margin-left:6px}
         <div class="catlist" id="catList"></div>
       </div>
       <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+        <div class="card" id="pendCard">
+          <div class="cardhead"><h2>Pagos recurrentes</h2><button class="btn small hidden" id="pendAll"></button><button class="btn small ghost" id="recEdit">Editar</button></div>
+          <div id="pendList"></div>
+        </div>
         <div class="card hidden" id="tcCard">
           <h2>Tarjeta de crédito</h2>
           <p class="sub" id="tcSub"></p>
@@ -395,11 +410,6 @@ a.clip{text-decoration:none;margin-left:6px}
           <div class="cardhead"><h2>Por cobrar</h2><span class="tab-num" id="cobTot" style="font-size:13px;color:var(--good-ink);font-weight:600"></span></div>
           <p class="sub">Gastos compartidos que pagaste completos. Mientras no te reembolsen cuentan completos; al marcar “Ya me pagó” solo cuenta tu parte.</p>
           <div id="cobList"></div>
-        </div>
-        <div class="card" id="pendCard">
-          <div class="cardhead"><h2>Pendientes del periodo</h2><button class="btn small hidden" id="pendAll"></button></div>
-          <p class="sub">Pagos fijos e ingresos que aún no registras. Márcalos como fijos en “Presupuesto y categorías”.</p>
-          <div id="pendList"></div>
         </div>
         <div class="card hidden" id="metasCard">
           <h2>Metas de ahorro</h2>
@@ -443,6 +453,12 @@ a.clip{text-decoration:none;margin-left:6px}
       <p class="sub">Los cambios se guardan en tu cuenta al salir de cada campo. Si pones un monto anual, el mensual se calcula como anual ÷ 12.</p>
       <div class="tablewrap" id="catTable"></div>
       <div class="actions" style="justify-content:flex-start"><button class="btn small" id="addCat">+ Agregar categoría</button></div>
+    </div>
+    <div class="card" style="margin-bottom:12px" id="recCard">
+      <h2>Pagos recurrentes</h2>
+      <p class="sub">Lo que pagas o cobras cada mes. Aparecen en el Resumen para registrarlos con un clic. Si cambias el monto aquí, los que ya registraste no cambian.</p>
+      <div class="tablewrap" id="recTable"></div>
+      <div class="actions" style="justify-content:flex-start"><button class="btn small" id="addRec">+ Agregar pago recurrente</button></div>
     </div>
     <div class="card" style="margin-bottom:12px">
       <h2>Metas de ahorro</h2>
@@ -494,11 +510,6 @@ a.clip{text-decoration:none;margin-left:6px}
       <label class="full">¿En qué?<input type="text" id="mDesc" list="descList" autocomplete="off" placeholder="ej. Rappi, HEB, gasolina…"></label>
       <datalist id="descList"></datalist>
       <div class="full catpick"><span>Categoría</span><div class="quick" id="mQuick"></div><select id="mCat" class="hidden" aria-label="Categoría"></select></div>
-      <div class="full comp" id="mCompWrap">
-        <div class="quick" id="mCompList"></div>
-        <button type="button" class="btn small" id="mCompBtn">📎 Agregar foto o comprobante</button>
-        <input type="file" id="mCompFile" accept="image/*,application/pdf" multiple hidden>
-      </div>
       <button type="button" class="full morebtn" id="mMoreBtn" aria-expanded="false"><span id="mMoreTxt"></span><b id="mMoreLbl">Cambiar ▾</b></button>
       <div class="full form hidden" id="mMore">
       <label>Fecha<input type="date" id="mFecha"></label>
@@ -516,6 +527,9 @@ a.clip{text-decoration:none;margin-left:6px}
           <label>Con quién<input type="text" id="mCon" placeholder="ej. Juan, Pedro"></label>
           <div class="paid" id="mPaid"></div>
         </div>
+      </div>
+      <div class="full share" id="mRecWrap">
+        <label class="chk"><input type="checkbox" id="mRepeat"> Se repite cada mes</label><span class="hint" id="mRecHint"></span>
       </div>
       </div>
       <div class="err-msg" id="mErr"></div>
@@ -560,9 +574,11 @@ function el(tag, attrs={}, ...kids){
   for(const k of kids.flat()) if(k!=null) e.append(k);
   return e;
 }
-function toast(msg, isErr){
-  const t=$('#toast'); t.textContent=msg; t.className='show'+(isErr?' err':'');
-  clearTimeout(toast._t); toast._t=setTimeout(()=>t.className=isErr?'err':'', isErr?6000:2600);
+// act = {label, fn}: botón dentro del aviso (ej. "Deshacer")
+function toast(msg, isErr, act){
+  const t=$('#toast'); t.replaceChildren(msg); t.className='show'+(isErr?' err':'');
+  if(act) t.append(el('button',{type:'button',text:act.label,onclick:()=>{ t.className=''; act.fn(); }}));
+  clearTimeout(toast._t); toast._t=setTimeout(()=>t.className=isErr?'err':'', isErr||act?6000:2600);
 }
 function lsGet(k){ try{return localStorage.getItem(k);}catch(e){return null;} }
 function lsSet(k,v){ try{localStorage.setItem(k,v);}catch(e){} }
@@ -586,7 +602,7 @@ const dayDiff = (a,b) => Math.round((b-a)/864e5);
 
 // ---------- estado ----------
 const S = {
-  movs:[], cats:[], cfg:{DiaCorte:11,DiasPago:20,MetaNecesidad:50,MetaGusto:30,MetaAhorro:20,Roomies:''}, metas:[],
+  movs:[], cats:[], recs:[], cfg:{DiaCorte:11,DiasPago:20,MetaNecesidad:50,MetaGusto:30,MetaAhorro:20,Roomies:''}, metas:[],
   dirty:false, nextId:1, remoteVer:'', gemKey:'', sheetUrl:'', exportUrl:'',
   mode: lsGet('pres.mode')==='mes' ? 'mes' : 'corte',
   P:0, selCat:null, selGroup:null, tab:'resumen', ver:0
@@ -841,14 +857,44 @@ function loadData(hojas){
       return {pdel:del, pal:al}; })(),
     entre:Math.max(1,Math.round(num(r['compartido entre'])))||1,
     con:String(r['con']??'').trim(), reemb:splitNames(r['reembolsado por']),
-    comp:splitComp(r['comprobante'])
+    comp:splitComp(r['comprobante']), rec:String(r['recurrente']??'').trim()
   })).filter(m=>m.fecha && m.monto);
+  const wr = findSheet(hojas,'Recurrentes');
+  const recs = wr ? rowsOf(wr).map(r=>({id:String(r['id']??'').trim(), nombre:String(r['nombre']??'').trim(), cat:String(r['categoria']??'').trim(),
+    monto:Math.abs(num(r['monto'])), metodo:String(r['metodo de pago']??'').trim(), cada:norm(r['cada'])==='quincena'?'Quincena':'Mes',
+    dia:Math.min(31,Math.max(0,Math.round(num(r['dia'])))), activo:norm(r['activo'])!=='no', desde:parseYM(r['desde'])})).filter(x=>x.nombre) : null;
+  if(recs) recs.forEach(x=>{ if(!x.id || recs.filter(y=>y.id===x.id).length>1) x.id=newRecId(); });
   const wt = findSheet(hojas,'Metas');
   const metas = wt ? rowsOf(wt).map(r=>({nombre:String(r['meta']).trim(), objetivo:num(r['objetivo']), fecha:parseDate(r['fecha limite'])})).filter(x=>x.nombre) : [];
   metas.forEach(mt=>{ if(!cats.some(c=>c.nombre===mt.nombre)) cats.push({nombre:mt.nombre,tipo:'Gasto',grupo:'Ahorro',mensual:0,anual:0,nota:'Meta de ahorro',fijo:false}); });
   // categorías que aparecen en movimientos pero no en la hoja
   movs.forEach(m=>{ if(!cats.some(c=>c.nombre===m.cat)) cats.push({nombre:m.cat,tipo:m.tipo,grupo:m.tipo==='Ingreso'?'Ingreso':'Gusto',mensual:0,anual:0,nota:''}); });
-  S.movs=movs; S.cats=cats; S.cfg=cfg; S.metas=metas; S.nextId=id; S.ver++;
+  // sin hoja "Recurrentes" todavía: las categorías marcadas como "Fijo" (versión anterior) se pasan a pagos recurrentes
+  S.migrated = !recs && cats.some(c=>c.fijo);
+  S.movs=movs; S.cats=cats; S.cfg=cfg; S.metas=metas; S.nextId=id; S.recs=recs || migrarFijos(cats,movs); S.ver++;
+}
+let recSeq=0;
+const newRecId = () => 'r'+Date.now().toString(36)+(recSeq++).toString(36);
+function migrarFijos(cats, movs){
+  const recs=[], td=today(), cur=mKey(td), desde=new Date(td.getFullYear(),td.getMonth(),1);
+  cats.filter(c=>c.fijo).forEach(c=>{
+    // un recurrente por cada concepto distinto de los últimos 3 meses en esa categoría (ej. Netflix, Spotify)
+    const ms=movs.filter(m=>m.cat===c.nombre && mKey(m.fecha)>=cur-2 && mKey(m.fecha)<=cur).sort((a,b)=>a.fecha-b.fecha);
+    const by=new Map(); ms.forEach(m=>{ const k=norm(m.desc)||norm(c.nombre); if(!by.has(k)) by.set(k,[]); by.get(k).push(m); });
+    if(!by.size){ if(catBudget(c)>0) recs.push({id:newRecId(),nombre:c.nombre,cat:c.nombre,monto:Math.round(catBudget(c)*100)/100,metodo:'',cada:'Mes',dia:0,activo:true,desde}); return; }
+    by.forEach(list=>{
+      const last=list[list.length-1], porMes={};
+      list.forEach(m=>porMes[mKey(m.fecha)]=(porMes[mKey(m.fecha)]||0)+1);
+      const q=Math.max(...Object.values(porMes))>=2;   // dos veces en un mes = quincena
+      recs.push({id:newRecId(),nombre:last.desc||c.nombre,cat:c.nombre,monto:last.monto,metodo:last.metodo,cada:q?'Quincena':'Mes',dia:q?0:last.fecha.getDate(),activo:true,desde});
+    });
+  });
+  // los que ya pagaste este mes quedan como registrados
+  recs.forEach(r=>{
+    const ms=movs.filter(m=>!m.rec && m.cat===r.cat && (norm(m.desc)||norm(r.cat))===norm(r.nombre) && mKey(m.fecha)===cur).sort((a,b)=>a.fecha-b.fecha);
+    ms.slice(0,r.cada==='Quincena'?2:1).forEach((m,k)=>m.rec=recKey(r,m.fecha,r.cada==='Quincena'?(k?'b':'a'):''));
+  });
+  return recs;
 }
 // Fechas como número de serie (igual que Excel) + formato de celda; texto con formato "@" para que Sheets no lo convierta
 function buildSheets(){
@@ -856,18 +902,21 @@ function buildSheets(){
   const movs=[...S.movs].sort((a,b)=>a.fecha-b.fecha || a.id-b.id);
   const desc={DiaCorte:'Día de corte de la tarjeta',DiasPago:'Días después del corte para pagar la tarjeta (fecha límite)',MetaNecesidad:'Regla 50/30/20: % del ingreso para necesidades',MetaGusto:'% del ingreso para gustos',MetaAhorro:'% del ingreso para ahorro',Roomies:'Nombres de con quién compartes gastos, separados por coma'};
   const hojas={
-    'Movimientos':[["Fecha","Tipo","Descripción","Categoría","Monto","Método de pago","Meses","Corte","Periodo del","Periodo al","Compartido entre","Con","Reembolsado por","Comprobante"],
+    'Movimientos':[["Fecha","Tipo","Descripción","Categoría","Monto","Método de pago","Meses","Corte","Periodo del","Periodo al","Compartido entre","Con","Reembolsado por","Comprobante","Recurrente"],
       ...movs.map(m=>{ const sh=m.entre>1; return [toSerial(m.fecha),m.tipo,m.desc,m.cat,m.monto,m.metodo,m.meses>1?m.meses:'',toSerial(cutDateOf(m.fecha)),
         hasPer(m)?toSerial(m.pdel):'', hasPer(m)?toSerial(m.pal):'', sh?m.entre:'', sh?personas(m).join(', '):'', sh?(m.reemb||[]).filter(p=>personas(m).includes(p)).join(', '):'',
-        (m.comp||[]).join('\n')]; })],
-    'Categorías':[["Categoría","Tipo","Grupo","Presupuesto mensual","Monto anual","Fijo","Nota"],
-      ...S.cats.map(c=>[c.nombre,c.tipo,c.grupo,c.mensual||'',c.anual||'',c.fijo?'Sí':'',c.nota||''])],
+        (m.comp||[]).join('\n'), m.rec||'']; })],
+    'Categorías':[["Categoría","Tipo","Grupo","Presupuesto mensual","Monto anual","Nota"],
+      ...S.cats.map(c=>[c.nombre,c.tipo,c.grupo,c.mensual||'',c.anual||'',c.nota||''])],
+    'Recurrentes':[["Id","Nombre","Categoría","Monto","Método de pago","Cada","Día","Activo","Desde"],
+      ...S.recs.map(r=>[r.id,r.nombre,r.cat,r.monto||'',r.metodo||'',r.cada,r.cada==='Mes'&&r.dia?r.dia:'',r.activo?'Sí':'No',ymStr(r.desde)])],
     'Config':[["Clave","Valor","Descripción"],...Object.keys(desc).map(k=>[k,S.cfg[k]??'',desc[k]])],
     'Metas':[["Meta","Objetivo","Fecha límite"],...S.metas.map(m=>[m.nombre,m.objetivo||'',m.fecha?toSerial(m.fecha):''])]
   };
   const formatos={
-    'Movimientos':{0:DAT,1:TXT,2:TXT,3:TXT,4:MON,5:TXT,7:DAT,8:'yyyy-mm',9:'yyyy-mm',11:TXT,12:TXT,13:TXT},
-    'Categorías':{0:TXT,1:TXT,2:TXT,3:MON,4:MON,5:TXT,6:TXT},
+    'Movimientos':{0:DAT,1:TXT,2:TXT,3:TXT,4:MON,5:TXT,7:DAT,8:'yyyy-mm',9:'yyyy-mm',11:TXT,12:TXT,13:TXT,14:TXT},
+    'Categorías':{0:TXT,1:TXT,2:TXT,3:MON,4:MON,5:TXT},
+    'Recurrentes':{0:TXT,1:TXT,2:TXT,3:MON,4:TXT,5:TXT,7:TXT,8:TXT},
     'Metas':{0:TXT,1:MON,2:DAT}
   };
   return {hojas,formatos};
@@ -929,32 +978,20 @@ async function checkRemote(){
 window.addEventListener('focus', checkRemote);
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) checkRemote(); });
 
-// ---------- comprobantes (fotos / PDF) ----------
-// Las fotos se reducen a 1600 px antes de subirlas (más rápido con datos del celular)
-async function fileToPart(f){
+// ---------- archivos para Gemini (estado de cuenta, ticket, captura): solo se leen, NO se guardan ----------
+// Fotos a 2400 px (que se lean los renglones de un estado de cuenta); PDF tal cual (Gemini acepta hasta ~20 MB por envío)
+async function fileForAI(f){
   if(/^image\//.test(f.type)){
     try{
-      const img=await createImageBitmap(f);
-      let k=Math.min(1,1600/Math.max(img.width,img.height)), q=0.75, b64;
-      for(let i=0;i<8;i++){
-        const c=el('canvas',{width:Math.round(img.width*k),height:Math.round(img.height*k)});
-        const g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,c.width,c.height); g.drawImage(img,0,0,c.width,c.height);
-        b64=c.toDataURL('image/jpeg',q).split(',')[1];
-        if(b64.length<=400000) break;
-        if(q>0.5) q-=0.1; else k*=0.8;
-      }
-      return {mime:'image/jpeg', b64, name:f.name.replace(/\.\w+$/,'')+'.jpg'};
-    }catch(e){ throw new Error(`No pude leer la foto “${f.name}”. Prueba con una captura de pantalla.`); }
+      const img=await createImageBitmap(f), k=Math.min(1,2400/Math.max(img.width,img.height));
+      const c=el('canvas',{width:Math.round(img.width*k),height:Math.round(img.height*k)}), g=c.getContext('2d');
+      g.fillStyle='#fff'; g.fillRect(0,0,c.width,c.height); g.drawImage(img,0,0,c.width,c.height);
+      return {mime:'image/jpeg', b64:c.toDataURL('image/jpeg',0.85).split(',')[1], name:f.name};
+    }catch(e){}   // formatos que el navegador no abre (HEIC): se mandan tal cual
   }
-  if(f.size>650e3) throw new Error(`“${f.name}” pesa más de 650 KB. Mejor toma una foto o captura de pantalla.`);
+  if(f.size>14e6) throw new Error(`“${f.name}” pesa más de 14 MB. Si es un PDF, súbelo por partes o toma capturas.`);
   const b64=await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(String(r.result).split(',')[1]); r.onerror=()=>rej(r.error); r.readAsDataURL(f); });
-  return {mime:f.type||'application/octet-stream', b64, name:f.name};
-}
-const compName = (m, part, k) => `${isoDate(m.fecha)} ${(m.desc||m.cat).replace(/[\\/:*?"<>|]/g,'').slice(0,40)} $${m.monto}${k?` (${k+1})`:''}.${(part.name.match(/\.(\w+)$/)||[,'jpg'])[1]}`;
-async function uploadParts(parts, m){
-  const urls=[];
-  for(const [k,p] of parts.entries()) urls.push(await gs('subirComprobante',p.b64,p.mime,compName(m,p,parts.length>1?k:0)));
-  return urls;
+  return {mime:f.type||'application/pdf', b64, name:f.name};
 }
 
 // ---------- arranque: entrar con Google; la primera vez, empezar desde cero o traer tus datos de la hoja ----------
@@ -1004,7 +1041,7 @@ const CATS_INICIALES = [
   ['Renta o hipoteca','Gasto','Necesidad'],['Servicios (agua, luz, gas, internet)','Gasto','Necesidad'],['Teléfono','Gasto','Necesidad'],
   ['Súper y despensa','Gasto','Necesidad'],['Transporte y gasolina','Gasto','Necesidad'],['Salud y farmacia','Gasto','Necesidad'],
   ['Imprevistos','Gasto','Necesidad'],['Comida fuera','Gasto','Gusto'],['Salidas y gustos','Gasto','Gusto'],
-  ['Suscripciones','Gasto','Gusto'],['Ropa','Gasto','Gusto'],['Fondo de emergencia','Gasto','Ahorro'],['Otros','Gasto','Gusto']
+  ['Entretenimiento','Gasto','Gusto'],['Ropa','Gasto','Gusto'],['Fondo de emergencia','Gasto','Ahorro'],['Otros','Gasto','Gusto']
 ];
 async function crearCuenta(hojas, clave){
   LAST={}; loadData(hojas); S.remoteVer=0; S.dirty=true;
@@ -1100,6 +1137,7 @@ function startApp(){
   $('#welcome').classList.add('hidden'); $('#app').classList.remove('hidden'); $('#fab').classList.remove('hidden');
   S.P = idxOf(today());
   setStatus('ok','En la nube'); render();
+  if(S.migrated){ S.migrated=false; changed(); toast('Tus pagos fijos ahora están en “Pagos recurrentes”. Revísalos en Presupuesto › Pagos recurrentes.'); }
 }
 function fixSelection(){ if(S.selCat && !catByName(S.selCat)) S.selCat=null; }
 
@@ -1161,32 +1199,66 @@ function fondoTxt(){
   const meta=3*gastoCats().filter(c=>c.grupo!=='Ahorro').reduce((a,c)=>a+catBudget(c),0);
   return meta ? `fondo de emergencia ${money.format(acum)} de ${money.format(meta)} (${Math.round(acum/meta*100)}%)` : '';
 }
+// ---------- pagos recurrentes ----------
+// Cada ocurrencia tiene una llave "id@AAAA-MM" (quincena: "-a" el 15 y "-b" el último día); el movimiento que la registra la guarda en "Recurrente"
+const recTipo = r => catByName(r.cat)?.tipo || 'Gasto';
+const recKey = (r, f, s) => `${r.id}@${ymStr(f)}${s?'-'+s:''}`;
+// ocurrencias que caen en el periodo i
+function recOcc(r, i=S.P){
+  const [a,b]=rangeOf(i), out=[];
+  for(let k=mKey(a); k<=mKey(b); k++){
+    if(r.desde && k<mKey(r.desde)) continue;
+    const y=Math.floor(k/12), m=k%12, last=daysIn(y,m);
+    const ds = r.cada==='Quincena' ? [[15,'a'],[last,'b']] : [[Math.min(r.dia||1,last),'']];
+    ds.forEach(([d,s])=>{ const f=new Date(y,m,d); if(f>=a && f<=b) out.push({r, fecha:f, key:recKey(r,f,s)}); });
+  }
+  return out;
+}
+const recDone = () => new Map(S.movs.filter(m=>m.rec).map(m=>[m.rec,m]));
+// la ocurrencia a la que corresponde un movimiento con fecha f (para la captura con IA y "Se repite cada mes")
+const recKeyFor = (r, f) => recKey(r, f, r.cada==='Quincena' ? (f.getDate()<=22?'a':'b') : '');
+// valores del movimiento que registra la ocurrencia o (fecha: hoy si estás en ese periodo; si no, la del pago)
+function recPre(o){
+  const r=o.r, tipo=recTipo(r), [a,b]=rangeOf(S.P), td=today();
+  return {fecha: td>=a && td<=b ? td : o.fecha, tipo, desc:r.nombre, cat:r.cat, monto:r.monto,
+    metodo:r.metodo||lastMethod(r.cat)||(tipo==='Ingreso'?'Transferencia':'Tarjeta de crédito'), rec:o.key};
+}
+const recMov = o => ({id:S.nextId++, ...recPre(o), meses:1, entre:1, con:'', reemb:[], comp:[]});
+async function recRegistrar(os){
+  const nuevos=os.map(o=>recMov(o)); S.movs.push(...nuevos); await changed();
+  toast(nuevos.length>1 ? `Se registraron ${nuevos.length} pagos` : `${nuevos[0].desc} registrado · ${money2.format(nuevos[0].monto)}`, false,
+    {label:'Deshacer', fn:async()=>{ S.movs=S.movs.filter(m=>!nuevos.includes(m)); await changed(); }});
+}
+const goRecs = () => { S.tab='pres'; render(); $('#recCard').scrollIntoView({behavior:'smooth',block:'start'}); };
 function renderPending(){
-  const box=$('#pendList'); box.replaceChildren();
-  const all=$('#pendAll'); all.classList.add('hidden'); all.dataset.armed='';
-  const fijos=S.cats.filter(c=>c.fijo && catBudget(c)>0);
-  $('#pendCard').classList.toggle('hidden', !fijos.length);
-  const t=periodTotals(S.P);
-  const rows=fijos.map(c=>({c, falta:catBudget(c)-(t.byCat[c.nombre]||0)})).filter(r=>r.falta>0.5)
-    .sort((a,b)=>(a.c.tipo==='Ingreso'?-1:0)-(b.c.tipo==='Ingreso'?-1:0) || b.falta-a.falta);
-  if(!rows.length){ box.append(el('div',{class:'done',text:'✓ Todo registrado en este periodo'})); return; }
-  rows.slice(0,6).forEach(({c,falta})=>{
-    const inc=c.tipo==='Ingreso';
-    box.append(el('div',{class:'pend'},
-      el('span',{class:'pn',title:c.nota||c.nombre},c.nombre),
-      el('span',{class:'pa'+(inc?' in':''),text:(inc?'+':'')+money.format(falta)}),
-      el('button',{class:'btn small',text:'Registrar',onclick:()=>openModal(null,{tipo:c.tipo,cat:c.nombre,monto:Math.round(falta*100)/100,desc:c.nombre})})));
+  const box=$('#pendList'), all=$('#pendAll'); box.replaceChildren();
+  all.classList.add('hidden'); all.dataset.armed='';
+  $('#recEdit').classList.toggle('hidden', !S.recs.length);
+  if(!S.recs.length){
+    box.append(el('div',{class:'empty',text:'Agrega lo que pagas o cobras cada mes (renta, Netflix, sueldo…) y regístralo con un clic.'}),
+      el('button',{class:'btn small',text:'+ Agregar pago recurrente',onclick:()=>{ addRec(); goRecs(); }}));
+    return;
+  }
+  const done=recDone(), td=today();
+  const rows=S.recs.filter(r=>r.activo && r.monto>0).flatMap(r=>recOcc(r)).map(o=>({...o, m:done.get(o.key)}))
+    .sort((x,y)=>!!x.m-!!y.m || x.fecha-y.fecha || x.r.nombre.localeCompare(y.r.nombre));
+  if(!rows.length){ box.append(el('div',{class:'empty',text:'Nada que registrar en este periodo.'})); return; }
+  rows.forEach(o=>{
+    const inc=recTipo(o.r)==='Ingreso', m=o.m;
+    const cuando = m ? `registrado el ${shortDate(m.fecha)}` : o.fecha<td ? `${inc?'debió llegar':'venció'} el ${shortDate(o.fecha)}` : isoDate(o.fecha)===isoDate(td) ? 'hoy' : `el ${shortDate(o.fecha)}`;
+    box.append(el('div',{class:'pend'+(m?' ok':'')},
+      el('div',{class:'pl',title:m?'Ver o editar el movimiento':'Registrar con otro monto o fecha',
+        onclick:()=>m ? openModal(m) : openModal(null,recPre(o))},
+        el('span',{class:'pn',text:o.r.nombre}), el('span',{class:'pd'+(!m && o.fecha<td && !inc?' late':''),text:cuando})),
+      el('span',{class:'pa'+(inc&&!m?' in':''),text:(inc?'+':'')+money.format(m?m.monto:o.r.monto)}),
+      m ? el('span',{class:'okm',text:'✓'}) : el('button',{class:'btn small',text:'Registrar',onclick:()=>recRegistrar([o])})));
   });
-  if(rows.length>6) box.append(el('div',{class:'more',text:`y ${rows.length-6} más`}));
-  if(rows.length>1){
-    const tot=rows.reduce((s,r)=>s+(r.c.tipo==='Ingreso'?0:r.falta),0);
-    all.classList.remove('hidden'); all.textContent=`Registrar todos (${rows.length})`;
-    all.onclick=async()=>{
-      if(!all.dataset.armed){ all.dataset.armed='1'; all.textContent=`¿Seguro? ${rows.length} movimientos · ${money.format(tot)} de gastos`; return; }
-      const f=defDate();
-      rows.forEach(({c,falta})=>S.movs.push({id:S.nextId++,fecha:f,tipo:c.tipo,desc:c.nombre,cat:c.nombre,monto:Math.round(falta*100)/100,
-        metodo:lastMethod(c.nombre)||(c.tipo==='Ingreso'?'Transferencia':'Tarjeta de crédito'),meses:1}));
-      await changed(); toast(`Se registraron ${rows.length} movimientos con fecha ${shortDate(f)}`);
+  const pend=rows.filter(o=>!o.m);
+  if(pend.length>1){
+    all.classList.remove('hidden'); all.textContent=`Registrar ${pend.length}`;
+    all.onclick=()=>{
+      if(!all.dataset.armed){ all.dataset.armed='1'; all.textContent=`¿Seguro? ${pend.length} movimientos`; return; }
+      recRegistrar(pend);
     };
   }
 }
@@ -1447,10 +1519,10 @@ function renderPres(){
     kpi('Gastos presupuestados',money.format(gas),inc?`${Math.round(gas/inc*100)}% del ingreso`:''),
     kpi('Ahorro presupuestado',money.format(aho),inc?`${Math.round(aho/inc*100)}% del ingreso`:''),
     kpi('Sobrante sin asignar',money.format(sob),sob<0?'gastas más de lo que entra':`por quincena ${money.format(sob/2)}`,sob<0));
-  const used=new Set(S.movs.map(m=>m.cat));
+  const used=new Set([...S.movs.map(m=>m.cat),...S.recs.map(r=>r.cat)]);
   const tbody=el('tbody');
   S.cats.forEach((c,ix)=>{
-    const upd=(k,v)=>{ if(k==='nombre'){ v=v.trim(); if(!v||S.cats.some((o,j)=>j!==ix&&o.nombre===v)){ toast('Ese nombre está vacío o ya existe',true); render(); return; } S.movs.forEach(m=>{ if(m.cat===c.nombre) m.cat=v; }); if(S.selCat===c.nombre) S.selCat=v; }
+    const upd=(k,v)=>{ if(k==='nombre'){ v=v.trim(); if(!v||S.cats.some((o,j)=>j!==ix&&o.nombre===v)){ toast('Ese nombre está vacío o ya existe',true); render(); return; } S.movs.forEach(m=>{ if(m.cat===c.nombre) m.cat=v; }); S.recs.forEach(r=>{ if(r.cat===c.nombre) r.cat=v; }); if(S.selCat===c.nombre) S.selCat=v; }
       if(k==='tipo'){ c.grupo = v==='Ingreso'?'Ingreso':(c.grupo==='Ingreso'?'Necesidad':c.grupo); }
       c[k]=v; changed(); };
     const gsel=el('select',{onchange:e=>upd('grupo',e.target.value),disabled:c.tipo==='Ingreso'},
@@ -1461,18 +1533,44 @@ function renderPres(){
       el('td',{},gsel),
       el('td',{},el('input',{type:'number',class:'money',min:0,step:'any',value:c.mensual||'',placeholder:c.anual?`(${Math.round(c.anual/12)})`:'0',onchange:e=>upd('mensual',num(e.target.value))})),
       el('td',{},el('input',{type:'number',class:'money',min:0,step:'any',value:c.anual||'',placeholder:'—',onchange:e=>upd('anual',num(e.target.value))})),
-      el('td',{style:{textAlign:'center'}},el('input',{type:'checkbox',checked:!!c.fijo,title:'Pago fijo: aparece en “Pendientes” si no lo registras',onchange:e=>upd('fijo',e.target.checked)})),
       el('td',{},el('input',{type:'text',value:c.nota||'',onchange:e=>upd('nota',e.target.value)})),
-      el('td',{},el('button',{class:'btn small ghost danger',title:used.has(c.nombre)?'Tiene movimientos: no se puede borrar (puedes renombrarla)':'Borrar categoría',disabled:used.has(c.nombre),text:'✕',
+      el('td',{},el('button',{class:'btn small ghost danger',title:used.has(c.nombre)?'Tiene movimientos o pagos recurrentes: no se puede borrar (puedes renombrarla)':'Borrar categoría',disabled:used.has(c.nombre),text:'✕',
         onclick:()=>{ S.cats.splice(ix,1); if(S.selCat===c.nombre) S.selCat=null; changed(); }}))));
   });
   $('#catTable').replaceChildren(el('table',{class:'cattable'},
-    el('thead',{},el('tr',{},...['Categoría','Tipo','Grupo','Mensual','Anual','Fijo','Nota',''].map((h,i)=>el('th',{class:i===3||i===4?'money':null,text:h})))), tbody));
-  renderMetaTable();
+    el('thead',{},el('tr',{},...['Categoría','Tipo','Grupo','Mensual','Anual','Nota',''].map((h,i)=>el('th',{class:i===3||i===4?'money':null,text:h})))), tbody));
+  renderMetaTable(); renderRecTable();
   $('#cfgPago').value=S.cfg.DiasPago; $('#cfgCorte').value=S.cfg.DiaCorte; $('#cfgN').value=S.cfg.MetaNecesidad; $('#cfgG').value=S.cfg.MetaGusto; $('#cfgA').value=S.cfg.MetaAhorro;
   $('#cfgRoomies').value=S.cfg.Roomies||''; $('#cfgKey').value=S.gemKey||''; $('#cfgModel').value=lsGet('pres.geminiModel')||'';
 }
 
+function renderRecTable(){
+  const tbody=el('tbody');
+  S.recs.forEach((r,ix)=>{
+    const upd=(k,v)=>{ r[k]=v; changed(); };
+    const catSel=el('select',{onchange:e=>upd('cat',e.target.value)},
+      ...['Gasto','Ingreso'].map(t=>el('optgroup',{label:t},...S.cats.filter(c=>c.tipo===t).map(c=>el('option',{value:c.nombre,text:c.nombre,selected:c.nombre===r.cat})))));
+    tbody.append(el('tr',{style:{opacity:r.activo?1:.5}},
+      el('td',{},el('input',{type:'text',value:r.nombre,placeholder:'ej. Netflix',onchange:e=>{ const v=e.target.value.trim(); if(!v){ toast('Ponle un nombre',true); render(); return; } upd('nombre',v); }})),
+      el('td',{},catSel),
+      el('td',{},el('input',{type:'number',class:'money',min:0,step:'any',value:r.monto||'',placeholder:'0',onchange:e=>upd('monto',num(e.target.value))})),
+      el('td',{},el('select',{onchange:e=>upd('metodo',e.target.value)},el('option',{value:'',text:'—',selected:!r.metodo}),...METODOS.map(m=>el('option',{text:m,selected:m===r.metodo})))),
+      el('td',{},el('select',{onchange:e=>upd('cada',e.target.value)},el('option',{value:'Mes',text:'Cada mes',selected:r.cada==='Mes'}),el('option',{value:'Quincena',text:'Cada quincena (15 y último)',selected:r.cada==='Quincena'}))),
+      el('td',{},el('input',{type:'number',min:1,max:31,step:1,value:r.cada==='Mes'&&r.dia?r.dia:'',placeholder:r.cada==='Mes'?'1':'—',disabled:r.cada!=='Mes',title:'Día del mes en que se paga',style:{width:'64px'},
+        onchange:e=>upd('dia',Math.min(31,Math.max(0,Math.round(num(e.target.value)))))})),
+      el('td',{style:{textAlign:'center'}},el('input',{type:'checkbox',checked:r.activo,title:'Activo (desmárcalo para pausarlo sin borrarlo)',onchange:e=>upd('activo',e.target.checked)})),
+      el('td',{},el('button',{class:'btn small ghost danger',title:'Borrar (los movimientos ya registrados se quedan)',text:'✕',onclick:()=>{ S.recs.splice(ix,1); changed(); }}))));
+  });
+  $('#recTable').replaceChildren(S.recs.length ? el('table',{class:'cattable'},
+    el('thead',{},el('tr',{},...['Nombre','Categoría','Monto','Método','Frecuencia','Día','Activo',''].map((h,i)=>el('th',{class:i===2?'money':null,text:h})))), tbody)
+    : el('div',{class:'empty',text:'Sin pagos recurrentes. Ej.: Netflix $120 cada mes, renta, gimnasio, sueldo.'}));
+}
+function addRec(){
+  const c=S.cats.find(c=>c.tipo==='Gasto' && norm(c.nombre).includes('entreten')) || gastoCats()[0];
+  const td=today();
+  S.recs.push({id:newRecId(),nombre:'Nuevo pago',cat:c?.nombre||'Otros',monto:0,metodo:'',cada:'Mes',dia:0,activo:true,desde:new Date(td.getFullYear(),td.getMonth(),1)});
+  changed();
+}
 function renderMetaTable(){
   const tbody=el('tbody');
   S.metas.forEach((mt,ix)=>{
@@ -1517,7 +1615,7 @@ function fillQuickOn(){
 $('#mCat').onchange=()=>{ $('#mCat').classList.add('hidden'); fillQuickOn(); };
 function setTipo(t, sel){ mTipo=t; $$('#mTipo button').forEach(b=>b.classList.toggle('on',b.dataset.t===t)); fillCatSelect(sel); if(!sel && t==='Ingreso') $('#mMetodo').value='Transferencia'; msiUI(); }
 // Gasto compartido y periodo del recibo (solo gastos). mReemb = quiénes ya te pagaron, mientras editas
-let mReemb=[], mComp=[], mCompNew=[];   // comprobantes: links ya subidos / fotos por subir al guardar
+let mReemb=[], mRec='';   // mRec = llave del pago recurrente que registra este movimiento
 const modalMov = () => ({monto:num($('#mMonto').value), entre:$('#mShared').checked?Math.max(2,Math.round(num($('#mEntre').value))||2):1, con:$('#mCon').value, reemb:mReemb});
 function shareUI(){
   const gasto = mTipo==='Gasto', on = gasto && $('#mShared').checked;
@@ -1537,24 +1635,19 @@ function moreUI(){
     const [del]=fixPer(parseYM($('#mPDel').value), parseYM($('#mPAl').value)); if(del && !$('#mPerWrap').classList.contains('hidden')) t.push('recibo');
     if($('#mShared').checked) t.push('compartido ÷'+modalMov().entre);
   }
+  if(mRec || $('#mRepeat').checked) t.push('cada mes');
   $('#mMoreTxt').textContent=t.join(' · ');
 }
 function setMore(open){ $('#mMore').classList.toggle('hidden',!open); $('#mMoreBtn').setAttribute('aria-expanded',open); $('#mMoreLbl').textContent=open?'Ocultar ▴':'Cambiar ▾'; }
 $('#mMoreBtn').onclick=()=>setMore($('#mMore').classList.contains('hidden'));
-function compUI(){
-  $('#mCompList').replaceChildren(
-    ...mComp.map((u,k)=>el('span',{class:'chip'},el('a',{href:u,target:'_blank',rel:'noopener',text:`📎 Ver ${mComp.length>1?k+1:''}`.trim(),style:{border:0,padding:0}}),
-      el('button',{type:'button',title:'Quitar de este movimiento (la foto se borra al guardar)',text:'✕',onclick:()=>{ mComp=mComp.filter(x=>x!==u); compUI(); }}))),
-    ...mCompNew.map(p=>el('span',{class:'chip'},'🖼 '+p.name.slice(0,22),
-      el('button',{type:'button',title:'Quitar',text:'✕',onclick:()=>{ mCompNew=mCompNew.filter(x=>x!==p); compUI(); }}))));
-  $('#mCompBtn').textContent = mComp.length||mCompNew.length ? '📎 Agregar otro' : '📎 Agregar foto o comprobante';
+// "Se repite cada mes": al guardar crea el pago recurrente; si ya viene de uno, solo lo dice
+function recUI(){
+  const r = mRec && S.recs.find(x=>mRec.startsWith(x.id+'@'));
+  $('#mRepeat').parentElement.classList.toggle('hidden', !!mRec);
+  $('#mRecHint').textContent = mRec ? `↻ Pago recurrente${r?': '+r.nombre:''}` : '';
+  moreUI();
 }
-$('#mCompBtn').onclick=()=>$('#mCompFile').click();
-$('#mCompFile').onchange=async e=>{
-  const fs=[...e.target.files]; e.target.value='';
-  for(const f of fs){ try{ mCompNew.push(await fileToPart(f)); }catch(err){ $('#mErr').textContent=err.message; } }
-  compUI();
-};
+$('#mRepeat').addEventListener('change',recUI);
 function cubreUI(){
   const msi = !$('#mMsiWrap').classList.contains('hidden') && +$('#mMeses').value>1;
   $('#mPerWrap').classList.toggle('hidden', mTipo!=='Gasto' || msi);
@@ -1614,12 +1707,12 @@ function openModal(m, pre){
   $('#mEntre').value = sh ? (m?m.entre:pre.entre) : '';
   $('#mCon').value = sh ? (m?personas(m).join(', '):(pre.con??roomies().join(', '))) : '';
   mReemb = m ? [...(m.reemb||[])] : [];
-  mComp = m ? [...(m.comp||[])] : []; mCompNew=[]; compUI();
+  mRec = m ? (m.rec||'') : (pre.rec||''); $('#mRepeat').checked=false;
   $('#mDesc').value = m?m.desc:(pre.desc||''); $('#mMetodo').value = m?(m.metodo||'Tarjeta de crédito'):(pre.metodo||'Tarjeta de crédito');
   const preCat = m?m.cat:(pre.cat||S.selCat||undefined);
   setTipo(m?m.tipo:(pre.tipo||(S.selCat && catByName(S.selCat)?.tipo==='Ingreso'?'Ingreso':'Gasto')), preCat);
   if(!m) $('#mMetodo').value = pre.metodo || (mTipo==='Ingreso'?'Transferencia':'Tarjeta de crédito');
-  msiUI();
+  msiUI(); recUI();
   setMore(!!(m && (m.meses>1 || m.entre>1 || hasPer(m))) || !!(pre.entre>1 || pre.meses>1));
   $('#mErr').textContent='';
   fillDescList();
@@ -1631,22 +1724,18 @@ async function saveModal(more){
   if(!(monto>0)){ $('#mErr').textContent='Pon un monto mayor a 0.'; $('#mMonto').focus(); return; }
   if(!fecha){ setMore(true); $('#mErr').textContent='Pon una fecha válida.'; return; }
   if(saveModal.busy) return;
-  let comp=[...mComp];
-  if(mCompNew.length){
-    saveModal.busy=true; $('#mSave').disabled=$('#mSaveMore').disabled=true; $('#mErr').textContent='Subiendo comprobante…';
-    try{ comp=[...comp, ...await uploadParts(mCompNew,{fecha,desc:$('#mDesc').value.trim(),cat,monto})]; mCompNew=[]; }
-    catch(e){ $('#mErr').textContent='No se pudo subir el comprobante: '+(e.message||e); return; }
-    finally{ saveModal.busy=false; $('#mSave').disabled=$('#mSaveMore').disabled=false; }
-    $('#mErr').textContent='';
-  }
   const metodo=$('#mMetodo').value, meses=(mTipo==='Gasto' && norm(metodo).includes('credito')) ? +$('#mMeses').value||1 : 1;
   const mm=modalMov(), gasto=mTipo==='Gasto';
   const sh=gasto && mm.entre>1, con=sh?personas(mm).join(', '):'';
   const data={fecha,tipo:mTipo,desc:$('#mDesc').value.trim(),cat,monto,metodo,meses,
     ...(()=>{ const [pdel,pal]=gasto && meses<=1 ? fixPer(parseYM($('#mPDel').value), parseYM($('#mPAl').value)) : [null,null]; return {pdel,pal}; })(),
-    entre: sh?mm.entre:1, con, reemb: sh?mReemb.filter(p=>splitNames(con).includes(p)):[], comp};
-  if(editing) Object.assign(editing,data); else S.movs.push({id:S.nextId++,...data});
-  if(!more) closeModal(); else { $('#mMonto').value=''; $('#mDesc').value=''; mReemb=[]; mComp=[]; mCompNew=[]; compUI(); shareUI(); $('#mMonto').focus(); }
+    entre: sh?mm.entre:1, con, reemb: sh?mReemb.filter(p=>splitNames(con).includes(p)):[], rec:mRec};
+  if(!mRec && $('#mRepeat').checked){
+    const r={id:newRecId(), nombre:data.desc||cat, cat, monto, metodo, cada:'Mes', dia:fecha.getDate(), activo:true, desde:new Date(fecha.getFullYear(),fecha.getMonth(),1)};
+    S.recs.push(r); data.rec=recKey(r,fecha,'');
+  }
+  if(editing) Object.assign(editing,data); else S.movs.push({id:S.nextId++,...data,comp:[]});
+  if(!more) closeModal(); else { $('#mMonto').value=''; $('#mDesc').value=''; mReemb=[]; mRec=''; $('#mRepeat').checked=false; recUI(); shareUI(); $('#mMonto').focus(); }
   await changed();
   toast(editing||!more?'Guardado':'Guardado. Captura el siguiente.');
 }
@@ -1666,7 +1755,29 @@ $('.modal').addEventListener('keydown',e=>{ if(e.key==='Enter' && e.target.tagNa
 const GEM = 'https://generativelanguage.googleapis.com/v1beta/';
 const METODOS = ['Tarjeta de crédito','Débito','Efectivo','Transferencia'];
 const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
-let aiRows=[], aiFiles=[], aiRowsFiles=[];   // fotos para leer con Gemini; se guardan como comprobante
+let aiRows=[], aiFiles=[];   // archivos para leer con Gemini (no se guardan)
+// ¿Ya lo tenías? mismo tipo y monto, con fecha a ±4 días (el banco a veces lo aplica días después),
+// o la mensualidad de una compra a meses que ya registraste
+function aiDup(r, usados){
+  let best=null, bd=99;
+  for(const m of S.movs){
+    if(m.tipo!==r.tipo || usados.has(m)) continue;
+    if(Math.abs(m.monto-r.monto)<0.6){ const d=Math.abs(dayDiff(m.fecha,r.fecha)); if(d<=4 && d<bd){ best=m; bd=d; } }
+    else if(m.meses>1 && Math.abs(m.monto/m.meses-r.monto)<1)
+      for(let k=0;k<m.meses;k++){ const d=Math.abs(dayDiff(addMonths(m.fecha,k),r.fecha)); if(d<=6 && d<bd){ best=m; bd=d; } }
+  }
+  return best;
+}
+// ¿Es uno de tus pagos recurrentes que aún no registras? (el nombre se parece y es del mismo tipo)
+function aiRec(r, tomadas){
+  const d=norm(r.desc), done=recDone();
+  for(const x of S.recs){
+    const n=norm(x.nombre);
+    if(!x.activo || recTipo(x)!==r.tipo || !n || !(d.includes(n) || n.includes(d))) continue;
+    const k=recKeyFor(x,r.fecha); if(!done.has(k) && !tomadas.has(k)) return {k, nombre:x.nombre};
+  }
+  return null;
+}
 const aiMsg = (t,err) => { const m=$('#aiMsg'); m.textContent=t||''; m.className='msg'+(err?' err':''); };
 async function gemFetch(path, body){
   const key=S.gemKey;
@@ -1727,7 +1838,15 @@ Reglas:
 - periodo_del / periodo_al (formato YYYY-MM): solo para recibos o pagos que cubren un periodo de consumo distinto o más largo que el día del pago. Si dice de qué meses es (ej. "la luz de septiembre y octubre" = 2026-09 a 2026-10, "el agua de octubre" = 2026-10 a 2026-10), úsalos. Si dice que es bimestral / cubre N meses pero no dice cuáles, usa los N meses que terminan en el mes del pago. Si no aplica, "" y "".
 - duda: si algo no está claro (monto, categoría), explícalo en pocas palabras; si no, "".
 
-${nFotos ? `El usuario adjuntó ${nFotos>1?nFotos+' imágenes/archivos':'una imagen/archivo'} (ticket, comprobante, estado de cuenta o captura de pantalla de una app como Rappi o el banco). Saca de ahí los movimientos: fecha, comercio (como descripción) y el TOTAL pagado (no cada artículo; con propina si la hay). Si hay varias compras distintas (ej. una lista de movimientos del banco), una por cada una. Si el texto dice algo distinto a la imagen, manda el texto.\n\n` : ''}Texto del usuario:
+${nFotos ? `El usuario adjuntó ${nFotos>1?nFotos+' imágenes/archivos':'una imagen/archivo'} (ticket, comprobante, estado de cuenta o captura de pantalla de una app como Rappi o el banco). Saca de ahí los movimientos: fecha, comercio (como descripción) y el TOTAL pagado (no cada artículo; con propina si la hay). Si hay varias compras distintas (ej. una lista de movimientos del banco), una por cada una. Si el texto dice algo distinto a la imagen, manda el texto.
+Si es un ESTADO DE CUENTA (lista de movimientos del banco o de la tarjeta):
+- Registra cada cargo/compra y cada depósito real. Descripción = nombre del comercio legible ("Oxxo", "Netflix", "Uber"), no el texto crudo del banco.
+- NO registres: pagos a la tarjeta ("su pago gracias", "pago recibido"), traspasos entre cuentas propias, saldos, totales, límite de crédito, pago mínimo ni resúmenes.
+- Devoluciones y bonificaciones tampoco; menciónalas en "duda" del movimiento original si lo ves.
+- Intereses, comisiones e IVA de la tarjeta sí son gastos.
+- Si una compra dice algo como "3/12", "MSI" o "meses sin intereses", es una mensualidad: registra el monto de esa mensualidad y en "duda" pon "Mensualidad de compra a meses".
+- metodo: si es estado de cuenta de tarjeta de crédito = "Tarjeta de crédito"; de cuenta de débito = "Débito" (depósitos = "Transferencia").
+- Si las fechas no traen año, usa el año del periodo del estado de cuenta.\n\n` : ''}Texto del usuario:
 <<<
 ${texto||'(sin texto, solo las imágenes)'}
 >>>`;
@@ -1743,6 +1862,7 @@ async function aiInterpret(){
     compartido_entre:{type:'INTEGER'}, periodo_del:{type:'STRING'}, periodo_al:{type:'STRING'}, duda:{type:'STRING'}},
     required:['fecha','tipo','descripcion','categoria','monto','metodo','compartido_entre','periodo_del','periodo_al','duda']}}},required:['movimientos']};
   const files=[...aiFiles];
+  if(files.reduce((s,p)=>s+p.b64.length,0)>19e6){ aiMsg('Los archivos pesan demasiado juntos (máx. ~14 MB). Sube menos páginas a la vez.',true); return; }
   const body={contents:[{role:'user',parts:[{text:aiPrompt(texto,files.length)},...files.map(p=>({inline_data:{mime_type:p.mime,data:p.b64}}))]}],generationConfig:{temperature:0,responseMimeType:'application/json',responseSchema:schema}};
   const go=$('#aiGo'); go.disabled=true; go.textContent='Pensando…'; aiMsg('');
   try{
@@ -1775,8 +1895,14 @@ async function aiInterpret(){
         metodo, entre:g?Math.min(6,Math.max(1,Math.round(num(r.compartido_entre))||1)):1, ...(()=>{ const [pdel,pal]=g?fixPer(parseYM(r.periodo_del),parseYM(r.periodo_al)):[null,null]; return {pdel,pal}; })(), duda:String(r.duda||'').trim()};
     });
     if(!aiRows.length){ aiMsg('No encontré movimientos con monto en el texto. Revisa que diga cuánto fue.',true); renderAiPrev(); return; }
-    aiRowsFiles=files;
-    aiMsg(`Encontré ${aiRows.length} movimiento${aiRows.length>1?'s':''}. Revisa y corrige antes de guardar.`+(files.length?' La foto se guarda como comprobante.':''));
+    const usados=new Set(), tomadas=new Set();
+    aiRows.forEach(r=>{
+      const m=aiDup(r,usados);
+      if(m){ r.dup=m; r.on=false; if(!(m.meses>1)) usados.add(m); return; }
+      const x=aiRec(r,tomadas); if(x){ r.rec=x.k; r.recNombre=x.nombre; tomadas.add(x.k); }
+    });
+    const nd=aiRows.filter(r=>r.dup).length;
+    aiMsg(`Encontré ${aiRows.length} movimiento${aiRows.length>1?'s':''}.`+(nd?` ${nd} ya los tenías registrados y los dejé sin marcar.`:'')+' Revisa y guarda.');
     renderAiPrev();
   }catch(e){ aiMsg(e.message||String(e),true); }
   finally{ go.disabled=false; go.textContent='Interpretar'; }
@@ -1793,6 +1919,8 @@ function renderAiPrev(){
       el('td',{class:'ck'},el('input',{type:'checkbox',checked:r.on,title:'Incluir',onchange:e=>{ r.on=e.target.checked; renderAiPrev(); }})),
       el('td',{},el('input',{type:'date',value:isoDate(r.fecha),onchange:e=>{ r.fecha=parseDate(e.target.value)||r.fecha; }})),
       el('td',{style:{minWidth:'140px'}},el('input',{type:'text',value:r.desc,onchange:e=>{ r.desc=e.target.value.trim(); }}),
+        r.dup?el('div',{class:'dup',text:`✓ Ya lo tenías: ${r.dup.desc||r.dup.cat}, ${shortDate(r.dup.fecha)}${r.dup.meses>1?' (a meses)':''}`}):null,
+        r.rec?el('div',{class:'rtag',text:`↻ cuenta como tu pago recurrente “${r.recNombre}”`}):null,
         r.duda?el('div',{style:{fontSize:'11px',color:'var(--warn-ink)',marginTop:'2px'},text:'⚠ '+r.duda}):null),
       el('td',{style:{minWidth:'150px'}},catSel(r)),
       el('td',{style:{minWidth:'96px'}},el('input',{type:'number',class:'money',min:0,step:'0.01',value:r.monto,onchange:e=>{ r.monto=num(e.target.value); renderAiPrev(); }})),
@@ -1811,23 +1939,15 @@ function renderAiPrev(){
     el('thead',{},el('tr',{},...['','Fecha','Descripción','Categoría','Monto','Método','Compartido','Periodo del recibo (del / al)',''].map((h,i)=>el('th',{class:i===4?'money':null,text:h})))),tbody)),
     el('div',{class:'actions'},
       el('span',{style:{marginRight:'auto',fontSize:'12px',color:'var(--ink2)',alignSelf:'center'},text:`${sel.length} seleccionados${gas?` · gastos ${money2.format(gas)}`:''}${ing?` · ingresos ${money2.format(ing)}`:''}`}),
-      el('button',{class:'btn',text:'Descartar',onclick:()=>{ aiRows=[]; aiRowsFiles=[]; renderAiPrev(); aiMsg(''); }}),
+      el('button',{class:'btn',text:'Descartar',onclick:()=>{ aiRows=[]; renderAiPrev(); aiMsg(''); }}),
       el('button',{class:'btn primary',text:`Guardar ${sel.length}`,disabled:!sel.length,onclick:aiSave})));
 }
 async function aiSave(){
   const sel=aiRows.filter(r=>r.on && r.monto>0); if(!sel.length || aiSave.busy) return;
   const con=roomies().join(', ');
-  // la(s) foto(s) se suben una vez y quedan como comprobante de cada movimiento que salió de ellas
-  let comp=[];
-  if(aiRowsFiles.length){
-    aiSave.busy=true; aiMsg('Guardando la foto…');
-    try{ comp=await uploadParts(aiRowsFiles, sel[0]); }
-    catch(e){ aiMsg('No se pudo subir la foto ('+(e.message||e)+'). Intenta de nuevo.',true); return; }
-    finally{ aiSave.busy=false; }
-  }
   sel.forEach(r=>S.movs.push({id:S.nextId++,fecha:r.fecha,tipo:r.tipo,desc:r.desc,cat:r.cat,monto:r.monto,metodo:r.metodo,meses:1,
-    pdel:r.tipo==='Gasto'?r.pdel:null, pal:r.tipo==='Gasto'?r.pal:null, entre:r.entre, con:r.entre>1?personas({entre:r.entre,con}).join(', '):'', reemb:[], comp:[...comp]}));
-  aiRows=[]; aiRowsFiles=[]; aiFiles=[]; renderAiFiles(); renderAiPrev(); $('#aiTxt').value=''; $('#aiTxt').style.height=''; aiMsg('');
+    pdel:r.tipo==='Gasto'?r.pdel:null, pal:r.tipo==='Gasto'?r.pal:null, entre:r.entre, con:r.entre>1?personas({entre:r.entre,con}).join(', '):'', reemb:[], comp:[], rec:r.rec||''}));
+  aiRows=[]; aiFiles=[]; renderAiFiles(); renderAiPrev(); $('#aiTxt').value=''; $('#aiTxt').style.height=''; aiMsg('');
   await changed(); toast(`Se guardaron ${sel.length} movimiento${sel.length>1?'s':''}`);
 }
 $('#aiGo').onclick=aiInterpret;
@@ -1838,7 +1958,7 @@ function renderAiFiles(){
 $('#aiPhoto').onclick=()=>$('#aiFile').click();
 $('#aiFile').onchange=async e=>{
   const fs=[...e.target.files]; e.target.value='';
-  for(const f of fs){ try{ aiFiles.push(await fileToPart(f)); }catch(err){ aiMsg(err.message,true); } }
+  for(const f of fs){ try{ aiFiles.push(await fileForAI(f)); }catch(err){ aiMsg(err.message,true); } }
   renderAiFiles(); if(aiFiles.length) aiMsg('Da clic en “Interpretar” para leer la foto (puedes escribir algo más, ej. “a medias con Juan”).');
 };
 $('#aiTxt').addEventListener('keydown',e=>{ if(e.key==='Enter' && (e.ctrlKey||e.metaKey)){ e.preventDefault(); aiInterpret(); } });
@@ -1887,6 +2007,8 @@ $('#btnTheme').onclick=()=>{
   const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches;
   const t = dark?'light':'dark'; document.documentElement.dataset.theme=t; lsSet('pres.theme',t); render();
 };
+$('#addRec').onclick=()=>{ addRec(); setTimeout(()=>{ const i=document.querySelector('#recTable tbody tr:last-child input'); if(i){ i.focus(); i.select(); } },0); };
+$('#recEdit').onclick=goRecs;
 $('#addCat').onclick=()=>{ let n='Nueva categoría', k=2; while(catByName(n)) n=`Nueva categoría ${k++}`; S.cats.push({nombre:n,tipo:'Gasto',grupo:'Necesidad',mensual:0,anual:0,nota:''}); changed(); };
 $('#addMeta').onclick=()=>{
   let n='Nueva meta', k=2; while(catByName(n)||S.metas.some(m=>m.nombre===n)) n=`Nueva meta ${k++}`;
