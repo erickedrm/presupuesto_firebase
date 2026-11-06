@@ -292,6 +292,59 @@ tfoot td{font-weight:600;border-bottom:0;border-top:1px solid var(--border);font
 a.clip{text-decoration:none;margin-left:6px}
 .c-sub{display:none;font-size:12px;color:var(--muted)}
 
+/* nuevo: tarjetas, amigos, etiquetas, IA, configuración, tutorial */
+.tjname{font-size:13px;font-weight:600;margin:8px 0 0}
+.tjname:first-child{margin-top:0}
+.tcmsi{font-size:12px;color:var(--muted);padding:0 0 6px}
+.amigo{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px;margin:0 -8px;cursor:pointer}
+.amigo:hover{background:var(--track)}
+.amigo .al{flex:1;min-width:0}
+.amigo .al b{display:block;font-size:14px;font-weight:500}
+.amigo .al span{font-size:12px;color:var(--muted)}
+.amigo .aa{font-size:14px;font-variant-numeric:tabular-nums;font-weight:600}
+.amigo .aa.in{color:var(--good-ink)}.amigo .aa.out{color:var(--crit-ink)}
+.mrow .mt b{font-weight:600}
+.mrow .mbtn{float:right;margin-top:-2px}
+.proj{font-size:13px;margin:4px 4px 0;color:var(--ink2)}
+.proj b{font-weight:600}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.tags button{border:1px solid var(--border);background:var(--raised);border-radius:999px;padding:3px 10px;font-size:12px;cursor:pointer;color:var(--ink)}
+.tags button span{color:var(--muted);margin-left:4px;font-variant-numeric:tabular-nums}
+.tags button.on{background:var(--accent-weak);border-color:var(--accent)}
+.htag{display:inline-block;font-size:11px;color:var(--accent);margin-left:6px;white-space:nowrap}
+.ans{margin-top:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;font-size:14px;white-space:pre-line;position:relative}
+.ans .x{position:absolute;top:6px;right:6px}
+.ans:empty{display:none}
+.iares{white-space:pre-line;font-size:14px}
+.mhead{display:flex;align-items:center;gap:6px;margin:0 0 14px}
+.mhead h3{margin:0;flex:1}
+.freq{margin-bottom:2px}
+.freq button{font-size:12px}
+.cfgsec{display:flex;flex-direction:column;gap:14px}
+.cfgsec .card h2{margin-bottom:12px}
+.chkrow{display:flex;align-items:flex-start;gap:10px;font-size:14px;padding:6px 0;cursor:pointer}
+.chkrow input{margin-top:4px}
+.chkrow small{display:block;font-size:12px;color:var(--muted)}
+.persona{display:flex;flex-direction:column;gap:8px}
+.persona .it{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--grid);font-size:14px}
+.persona .it:last-child{border-bottom:0}
+.persona .it .il{flex:1;min-width:0}
+.persona .it .il span{display:block;font-size:12px;color:var(--muted)}
+.persona .it input{width:90px;padding:4px 6px}
+#tour{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:70;padding:16px}
+#tour.open{display:flex}
+#tour .modal{text-align:center;padding:28px 22px 20px}
+#tour .ico{font-size:40px;line-height:1;margin-bottom:10px}
+#tour p{color:var(--ink2);margin:6px 0 0}
+#tour .dots{display:flex;gap:6px;justify-content:center;margin-top:16px}
+#tour .dots i{width:7px;height:7px;border-radius:50%;background:var(--axis)}
+#tour .dots i.on{background:var(--accent)}
+:root[data-big] body{zoom:1.18}
+body.simple .full-only{display:none!important}
+.bar button{margin-left:auto}
+.icon.on{background:var(--track);color:var(--ink)}
+a.btn{text-decoration:none;color:var(--ink);display:inline-flex;align-items:center}
+
 @media (max-width:860px){
   .grid{grid-template-columns:minmax(0,1fr)}
 }
@@ -331,7 +384,10 @@ a.clip{text-decoration:none;margin-left:6px}
     <button class="btn" id="btnOut" hidden>Usar otra cuenta</button>
   </div>
   <div class="setup" id="nuevo" hidden>
-    <div class="actions"><button class="btn primary" id="btnCero">Empezar desde cero</button></div>
+    <label class="sub" style="display:block;margin-bottom:6px" for="plantilla">¿Qué se parece más a tu vida? (para sugerirte categorías)</label>
+    <select id="plantilla" style="width:100%"><option value="general">General</option><option value="estudiante">Estudiante</option><option value="familia">Familia con hijos</option><option value="jubilado">Jubilado o pensionado</option></select>
+    <label class="chkrow" style="margin-top:8px"><input type="checkbox" id="nuevoSimple" checked><span>Empezar en modo sencillo<small>Solo lo básico. Lo cambias cuando quieras en ⚙.</small></span></label>
+    <div class="actions"><button class="btn primary" id="btnCero">Empezar</button></div>
     <p class="sub" style="margin-top:18px">¿Ya usabas la versión con hoja de Google? Ábrela › ⚙ Configuración › “Copiar link de conexión”, pégalo aquí y se pasan todos tus datos:</p>
     <input type="url" id="impLink" placeholder="https://…#u=…&amp;k=…" autocomplete="off">
     <p class="sub" id="impErr" style="color:var(--crit-ink)"></p>
@@ -352,7 +408,7 @@ a.clip{text-decoration:none;margin-left:6px}
 
   <div class="bar hidden" id="roBanner"><span id="roTxt"></span></div>
 
-  <nav class="tabs">
+  <nav class="tabs" id="tabsNav">
     <button class="tab on" data-tab="resumen">Resumen</button>
     <button class="tab" data-tab="movs">Movimientos</button>
     <button class="tab" data-tab="analisis">Análisis</button>
@@ -369,10 +425,10 @@ a.clip{text-decoration:none;margin-left:6px}
 
   <!-- RESUMEN -->
   <section id="tab-resumen">
-    <div class="hero"><div class="kpis" id="kpis"></div><p class="kline" id="kline"></p></div>
+    <div class="hero"><div class="kpis" id="kpis"></div><p class="kline" id="kline"></p><p class="proj hidden" id="proj"></p></div>
     <div class="ai" id="aiCard">
       <div class="row">
-        <textarea id="aiTxt" rows="1" placeholder="Escribe o dicta un gasto, o sube tu estado de cuenta…"></textarea>
+        <textarea id="aiTxt" rows="1" placeholder="Gasto o pregunta…" title="Escribe o dicta un gasto (“200 de tacos”) o pregunta algo (“¿cuánto gasté en Rappi?”)"></textarea>
         <div class="btns">
           <button class="mic" id="aiMic" title="Dictar con el micrófono">🎤</button>
           <button class="mic" id="aiPhoto" title="Subir estado de cuenta, ticket o captura (foto o PDF)">📄</button>
@@ -382,6 +438,7 @@ a.clip{text-decoration:none;margin-left:6px}
       </div>
       <div class="quick" id="aiFiles"></div>
       <div class="msg" id="aiMsg"></div>
+      <div class="ans" id="aiAns"></div>
       <div class="prev hidden" id="aiPrev"></div>
     </div>
     <div class="grid">
@@ -400,7 +457,7 @@ a.clip{text-decoration:none;margin-left:6px}
           <p class="sub" id="tcSub" style="margin:6px 0 0"></p>
         </div>
         <div class="card hidden" id="cobCard">
-          <div class="cardhead"><h2>Por cobrar</h2><span class="tab-num" id="cobTot" style="font-size:14px;color:var(--good-ink);font-weight:600"></span></div>
+          <div class="cardhead"><h2>Cuentas con amigos</h2><span class="sub" id="cobTot" style="margin:0"></span><button class="btn small ghost" id="cobAdd" title="Anotar un préstamo o una deuda">+ Préstamo</button></div>
           <div id="cobList"></div>
         </div>
         <div class="card hidden" id="metasCard">
@@ -418,8 +475,9 @@ a.clip{text-decoration:none;margin-left:6px}
   <!-- MOVIMIENTOS -->
   <section id="tab-movs" class="hidden">
     <div class="card">
+      <div class="tags" id="tagBar"></div>
       <div class="tools">
-        <input type="search" id="q" placeholder="Buscar…">
+        <input type="search" id="q" placeholder="Buscar… (o #etiqueta)">
         <select id="fTipo"><option value="">Gastos e ingresos</option><option>Gasto</option><option>Ingreso</option></select>
         <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink2)"><input type="checkbox" id="fPeriodo" checked> Solo este periodo</label>
       </div>
@@ -430,6 +488,10 @@ a.clip{text-decoration:none;margin-left:6px}
   <!-- ANÁLISIS -->
   <section id="tab-analisis" class="hidden">
     <div class="grid">
+      <div class="card span2" id="iaResCard">
+        <div class="cardhead"><h2>Resumen del periodo</h2><button class="btn small" id="iaResGo">Resumir con IA</button></div>
+        <div class="iares" id="iaRes"></div>
+      </div>
       <div class="card">
         <h2 id="paceTitle">Ritmo de gasto del periodo</h2>
         <p class="sub" id="paceSub"></p>
@@ -459,35 +521,64 @@ a.clip{text-decoration:none;margin-left:6px}
       <div class="actions" style="justify-content:flex-start"><button class="btn small ghost" id="addCat">+ Agregar categoría</button></div>
     </div>
     <div class="card" id="recCard">
-      <h2>Pagos recurrentes</h2>
+      <div class="cardhead"><h2>Pagos recurrentes</h2><button class="btn small ghost" id="recIcs" title="Descarga un archivo para tu calendario: te avisa un día antes de cada pago">📅 Al calendario</button></div>
       <div class="tablewrap" id="recTable"></div>
       <div class="actions" style="justify-content:flex-start"><button class="btn small ghost" id="addRec">+ Agregar pago recurrente</button></div>
     </div>
-    <div class="card">
+    <div class="card" id="metaCard">
       <h2>Metas de ahorro</h2>
       <div class="tablewrap" id="metaTable"></div>
       <div class="actions" style="justify-content:flex-start"><button class="btn small ghost" id="addMeta">+ Agregar meta</button></div>
     </div>
-    <div class="card" id="cfgCard">
-      <h2>Configuración</h2>
-      <div class="cfg">
+    </div>
+  </section>
+
+  <!-- CONFIGURACIÓN (botón ⚙) -->
+  <section id="tab-cfg" class="hidden">
+    <h2 style="font-size:17px;margin:0 2px 12px;font-weight:650">Configuración</h2>
+    <div class="cfgsec">
+    <div class="card">
+      <h2>General</h2>
+      <label class="chkrow"><input type="checkbox" id="cfgSimple"><span>Modo sencillo<small>Muestra solo lo básico: cuánto te queda, tus categorías y tus movimientos. Las demás funciones siguen ahí, solo se esconden.</small></span></label>
+      <label class="chkrow"><input type="checkbox" id="cfgBig"><span>Letra grande<small>Solo en este dispositivo.</small></span></label>
+      <div class="cfg" style="margin-top:8px">
         <label>Ver el periodo por<select id="cfgMode"><option value="corte">Corte de tarjeta</option><option value="mes">Mes calendario</option></select></label>
-        <label>Día de corte<input type="number" min="1" max="31" id="cfgCorte"></label>
-        <label>Días para pagar después del corte<input type="number" min="0" max="60" id="cfgPago"></label>
+        <label id="cfgCorteWrap">Día de corte de tu tarjeta<input type="number" min="1" max="31" id="cfgCorte"></label>
+        <label class="full-only">“Te queda” se calcula con<select id="cfgBase"><option value="esperado">Lo que espero ganar</option><option value="real">Solo lo que ya me entró</option></select></label>
+      </div>
+      <div class="actions" style="justify-content:flex-start"><button class="btn small ghost" id="cfgTour">Ver el tutorial otra vez</button></div>
+    </div>
+    <div class="card full-only">
+      <h2>Tarjetas de crédito</h2>
+      <p class="sub">La primera es la principal: con su corte se arma el periodo. Si tienes varias, al registrar un gasto eliges con cuál pagaste.</p>
+      <div class="tablewrap" id="tjTable"></div>
+      <div class="actions" style="justify-content:flex-start"><button class="btn small ghost" id="addTj">+ Agregar tarjeta</button></div>
+    </div>
+    <div class="card full-only">
+      <h2>Gastos compartidos y regla 50/30/20</h2>
+      <div class="cfg">
         <label>Roomies (separados por coma)<input type="text" id="cfgRoomies" placeholder="ej. Juan, Pedro"></label>
         <label>Meta Necesidad %<input type="number" min="0" max="100" id="cfgN"></label>
         <label>Meta Gusto %<input type="number" min="0" max="100" id="cfgG"></label>
         <label>Meta Ahorro %<input type="number" min="0" max="100" id="cfgA"></label>
       </div>
-      <h2 class="h2b">Captura con IA (Gemini)</h2>
-      <p class="sub">Saca una clave gratis en <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> (botón “Create API key”) y pégala aquí. Es tuya, no se comparte con nadie; se guarda en tu cuenta (sirve en la compu y en el celular).</p>
+    </div>
+    <div class="card">
+      <h2>Inteligencia artificial (Gemini)</h2>
+      <p class="sub">Para escribir o dictar gastos, leer tickets y estados de cuenta, y hacerle preguntas a tus datos. Saca una clave gratis en <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> (botón “Create API key”) y pégala aquí. Es tuya, no se comparte con nadie; se guarda en tu cuenta (sirve en la compu y en el celular).</p>
       <div class="cfg">
         <label>Clave de Gemini<input type="password" id="cfgKey" autocomplete="off" placeholder="AIza…"></label>
-        <label>Modelo (opcional)<input type="text" id="cfgModel" placeholder="automático"></label>
+        <label class="full-only">Modelo (opcional)<input type="text" id="cfgModel" placeholder="automático"></label>
       </div>
       <p class="sub" id="cfgKeyMsg" style="margin-top:6px"></p>
-      <div class="actions" style="justify-content:flex-start"><button class="btn small" id="btnBackup">Descargar copia en Excel (.xlsx)</button></div>
-      <h2 style="margin-top:16px">Tu cuenta</h2>
+    </div>
+    <div class="card">
+      <h2>Respaldo</h2>
+      <p class="sub" id="bkSub">Descarga todo en Excel de vez en cuando. Si algo falla, con ese archivo recuperas tus datos.</p>
+      <div class="actions" style="justify-content:flex-start"><button class="btn small" id="btnBackup">Descargar copia en Excel (.xlsx)</button><button class="btn small ghost" id="btnRestore">Restaurar desde un respaldo…</button><input type="file" id="restoreFile" accept=".xlsx" hidden></div>
+    </div>
+    <div class="card">
+      <h2>Tu cuenta</h2>
       <p class="sub"><span id="cfgCuenta"></span> Para usar la app en otro celular o compu, ábrela ahí y entra con la misma cuenta de Google.</p>
       <div class="actions" style="justify-content:flex-start"><button class="btn small" id="btnSalir">Salir de esta cuenta</button></div>
     </div>
@@ -506,8 +597,9 @@ a.clip{text-decoration:none;margin-left:6px}
 <!-- Modal movimiento -->
 <div class="backdrop" id="modalBg">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
-    <h3 id="mTitle">Nuevo movimiento</h3>
+    <div class="mhead"><h3 id="mTitle">Nuevo movimiento</h3><button class="btn small ghost" id="mFoto" title="Toma o elige la foto de un ticket y la IA lo captura">📷 Ticket</button><input type="file" id="mFotoFile" accept="image/*" capture="environment" hidden></div>
     <div class="form">
+      <div class="full quick freq hidden" id="mFreq"></div>
       <div class="full"><div class="seg" id="mTipo"><button data-t="Gasto">Gasto</button><button data-t="Ingreso">Ingreso</button></div></div>
       <label class="full">Monto (MXN)<input type="number" step="0.01" min="0" class="amount" id="mMonto" inputmode="decimal" placeholder="0.00"></label>
       <label class="full">¿En qué?<input type="text" id="mDesc" list="descList" autocomplete="off" placeholder="ej. Rappi, HEB, gasolina…"></label>
@@ -516,7 +608,7 @@ a.clip{text-decoration:none;margin-left:6px}
       <button type="button" class="full morebtn" id="mMoreBtn" aria-expanded="false"><span id="mMoreTxt"></span><b id="mMoreLbl">Cambiar ▾</b></button>
       <div class="full form hidden" id="mMore">
       <label>Fecha<input type="date" id="mFecha"></label>
-      <label>Método de pago<select id="mMetodo"><option>Tarjeta de crédito</option><option>Débito</option><option>Efectivo</option><option>Transferencia</option></select></label>
+      <label>Método de pago<select id="mMetodo"></select></label>
       <div class="full msi" id="mMsiWrap"><label>Meses sin intereses<select id="mMeses"><option value="1">De contado</option><option>3</option><option>6</option><option>9</option><option>12</option><option>18</option><option>24</option></select></label><span class="hint" id="mMsiHint"></span></div>
       <div class="full per" id="mPerWrap">
         <span>Periodo del recibo <i style="color:var(--muted);font-style:normal">(opcional: luz, agua, gas… de qué meses es el consumo)</i></span>
@@ -531,6 +623,8 @@ a.clip{text-decoration:none;margin-left:6px}
           <div class="paid" id="mPaid"></div>
         </div>
       </div>
+      <label class="full" id="mTagWrap">Etiquetas <i style="color:var(--muted);font-style:normal">(opcional: para sumar un viaje, una boda… aunque mezcle categorías)</i><input type="text" id="mTags" list="tagList" autocomplete="off" placeholder="ej. viaje-cancun"></label>
+      <datalist id="tagList"></datalist>
       <div class="full share" id="mRecWrap">
         <label class="chk"><input type="checkbox" id="mRepeat"> Se repite cada mes</label><span class="hint" id="mRecHint"></span>
       </div>
@@ -546,6 +640,14 @@ a.clip{text-decoration:none;margin-left:6px}
     </div>
   </div>
 </div>
+
+<!-- Ventana de una persona (cuentas con amigos) -->
+<div class="backdrop" id="pBg">
+  <div class="modal" role="dialog" aria-modal="true" id="pBody"></div>
+</div>
+
+<!-- Tutorial de la primera vez -->
+<div id="tour"><div class="modal" role="dialog" aria-modal="true" id="tourBody"></div></div>
 
 <div id="tip"></div>
 <div id="toast"></div>
@@ -605,12 +707,26 @@ const dayDiff = (a,b) => Math.round((b-a)/864e5);
 
 // ---------- estado ----------
 const S = {
-  movs:[], cats:[], recs:[], cfg:{DiaCorte:11,DiasPago:20,MetaNecesidad:50,MetaGusto:30,MetaAhorro:20,Roomies:''}, metas:[],
+  movs:[], cats:[], recs:[], cfg:{DiaCorte:11,DiasPago:20,MetaNecesidad:50,MetaGusto:30,MetaAhorro:20,Roomies:'',Simple:0,BaseIngreso:'esperado'}, metas:[],
+  tarjetas:[{nombre:'Principal',corte:11,pago:20}], deudas:[],
   dirty:false, nextId:1, remoteVer:'', gemKey:'', sheetUrl:'', exportUrl:'',
   mode: lsGet('pres.mode')==='mes' ? 'mes' : 'corte',
   P:0, selCat:null, selGroup:null, tab:'resumen', ver:0
 };
 const cutDay = (y,m) => Math.min(Math.max(1,Math.round(S.cfg.DiaCorte)||11), daysIn(y,m));
+const simple = () => !!S.cfg.Simple;
+// Tarjetas de crédito: cada una con su día de corte y días para pagar. La primera es la principal (arma el periodo).
+const tjDia = (t,y,m) => Math.min(Math.max(1,Math.round(t.corte)||11), daysIn(y,m));
+function tjIdx(d,t){ const y=d.getFullYear(), m=d.getMonth(); return y*12+m+(d.getDate()>tjDia(t,y,m)?1:0); }
+function tjEnd(i,t){ const y=Math.floor(i/12), m=i%12; return new Date(y,m,tjDia(t,y,m)); }
+const tjOf = m => S.tarjetas.find(t=>t.nombre===m.tarjeta) || S.tarjetas[0];
+// En los <select> de método, la tarjeta va pegada: "Tarjeta de crédito|BBVA"
+const TC = 'Tarjeta de crédito';
+const metVal = (metodo, tarjeta) => norm(metodo).includes('credito') ? TC+'|'+(tarjeta||S.tarjetas[0].nombre) : (metodo||'');
+const metParse = v => { const [metodo,tarjeta]=String(v||'').split('|'); const tc=norm(metodo).includes('credito'); return {metodo: tc?TC:(metodo||''), tarjeta: tc?(tarjeta||S.tarjetas[0].nombre):''}; };
+const metLbl = m => norm(m.metodo).includes('credito') && S.tarjetas.length>1 ? '💳 '+tjOf(m).nombre : (m.metodo||'');
+// Etiquetas: palabras sueltas, sin # ni acentos ("viaje-cancun")
+const splitTags = v => [...new Set(String(v??'').split(/[\s,#;]+/).map(x=>norm(x).replace(/[^a-z0-9ñ_-]/g,'')).filter(Boolean))];
 // Indice de periodo: año*12+mes. En modo corte, el periodo se nombra por el mes en que cae el corte.
 function idxOf(d, mode=S.mode){
   const y=d.getFullYear(), m=d.getMonth(); let i=y*12+m;
@@ -629,7 +745,7 @@ function labelOf(i){
   return `${shortDate(a)} – ${shortDate(b)} ${b.getFullYear()}`;
 }
 const shortLabelOf = i => S.mode==='corte' ? `corte ${shortDate(rangeOf(i)[1])}` : `${MESES[i%12]} ${String(Math.floor(i/12)).slice(2)}`;
-const cutDateOf = d => { const i=idxOf(d,'corte'); return rangeOf(i,'corte')[1]; };
+const cutDateOf = (d, t=S.tarjetas[0]) => tjEnd(tjIdx(d,t),t);
 
 // ---------- categorías / presupuesto ----------
 const catByName = n => S.cats.find(c=>c.nombre===n);
@@ -709,10 +825,11 @@ function expanded(){
   XCACHE={ver:S.ver,list}; return list;
 }
 const isTC = m => norm(m.metodo).includes('credito');
-const lastMethod = cat => { let r=null; for(const m of S.movs) if(m.cat===cat && m.metodo && (!r||m.fecha>=r.fecha)) r=m; return r?.metodo; };
+const lastMethod = cat => { let r=null; for(const m of S.movs) if(m.cat===cat && m.metodo && (!r||m.fecha>=r.fecha)) r=m; return r ? metVal(r.metodo,r.tarjeta) : undefined; };
 function defDate(){ const [a,b]=rangeOf(S.P); const td=today(); return (td>=a&&td<=b)?td:b; }
 const isFondo = c => norm(c.nombre).includes('fondo');
 
+// ---------- leer / escribir los datos (capa de Firebase: capa_firebase.js) ----------
 // ---------- datos en Firebase (Firestore), cada quien con su cuenta de Google ----------
 // usuarios/{uid}                 {ver, email, enc (encabezados de Movimientos), gem (clave Gemini)}
 // usuarios/{uid}/hojas/{nombre}  {filas: JSON}  Categorías, Config, Metas
@@ -815,11 +932,23 @@ async function fbSubirFoto(b64, mime, nombre){
   return 'foto:'+id;
 }
 
+// Sin internet: lo que no se pudo subir se queda en este dispositivo (localStorage, por usuario) y se sube al volver.
+// {hojas, ver}: ver = la versión de la nube sobre la que se hicieron los cambios (para saber si alguien más guardó).
+const PEND = {
+  k: () => 'pres.pend.'+ME.uid,
+  get(){ try{ return JSON.parse(localStorage.getItem(this.k())||'null'); }catch(e){ return null; } },
+  set(hojas, ver){ try{ localStorage.setItem(this.k(), JSON.stringify({hojas, ver:ver||0, t:Date.now()})); }catch(e){} },
+  clear(){ try{ localStorage.removeItem(this.k()); }catch(e){} }
+};
+
 async function gs(fn, ...args){
   try{
     if(fn==='cargar') return await fbCargar();
     if(fn==='version'){ const u=await FBX.get(upath(),true); return u?.ver||0; }
-    if(fn==='guardar') return await fbGuardar(...args);
+    if(fn==='guardar'){
+      try{ const r=await fbGuardar(...args); PEND.clear(); return r; }
+      catch(e){ PEND.set(args[0], args[2]); throw e; }
+    }
     if(fn==='guardarClave'){ sinRed(); await conTiempo(FBX.set(upath(),{gem:args[0]||''})); return true; }
     if(fn==='subirComprobante') return await fbSubirFoto(...args);
   }catch(e){ throw fbErr(e); }
@@ -846,7 +975,17 @@ function loadData(hojas){
   })).filter(c=>c.nombre) : [];
   cats.forEach(c=>{ if(c.tipo==='Ingreso') c.grupo='Ingreso'; });
   const cfg = {...S.cfg};
-  if(wk) rowsOf(wk).forEach(r=>{ const k=String(r['clave']).trim(); if(k in cfg) cfg[k]= k==='Roomies' ? String(r['valor']??'').trim() : num(r['valor']); });
+  if(wk) rowsOf(wk).forEach(r=>{ const k=String(r['clave']).trim(); if(k in cfg) cfg[k]= typeof S.cfg[k]==='string' ? String(r['valor']??'').trim() : num(r['valor']); });
+  if(cfg.BaseIngreso!=='real') cfg.BaseIngreso='esperado';
+  const wj = findSheet(hojas,'Tarjetas');
+  let tarjetas = wj ? rowsOf(wj).map(r=>({nombre:String(r['nombre']??'').trim(), corte:Math.min(31,Math.max(1,Math.round(num(r['dia de corte']))||11)),
+    pago:Math.min(60,Math.max(0,Math.round(num(r['dias para pagar']))))})).filter(t=>t.nombre) : [];
+  tarjetas = tarjetas.filter((t,i)=>tarjetas.findIndex(x=>x.nombre===t.nombre)===i);
+  if(!tarjetas.length) tarjetas=[{nombre:'Principal',corte:cfg.DiaCorte||11,pago:cfg.DiasPago??20}];
+  cfg.DiaCorte=tarjetas[0].corte; cfg.DiasPago=tarjetas[0].pago;   // la principal manda en el periodo
+  const wd = findSheet(hojas,'Deudas');
+  const deudas = wd ? rowsOf(wd).map(r=>({id:String(r['id']??'').trim()||newRecId(), persona:String(r['persona']??'').trim(), concepto:String(r['concepto']??'').trim(),
+    tipo:norm(r['tipo'])==='le debo'?'Le debo':'Me debe', monto:Math.abs(num(r['monto'])), pagado:Math.abs(num(r['pagado'])), fecha:parseDate(r['fecha'])||today()})).filter(d=>d.persona && d.monto) : [];
   let id=1;
   const movs = rowsOf(wm).map(r=>({
     id:id++, fecha:parseDate(r['fecha']), tipo: norm(r['tipo'])==='ingreso'?'Ingreso':'Gasto',
@@ -860,12 +999,13 @@ function loadData(hojas){
       return {pdel:del, pal:al}; })(),
     entre:Math.max(1,Math.round(num(r['compartido entre'])))||1,
     con:String(r['con']??'').trim(), reemb:splitNames(r['reembolsado por']),
-    comp:splitComp(r['comprobante']), rec:String(r['recurrente']??'').trim()
+    comp:splitComp(r['comprobante']), rec:String(r['recurrente']??'').trim(),
+    tarjeta:String(r['tarjeta']??'').trim(), tags:splitTags(r['etiquetas'])
   })).filter(m=>m.fecha && m.monto);
   const wr = findSheet(hojas,'Recurrentes');
   const recs = wr ? rowsOf(wr).map(r=>({id:String(r['id']??'').trim(), nombre:String(r['nombre']??'').trim(), cat:String(r['categoria']??'').trim(),
     monto:Math.abs(num(r['monto'])), metodo:String(r['metodo de pago']??'').trim(), cada:norm(r['cada'])==='quincena'?'Quincena':norm(r['cada'])==='ano'?'Año':'Mes', mes:Math.min(12,Math.max(1,Math.round(num(r['mes']))||1)),
-    dia:Math.min(31,Math.max(0,Math.round(num(r['dia'])))), activo:norm(r['activo'])!=='no', desde:parseYM(r['desde'])})).filter(x=>x.nombre) : null;
+    dia:Math.min(31,Math.max(0,Math.round(num(r['dia'])))), activo:norm(r['activo'])!=='no', desde:parseYM(r['desde']), tarjeta:String(r['tarjeta']??'').trim()})).filter(x=>x.nombre) : null;
   if(recs) recs.forEach(x=>{ if(!x.id || recs.filter(y=>y.id===x.id).length>1) x.id=newRecId(); });
   const wt = findSheet(hojas,'Metas');
   const metas = wt ? rowsOf(wt).map(r=>({nombre:String(r['meta']).trim(), objetivo:num(r['objetivo']), fecha:parseDate(r['fecha limite'])})).filter(x=>x.nombre) : [];
@@ -874,7 +1014,8 @@ function loadData(hojas){
   movs.forEach(m=>{ if(!cats.some(c=>c.nombre===m.cat)) cats.push({nombre:m.cat,tipo:m.tipo,grupo:m.tipo==='Ingreso'?'Ingreso':'Gusto',mensual:0,anual:0,nota:''}); });
   // sin hoja "Recurrentes" todavía: las categorías marcadas como "Fijo" (versión anterior) se pasan a pagos recurrentes
   S.migrated = !recs && cats.some(c=>c.fijo);
-  S.movs=movs; S.cats=cats; S.cfg=cfg; S.metas=metas; S.nextId=id; S.recs=recs || migrarFijos(cats,movs); S.ver++;
+  S.movs=movs; S.cats=cats; S.cfg=cfg; S.metas=metas; S.nextId=id; S.tarjetas=tarjetas; S.deudas=deudas; S.recs=recs || migrarFijos(cats,movs); S.ver++;
+  document.body.classList.toggle('simple', simple());
 }
 let recSeq=0;
 const newRecId = () => 'r'+Date.now().toString(36)+(recSeq++).toString(36);
@@ -903,24 +1044,30 @@ function migrarFijos(cats, movs){
 function buildSheets(){
   const MON='"$"#,##0.00', DAT='yyyy-mm-dd', TXT='@';
   const movs=[...S.movs].sort((a,b)=>a.fecha-b.fecha || a.id-b.id);
-  const desc={DiaCorte:'Día de corte de la tarjeta',DiasPago:'Días después del corte para pagar la tarjeta (fecha límite)',MetaNecesidad:'Regla 50/30/20: % del ingreso para necesidades',MetaGusto:'% del ingreso para gustos',MetaAhorro:'% del ingreso para ahorro',Roomies:'Nombres de con quién compartes gastos, separados por coma'};
+  const desc={DiaCorte:'Día de corte de la tarjeta principal',DiasPago:'Días después del corte para pagar la tarjeta principal (fecha límite)',MetaNecesidad:'Regla 50/30/20: % del ingreso para necesidades',MetaGusto:'% del ingreso para gustos',MetaAhorro:'% del ingreso para ahorro',Roomies:'Nombres de con quién compartes gastos, separados por coma',
+    Simple:'1 = modo sencillo (se esconden las funciones avanzadas)',BaseIngreso:'"esperado" o "real": con qué ingreso se calcula lo que te queda'};
+  const multi=S.tarjetas.length>1, tjDe = x => norm(x.metodo).includes('credito') && multi ? tjOf(x).nombre : '';
   const hojas={
-    'Movimientos':[["Fecha","Tipo","Descripción","Categoría","Monto","Método de pago","Meses","Corte","Periodo del","Periodo al","Compartido entre","Con","Reembolsado por","Comprobante","Recurrente"],
-      ...movs.map(m=>{ const sh=m.entre>1; return [toSerial(m.fecha),m.tipo,m.desc,m.cat,m.monto,m.metodo,m.meses>1?m.meses:'',toSerial(cutDateOf(m.fecha)),
+    'Movimientos':[["Fecha","Tipo","Descripción","Categoría","Monto","Método de pago","Meses","Corte","Periodo del","Periodo al","Compartido entre","Con","Reembolsado por","Comprobante","Recurrente","Tarjeta","Etiquetas"],
+      ...movs.map(m=>{ const sh=m.entre>1; return [toSerial(m.fecha),m.tipo,m.desc,m.cat,m.monto,m.metodo,m.meses>1?m.meses:'',toSerial(cutDateOf(m.fecha,tjOf(m))),
         hasPer(m)?toSerial(m.pdel):'', hasPer(m)?toSerial(m.pal):'', sh?m.entre:'', sh?personas(m).join(', '):'', sh?(m.reemb||[]).filter(p=>personas(m).includes(p)).join(', '):'',
-        (m.comp||[]).join('\n'), m.rec||'']; })],
+        (m.comp||[]).join('\n'), m.rec||'', tjDe(m), (m.tags||[]).join(', ')]; })],
     'Categorías':[["Categoría","Tipo","Grupo","Presupuesto mensual","Monto anual","Nota"],
       ...S.cats.map(c=>[c.nombre,c.tipo,c.grupo,c.mensual||'',c.anual||'',c.nota||''])],
-    'Recurrentes':[["Id","Nombre","Categoría","Monto","Método de pago","Cada","Día","Mes","Activo","Desde"],
-      ...S.recs.map(r=>[r.id,r.nombre,r.cat,r.monto||'',r.metodo||'',r.cada,r.cada!=='Quincena'&&r.dia?r.dia:'',r.cada==='Año'?r.mes:'',r.activo?'Sí':'No',ymStr(r.desde)])],
+    'Recurrentes':[["Id","Nombre","Categoría","Monto","Método de pago","Cada","Día","Mes","Activo","Desde","Tarjeta"],
+      ...S.recs.map(r=>[r.id,r.nombre,r.cat,r.monto||'',r.metodo||'',r.cada,r.cada!=='Quincena'&&r.dia?r.dia:'',r.cada==='Año'?r.mes:'',r.activo?'Sí':'No',ymStr(r.desde),tjDe(r)])],
     'Config':[["Clave","Valor","Descripción"],...Object.keys(desc).map(k=>[k,S.cfg[k]??'',desc[k]])],
-    'Metas':[["Meta","Objetivo","Fecha límite"],...S.metas.map(m=>[m.nombre,m.objetivo||'',m.fecha?toSerial(m.fecha):''])]
+    'Metas':[["Meta","Objetivo","Fecha límite"],...S.metas.map(m=>[m.nombre,m.objetivo||'',m.fecha?toSerial(m.fecha):''])],
+    'Tarjetas':[["Nombre","Día de corte","Días para pagar"],...S.tarjetas.map(t=>[t.nombre,t.corte,t.pago])],
+    'Deudas':[["Id","Persona","Concepto","Tipo","Monto","Pagado","Fecha"],...S.deudas.map(d=>[d.id,d.persona,d.concepto,d.tipo,d.monto,d.pagado||'',toSerial(d.fecha)])]
   };
   const formatos={
-    'Movimientos':{0:DAT,1:TXT,2:TXT,3:TXT,4:MON,5:TXT,7:DAT,8:'yyyy-mm',9:'yyyy-mm',11:TXT,12:TXT,13:TXT,14:TXT},
+    'Movimientos':{0:DAT,1:TXT,2:TXT,3:TXT,4:MON,5:TXT,7:DAT,8:'yyyy-mm',9:'yyyy-mm',11:TXT,12:TXT,13:TXT,14:TXT,15:TXT,16:TXT},
     'Categorías':{0:TXT,1:TXT,2:TXT,3:MON,4:MON,5:TXT},
-    'Recurrentes':{0:TXT,1:TXT,2:TXT,3:MON,4:TXT,5:TXT,8:TXT,9:TXT},
-    'Metas':{0:TXT,1:MON,2:DAT}
+    'Recurrentes':{0:TXT,1:TXT,2:TXT,3:MON,4:TXT,5:TXT,8:TXT,9:TXT,10:TXT},
+    'Metas':{0:TXT,1:MON,2:DAT},
+    'Tarjetas':{0:TXT},
+    'Deudas':{0:TXT,1:TXT,2:TXT,3:TXT,4:MON,5:MON,6:DAT}
   };
   return {hojas,formatos};
 }
@@ -940,16 +1087,20 @@ async function saveOnce(){
     const r=await gs('guardar',hojas,formatos,S.remoteVer);
     if(r.conflict){
       loadData(r.hojas); S.remoteVer=r.ver; S.dirty=false; again=false; fixSelection(); render();
-      setStatus('err','En la nube · se cargaron cambios de otro dispositivo');
-      toast('Mientras tanto se guardaron cambios desde otro dispositivo . Para no borrarlos cargué lo más nuevo: vuelve a hacer tu último cambio.',true);
+      setStatus('err','Se cargaron cambios de otro dispositivo');
+      toast('Mientras tanto se guardaron cambios desde otro dispositivo. Para no borrarlos cargué lo más nuevo: vuelve a hacer tu último cambio.',true);
       return false;
     }
     S.remoteVer=r.ver; if(!again) S.dirty=false;
     setStatus('ok',`En la nube · guardado ${hora()}`);
     return true;
   }catch(e){
-    S.dirty=true; setStatus('err','Sin guardar');
-    toast('No se pudo guardar ('+(e.message||e)+'). Revisa tu internet y da clic en "Guardar".',true);
+    S.dirty=true;
+    // sin internet: la capa de datos deja una copia en este dispositivo y se sube sola al volver la conexión
+    const off = navigator.onLine===false || /conexi/i.test(e.message||'');
+    setStatus('err', off ? 'Sin internet · guardado en este dispositivo' : 'Sin guardar');
+    if(off){ if(!saveOnce.avisado){ saveOnce.avisado=true; toast('Sin internet: lo que captures se queda en este dispositivo y se sube solo cuando vuelva la conexión.'); } }
+    else toast('No se pudo guardar ('+(e.message||e)+'). Revisa tu internet y da clic en "Guardar".',true);
     return false;
   }
 }
@@ -1020,11 +1171,61 @@ async function boot(){
       W('impLink').value=lsGet('pres.impLink')||'';
       return wShow(`Hola ${ME.nombre.split(' ')[0]}. ¿Cómo quieres empezar?`,'nuevo','btnOut');
     }
-    applyLoad(r); startApp(); cargarInvitados();
+    applyLoad(r);
+    const subir = pendientesSinRed(r);
+    startApp(); cargarInvitados(); avisoRespaldo();
+    if(subir) changed();
   }catch(e){
     if(e.noInv) return wShow(e.message,'btnOut');
     wShow('No pude cargar tus datos: '+(e.message||e),'btnRetry','btnOut');
   }
+}
+// Cambios que se hicieron sin internet y no se alcanzaron a subir (ver PEND en capa_firebase.js).
+// Si nadie guardó desde entonces, se usan tal cual; si sí, se agregan solo los movimientos que no están en la nube.
+// Regresa true si hay que guardar.
+function pendientesSinRed(r){
+  const p=PEND.get(); if(!p) return false;
+  try{
+    if((p.ver||0)===(r.ver||0)){
+      loadData(p.hojas); toast('Se subieron los cambios que hiciste sin internet.'); return true;
+    }
+    loadData(p.hojas); const mios=S.movs;
+    applyLoad(r);
+    const k=m=>[isoDate(m.fecha),m.tipo,m.monto,norm(m.desc),m.cat].join('|'), hay=new Set(S.movs.map(k));
+    const nuevos=mios.filter(m=>!hay.has(k(m)));
+    nuevos.forEach(m=>{ m.id=S.nextId++; S.movs.push(m); });
+    PEND.clear();
+    if(nuevos.length){ S.ver++; toast(`Se agregaron ${nuevos.length} movimiento${nuevos.length>1?'s':''} que capturaste sin internet.`); return true; }
+  }catch(e){ applyLoad(r); PEND.clear(); }
+  return false;
+}
+// Recordatorio mensual de descargar el respaldo en Excel
+function avisoRespaldo(){
+  const lb=+lsGet('pres.backup')||0, ya=+lsGet('pres.backupAviso')||0, dia=864e5;
+  if(S.movs.length<20 || Date.now()-lb<30*dia || Date.now()-ya<7*dia) return;
+  lsSet('pres.backupAviso',Date.now());
+  setTimeout(()=>{ W('roTxt').textContent='Ya pasó un mes desde tu último respaldo. ¿Lo descargamos? (es un Excel con todos tus datos)';
+    W('roBanner').querySelector('button')?.remove();
+    W('roBanner').append(el('button',{class:'btn small',text:'Descargar',onclick:()=>{ W('roBanner').classList.add('hidden'); descargarExcel(); }}),
+      el('button',{class:'btn small ghost',style:{marginLeft:'4px'},text:'Ahora no',onclick:()=>W('roBanner').classList.add('hidden')}));
+    W('roBanner').classList.remove('hidden'); }, 1500);
+}
+// Aviso de versión nueva: el service worker se revisa al volver a la app; si cambió, se ofrece recargar
+function swInit(){
+  if(!('serviceWorker' in navigator)) return;
+  let tenia=!!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register('sw.js').then(reg=>{
+    document.addEventListener('visibilitychange',()=>{ if(!document.hidden) reg.update().catch(()=>{}); });
+  }).catch(()=>{});
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(!tenia){ tenia=true; return; }   // primera instalación: no hace falta avisar
+    if(performance.now()<15000) return; // recién abierta: la página ya se bajó nueva (el service worker es "primero la red")
+    if(W('app').classList.contains('hidden')) return location.reload();
+    W('roTxt').textContent='Hay una versión nueva de la app.';
+    W('roBanner').querySelectorAll('button').forEach(b=>b.remove());
+    W('roBanner').append(el('button',{class:'btn small primary',text:'Actualizar',onclick:async()=>{ if(S.dirty) await save(); location.reload(); }}));
+    W('roBanner').classList.remove('hidden');
+  });
 }
 W('btnLogin').onclick=async()=>{
   try{ await FBX.signIn(); boot(); }
@@ -1038,14 +1239,31 @@ W('btnLogin').onclick=async()=>{
 W('btnRetry').onclick=()=>boot();
 W('btnOut').onclick=async()=>{ await FBX.signOut(); location.reload(); };
 
-// Categorías para quien empieza desde cero (los montos los pone cada quien)
-const CATS_INICIALES = [
-  ['Sueldo','Ingreso','Ingreso'],['Otros ingresos','Ingreso','Ingreso'],
-  ['Renta o hipoteca','Gasto','Necesidad'],['Servicios (agua, luz, gas, internet)','Gasto','Necesidad'],['Teléfono','Gasto','Necesidad'],
-  ['Súper y despensa','Gasto','Necesidad'],['Transporte y gasolina','Gasto','Necesidad'],['Salud y farmacia','Gasto','Necesidad'],
-  ['Imprevistos','Gasto','Necesidad'],['Comida fuera','Gasto','Gusto'],['Salidas y gustos','Gasto','Gusto'],
-  ['Entretenimiento','Gasto','Gusto'],['Ropa','Gasto','Gusto'],['Fondo de emergencia','Gasto','Ahorro'],['Otros','Gasto','Gusto']
-];
+// Categorías para quien empieza desde cero, según su situación (los montos los pone cada quien)
+const PLANTILLAS = {
+  general:[
+    ['Sueldo','Ingreso','Ingreso'],['Otros ingresos','Ingreso','Ingreso'],
+    ['Renta o hipoteca','Gasto','Necesidad'],['Servicios (agua, luz, gas, internet)','Gasto','Necesidad'],['Teléfono','Gasto','Necesidad'],
+    ['Súper y despensa','Gasto','Necesidad'],['Transporte y gasolina','Gasto','Necesidad'],['Salud y farmacia','Gasto','Necesidad'],
+    ['Imprevistos','Gasto','Necesidad'],['Comida fuera','Gasto','Gusto'],['Salidas y gustos','Gasto','Gusto'],
+    ['Entretenimiento','Gasto','Gusto'],['Ropa','Gasto','Gusto'],['Fondo de emergencia','Gasto','Ahorro'],['Otros','Gasto','Gusto']],
+  estudiante:[
+    ['Mesada o beca','Ingreso','Ingreso'],['Trabajos extra','Ingreso','Ingreso'],
+    ['Renta o cuarto','Gasto','Necesidad'],['Colegiatura y escuela','Gasto','Necesidad'],['Transporte','Gasto','Necesidad'],
+    ['Comida y despensa','Gasto','Necesidad'],['Teléfono','Gasto','Necesidad'],['Comida fuera','Gasto','Gusto'],
+    ['Salidas y fiestas','Gasto','Gusto'],['Suscripciones y juegos','Gasto','Gusto'],['Ropa','Gasto','Gusto'],['Ahorro','Gasto','Ahorro'],['Otros','Gasto','Gusto']],
+  familia:[
+    ['Sueldo','Ingreso','Ingreso'],['Sueldo de mi pareja','Ingreso','Ingreso'],['Otros ingresos','Ingreso','Ingreso'],
+    ['Renta o hipoteca','Gasto','Necesidad'],['Servicios (agua, luz, gas, internet)','Gasto','Necesidad'],['Súper y despensa','Gasto','Necesidad'],
+    ['Escuela y útiles','Gasto','Necesidad'],['Transporte y gasolina','Gasto','Necesidad'],['Salud y farmacia','Gasto','Necesidad'],
+    ['Seguros','Gasto','Necesidad'],['Mascotas','Gasto','Necesidad'],['Comida fuera','Gasto','Gusto'],['Salidas y vacaciones','Gasto','Gusto'],
+    ['Ropa','Gasto','Gusto'],['Regalos y fiestas','Gasto','Gusto'],['Fondo de emergencia','Gasto','Ahorro'],['Ahorro para los hijos','Gasto','Ahorro'],['Otros','Gasto','Gusto']],
+  jubilado:[
+    ['Pensión','Ingreso','Ingreso'],['Apoyo de la familia','Ingreso','Ingreso'],['Otros ingresos','Ingreso','Ingreso'],
+    ['Casa y predial','Gasto','Necesidad'],['Servicios (agua, luz, gas)','Gasto','Necesidad'],['Despensa','Gasto','Necesidad'],
+    ['Medicinas y doctor','Gasto','Necesidad'],['Teléfono','Gasto','Necesidad'],['Transporte','Gasto','Necesidad'],
+    ['Nietos y regalos','Gasto','Gusto'],['Salidas','Gasto','Gusto'],['Ahorro','Gasto','Ahorro'],['Otros','Gasto','Gusto']]
+};
 async function crearCuenta(hojas, clave){
   LAST={}; loadData(hojas); S.remoteVer=0; S.dirty=true;
   if(clave){ S.gemKey=clave; await gs('guardarClave',clave); }
@@ -1055,9 +1273,12 @@ async function crearCuenta(hojas, clave){
 W('btnCero').onclick=async()=>{
   W('btnCero').disabled=true; W('welcomeMsg').textContent='Preparando tu presupuesto…';
   try{
+    const cats=PLANTILLAS[W('plantilla').value]||PLANTILLAS.general;
     await crearCuenta({'Movimientos':[['Fecha','Tipo','Descripción','Categoría','Monto']],
-      'Categorías':[['Categoría','Tipo','Grupo','Presupuesto mensual'],...CATS_INICIALES.map(c=>[...c,''])]});
-    S.tab='pres'; render();
+      'Categorías':[['Categoría','Tipo','Grupo','Presupuesto mensual'],...cats.map(c=>[...c,''])],
+      'Config':[['Clave','Valor'],['Simple',W('nuevoSimple').checked?1:0],['DiaCorte',11],['DiasPago',20]]});
+    S.mode='mes'; lsSet('pres.mode','mes');   // quien empieza: mes calendario (se cambia en ⚙)
+    S.P=idxOf(today()); S.tab='pres'; render();
     toast('Listo. Pon cuánto quieres gastar en cada categoría y empieza a registrar con el botón +.');
   }catch(e){ W('welcomeMsg').textContent='No se pudo: '+(e.message||e); W('btnCero').disabled=false; }
 };
@@ -1106,11 +1327,30 @@ W('invAdd').onclick=()=>{
   if((ME.admin.correos||[]).includes(c)){ toast('Ya está invitado'); return; }
   W('invMail').value=''; invSet([...(ME.admin.correos||[]),c]);
 };
+const cargarXLSX = () => window.XLSX ? Promise.resolve() : new Promise((res,rej)=>{ const s=document.createElement('script');
+  s.src='https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.mini.min.js'; s.onload=res; s.onerror=()=>rej(new Error('no se pudo descargar el lector de Excel (¿hay internet?)'));
+  document.head.appendChild(s); });
+// Restaurar: reemplaza TODO con lo del archivo (antes baja una copia de lo que hay ahora, por si acaso)
+W('btnRestore').onclick=()=>{
+  const b=W('btnRestore');
+  if(!b.dataset.armed){ b.dataset.armed='1'; b.textContent='¿Seguro? Se reemplaza todo lo que tienes. Clic otra vez'; setTimeout(()=>{ b.dataset.armed=''; b.textContent='Restaurar desde un respaldo…'; },6000); return; }
+  b.dataset.armed=''; b.textContent='Restaurar desde un respaldo…'; W('restoreFile').click();
+};
+W('restoreFile').onchange=async e=>{
+  const f=e.target.files[0]; e.target.value=''; if(!f) return;
+  try{
+    await cargarXLSX();
+    const wb=XLSX.read(await f.arrayBuffer(),{type:'array'}), hojas={};
+    wb.SheetNames.forEach(n=>hojas[n]=XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,raw:true,defval:''}));
+    if(!findSheet(hojas,'Movimientos')) throw new Error('ese archivo no es un respaldo de la app (no trae la hoja "Movimientos")');
+    await descargarExcel();   // copia de lo de antes
+    loadData(hojas); fixSelection(); await changed();
+    toast(`Listo: se restauraron ${S.movs.length} movimientos. Te bajé una copia de lo que tenías antes, por si acaso.`);
+  }catch(err){ toast('No se pudo restaurar: '+(err.message||err),true); }
+};
 async function descargarExcel(){
   try{
-    if(!window.XLSX) await new Promise((res,rej)=>{ const s=document.createElement('script');
-      s.src='https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.mini.min.js'; s.onload=res; s.onerror=()=>rej(new Error('no se pudo descargar el generador de Excel'));
-      document.head.appendChild(s); });
+    await cargarXLSX();
     const {hojas,formatos}=buildSheets(), wb=XLSX.utils.book_new();
     for(const [n,aoa] of Object.entries(hojas)){
       const ws=XLSX.utils.aoa_to_sheet(aoa), f=formatos[n]||{};
@@ -1118,6 +1358,7 @@ async function descargarExcel(){
       XLSX.utils.book_append_sheet(wb,ws,n);
     }
     XLSX.writeFile(wb,`Presupuesto ${isoDate(today())}.xlsx`);
+    lsSet('pres.backup',Date.now()); if(S.tab==='cfg') renderCfg();
   }catch(e){ toast('No pude armar el Excel: '+(e.message||e),true); }
 }
 
@@ -1138,26 +1379,44 @@ W('fotoBg').onclick=e=>{ if(e.target===W('fotoBg') || e.target.id==='fotoX') W('
 window.addEventListener('online',()=>{ if(S.dirty && !saving) save(); });
 function startApp(){
   $('#welcome').classList.add('hidden'); $('#app').classList.remove('hidden'); $('#fab').classList.remove('hidden');
+  if(!lsGet('pres.mode') && simple()) S.mode='mes';   // en modo sencillo, si nunca lo cambiaste: mes calendario
   S.P = idxOf(today());
+  if(lsGet('pres.big')==='1') document.documentElement.dataset.big='1';
   setStatus('ok','En la nube'); render();
   if(S.migrated){ S.migrated=false; changed(); toast('Tus pagos fijos ahora están en “Pagos recurrentes”. Revísalos en Presupuesto › Pagos recurrentes.'); }
+  if(lsGet('pres.tour')!=='1') tour(0);
 }
 function fixSelection(){ if(S.selCat && !catByName(S.selCat)) S.selCat=null; }
 
 // ---------- render ----------
 function render(){
+  document.body.classList.toggle('simple', simple());
+  if(simple() && S.tab==='analisis') S.tab='resumen';
+  $('.tab[data-tab="analisis"]').classList.toggle('hidden', simple());
   $('#periodLbl').textContent = labelOf(S.P);
   $('#todayP').classList.toggle('hidden', S.P===idxOf(today()));
-  $('#periodBar').classList.toggle('hidden', S.tab==='pres');
+  $('#periodBar').classList.toggle('hidden', S.tab==='pres' || S.tab==='cfg');
   const chip=$('#filterChip'); chip.replaceChildren();
   const fn=filterName();
   if(fn) chip.append(el('span',{class:'chip'},'Filtro: ',el('b',{text:fn}),el('button',{title:'Quitar filtro','aria-label':'Quitar filtro',text:'✕',onclick:()=>{S.selCat=null;S.selGroup=null;render();}})));
   $$('.tab').forEach(t=>t.classList.toggle('on',t.dataset.tab===S.tab));
-  ['resumen','movs','analisis','pres'].forEach(t=>$('#tab-'+t).classList.toggle('hidden',t!==S.tab));
+  $('#btnCfg').classList.toggle('on', S.tab==='cfg');
+  ['resumen','movs','analisis','pres','cfg'].forEach(t=>$('#tab-'+t).classList.toggle('hidden',t!==S.tab));
+  // la barra de IA: en modo sencillo solo si ya pusiste tu clave
+  $('#aiCard').classList.toggle('hidden', simple() && !S.gemKey);
   if(S.tab==='resumen'){ renderKpis(); renderCats(); renderTC(); renderCobrar(); renderPending(); renderMetas(); renderRecent(); }
-  if(S.tab==='analisis'){ renderPace(); renderRule(); renderTrend(); }
+  if(S.tab==='analisis'){ renderIaRes(); renderPace(); renderRule(); renderTrend(); }
   if(S.tab==='movs') renderMovTable();
   if(S.tab==='pres') renderPres();
+  if(S.tab==='cfg') renderCfg();
+  badge();
+}
+// Número en el ícono de la app instalada: pagos recurrentes vencidos o de hoy que no has registrado
+function badge(){
+  if(!('setAppBadge' in navigator)) return;
+  const td=today(), i=idxOf(td), done=recDone();
+  const n=S.recs.filter(r=>r.activo && r.monto>0 && recTipo(r)==='Gasto').flatMap(r=>recOcc(r,i)).filter(o=>o.fecha<=td && !done.has(o.key)).length;
+  (n ? navigator.setAppBadge(n) : navigator.clearAppBadge()).catch(()=>{});
 }
 function periodTotals(i){
   const ms=movsIn(i); const t={ingreso:0,gasto:0,ahorro:0,byCat:{},byGroup:{Necesidad:0,Gusto:0,Ahorro:0}};
@@ -1168,9 +1427,36 @@ function periodTotals(i){
     if(g==='Ahorro') t.ahorro+=m.monto; else t.gasto+=m.monto;
   });
   t.esperado = ingresoCats().reduce((a,c)=>a+catBudget(c),0);
-  // si aún no registras todo el ingreso del periodo, se cuenta con el esperado
-  t.base = Math.max(t.ingreso, t.esperado);
+  // si aún no registras todo el ingreso del periodo, se cuenta con el esperado (salvo que elijas "solo lo que ya entró")
+  t.real = S.cfg.BaseIngreso==='real';
+  t.base = t.real ? t.ingreso : Math.max(t.ingreso, t.esperado);
   return t;
+}
+// Proyección al cierre del periodo en curso: lo variable sigue al ritmo que llevas; lo fijo (recurrentes, MSI, recibos)
+// cuenta tal cual, más los pagos recurrentes que todavía faltan. null si no es el periodo actual o apenas empieza.
+function proyeccion(){
+  const [a,b]=rangeOf(S.P), td=today();
+  if(td<a || td>b) return null;
+  const N=dayDiff(a,b)+1, dias=dayDiff(a,td)+1;
+  if(dias<3 || dias>=N) return null;
+  const porCat={}; let gasto=0;
+  const suma=(cat,v)=>{ porCat[cat]=(porCat[cat]||0)+v; if(groupOf(cat)!=='Ahorro') gasto+=v; };
+  // fijo = no se proyecta al ritmo: recurrentes, MSI, recibos y cualquier gasto de una categoría que tiene pago recurrente
+  const catsRec=new Set(S.recs.filter(r=>r.activo).map(r=>r.cat));
+  const fijo = m => m.rec || m.cuota || m.cubreK || (m.src && m.src.rec) || catsRec.has(m.cat);
+  // ritmo diario de lo variable: promedio entre el de este periodo y el de los 3 anteriores (si hay historia),
+  // para que una compra grande al inicio no dispare la proyección
+  const varDe = i => { const o={}; movsIn(i).forEach(m=>{ if(m.tipo==='Gasto' && !fijo(m)) o[m.cat]=(o[m.cat]||0)+m.monto; }); return o; };
+  const hoy=varDe(S.P), hist={}; let dh=0;
+  for(let i=S.P-3;i<S.P;i++){ if(!movsIn(i).length) continue; const [x,y]=rangeOf(i); dh+=dayDiff(x,y)+1; Object.entries(varDe(i)).forEach(([c,v])=>hist[c]=(hist[c]||0)+v); }
+  new Set([...Object.keys(hoy),...Object.keys(hist)]).forEach(c=>{
+    const r1=(hoy[c]||0)/dias, r=dh ? (r1+(hist[c]||0)/dh)/2 : r1;
+    suma(c, (hoy[c]||0) + r*(N-dias));
+  });
+  movsIn(S.P).filter(m=>m.tipo==='Gasto' && fijo(m)).forEach(m=>suma(m.cat,m.monto));
+  const done=recDone();
+  S.recs.filter(r=>r.activo && r.monto>0 && recTipo(r)==='Gasto').flatMap(r=>recOcc(r)).filter(o=>!done.has(o.key)).forEach(o=>suma(o.r.cat,o.r.monto));
+  return {gasto, porCat};
 }
 function kpi(k,v,s,neg,extra){ return el('div',{class:'kpi'},el('div',{class:'k',text:k}),el('div',{class:'v'+(neg?' neg':''),text:v}),el('div',{class:'s',text:s}),extra||null); }
 // Gasto (sin ahorro) contra el periodo anterior; si el periodo va en curso, se compara al mismo número de días
@@ -1190,11 +1476,18 @@ function renderKpis(){
   const [a,b]=rangeOf(S.P); const td=today();
   const left = td>=a && td<=b ? `${dayDiff(td,b)} días para el ${S.mode==='corte'?'corte':'fin de mes'}` : (td>b?'periodo cerrado':'periodo futuro');
   $('#kpis').replaceChildren(
-    kpi('Te queda', money.format(disp), left+(t.ingreso<t.esperado?' · con ingreso esperado':''), disp<0),
+    kpi('Te queda', money.format(disp), left+(!t.real && t.ingreso<t.esperado?' · con ingreso esperado':''), disp<0),
     kpi('Gastado', money.format(t.gasto), budG?`de ${money.format(budG)} (${Math.round(t.gasto/budG*100)}%)`:'', false, vsPrev()));
-  const f=fondoTxt();
+  const f=simple()?'':fondoTxt();
   $('#kline').replaceChildren('Ingresos ', el('b',{text:money.format(t.ingreso)}), t.ingreso<t.esperado?` de ${money.format(t.esperado)}`:'',
     ' · Ahorrado ', el('b',{text:money.format(t.ahorro)}), f?` · ${f}`:'');
+  const p=proyeccion(), pj=$('#proj');
+  pj.classList.toggle('hidden', !p || !t.base);
+  if(p && t.base){
+    const fin=t.base-p.gasto-t.ahorro;
+    pj.replaceChildren(fin>=0 ? 'A este ritmo cierras el periodo con ' : 'A este ritmo te faltarían ',
+      el('b',{class:fin<0?'overtag':null,text:money.format(Math.abs(fin))}), fin>=0 ? ' de sobra.' : ' para el cierre.');
+  }
 }
 // Fondo de emergencia: acumulado histórico contra 3 meses de gastos presupuestados (sin ahorro)
 function fondoTxt(){
@@ -1226,9 +1519,9 @@ const recKeyFor = (r, f) => recKey(r, f, r.cada==='Quincena' ? (f.getDate()<=22?
 function recPre(o){
   const r=o.r, tipo=recTipo(r), [a,b]=rangeOf(S.P), td=today();
   return {fecha: td>=a && td<=b ? td : o.fecha, tipo, desc:r.nombre, cat:r.cat, monto:r.monto,
-    metodo:r.metodo||lastMethod(r.cat)||(tipo==='Ingreso'?'Transferencia':'Tarjeta de crédito'), rec:o.key};
+    metodo:(r.metodo?metVal(r.metodo,r.tarjeta):'')||lastMethod(r.cat)||(tipo==='Ingreso'?'Transferencia':metVal(TC)), rec:o.key};
 }
-const recMov = o => ({id:S.nextId++, ...recPre(o), meses:1, entre:1, con:'', reemb:[], comp:[]});
+const recMov = o => { const p=recPre(o); return {id:S.nextId++, ...p, ...metParse(p.metodo), meses:1, entre:1, con:'', reemb:[], comp:[], tags:[]}; };
 async function recRegistrar(os){
   const nuevos=os.map(o=>recMov(o)); S.movs.push(...nuevos); await changed();
   toast(nuevos.length>1 ? `Se registraron ${nuevos.length} pagos` : `${nuevos[0].desc} registrado · ${money2.format(nuevos[0].monto)}`, false,
@@ -1273,42 +1566,112 @@ function renderPending(){
   }
 }
 // Tarjeta: total por corte (incluye cuotas MSI) y fecha límite de pago
+// Tarjetas: total por corte (incluye cuotas MSI), fecha límite de pago y MSI que faltan; una sección por tarjeta
 function renderTC(){
   const card=$('#tcCard'), box=$('#tcList');
-  if(!S.movs.some(isTC)){ card.classList.add('hidden'); return; }
+  if(simple() || !S.movs.some(isTC)){ card.classList.add('hidden'); return; }
   card.classList.remove('hidden'); box.replaceChildren();
-  const ci = S.mode==='corte' ? S.P : idxOf(rangeOf(S.P)[1],'corte');
-  const td=today(), list=expanded().filter(m=>m.tipo==='Gasto' && isTC(m));
-  $('#tcSub').textContent = `La fecha límite es ${S.cfg.DiasPago} días después del corte.`;
-  [ci-1, ci].forEach(i=>{
-    const end=rangeOf(i,'corte')[1], due=new Date(end); due.setDate(due.getDate()+S.cfg.DiasPago);
-    // a la tarjeta se le cobra el total (aunque sea compartido o cubra varios meses)
-    let tot=0, msi=0; list.forEach(m=>{ if(m.cubreK || idxOf(m.fecha,'corte')!==i) return;
-      const v=m.bruto??m.monto; tot+=v; if(m.cuota) msi+=v; });
-    S.movs.forEach(m=>{ if(m.tipo==='Gasto' && isTC(m) && hasPer(m) && idxOf(m.fecha,'corte')===i) tot+=m.monto; });
-    const open = td<=end, left=dayDiff(td,due);
-    const st = open ? `en curso · cierra el ${shortDate(end)} · límite ${shortDate(due)}`
-      : left>=0 ? `paga antes del ${shortDate(due)} · ${left===0?'¡hoy!':`faltan ${left} días`}` : `fecha límite ${shortDate(due)} (ya pasó)`;
-    box.append(el('div',{class:'tc'+(open?' now':'')},
-      el('div',{class:'tl'},el('b',{text:`${open?'Corte actual':'Corte'} del ${shortDate(end)}`}),
-        el('span',{}, !open && left>=0 && left<=5 ? el('span',{class:'warntag',text:'⚠ '}) : null, st, msi?` · incluye ${money.format(msi)} de MSI`:'')),
-      el('div',{class:'ta',text:money.format(tot)})));
+  const td=today(), list=expanded().filter(m=>m.tipo==='Gasto' && isTC(m)), multi=S.tarjetas.length>1;
+  $('#tcSub').textContent = multi ? '' : `La fecha límite es ${S.tarjetas[0].pago} días después del corte.`;
+  S.tarjetas.forEach(t=>{
+    const mine=list.filter(m=>tjOf(m)===t);
+    if(multi && !mine.length) return;
+    const ci=tjIdx(rangeOf(S.P)[1],t);
+    if(multi) box.append(el('div',{class:'tjname',text:'💳 '+t.nombre}));
+    [ci-1, ci].forEach(i=>{
+      const end=tjEnd(i,t), due=new Date(end); due.setDate(due.getDate()+(t.pago||0));
+      // a la tarjeta se le cobra el total (aunque sea compartido o cubra varios meses)
+      let tot=0, msi=0; mine.forEach(m=>{ if(m.cubreK || tjIdx(m.fecha,t)!==i) return;
+        const v=m.bruto??m.monto; tot+=v; if(m.cuota) msi+=v; });
+      S.movs.forEach(m=>{ if(m.tipo==='Gasto' && isTC(m) && tjOf(m)===t && hasPer(m) && tjIdx(m.fecha,t)===i) tot+=m.monto; });
+      const open = td<=end, left=dayDiff(td,due);
+      if(!open && !tot) return;   // corte pasado sin nada que pagar
+      const st = open ? `en curso · cierra el ${shortDate(end)} · límite ${shortDate(due)}`
+        : left>=0 ? `paga antes del ${shortDate(due)} · ${left===0?'¡hoy!':`faltan ${left} días`}` : `fecha límite ${shortDate(due)} (ya pasó)`;
+      box.append(el('div',{class:'tc'+(open?' now':'')},
+        el('div',{class:'tl'},el('b',{text:`${open?'Corte actual':'Corte'} del ${shortDate(end)}`}),
+          el('span',{}, !open && left>=0 && left<=5 ? el('span',{class:'warntag',text:'⚠ '}) : null, st, msi?` · incluye ${money.format(msi)} de MSI`:'')),
+        el('div',{class:'ta',text:money.format(tot)})));
+    });
+    // mensualidades de compras a meses que vienen después del corte actual
+    let rest=0; const compras=new Set();
+    mine.forEach(m=>{ if(m.cuota && tjIdx(m.fecha,t)>ci){ rest+=m.bruto??m.monto; compras.add(m.src); } });
+    if(rest) box.append(el('div',{class:'tcmsi',text:`Meses sin intereses por pagar en los siguientes cortes: ${money.format(rest)} (${compras.size} compra${compras.size>1?'s':''})`}));
   });
 }
-// Lo que te deben de gastos compartidos (de cualquier periodo), una fila por persona
-function renderCobrar(){
-  const card=$('#cobCard'), box=$('#cobList');
-  const rows=[]; S.movs.filter(m=>m.tipo==='Gasto' && m.entre>1).forEach(m=>pendientes(m).forEach(p=>rows.push({m,p})));
-  rows.sort((a,b)=>a.m.fecha-b.m.fecha);
-  card.classList.toggle('hidden', !rows.length); box.replaceChildren();
-  if(!rows.length) return;
-  $('#cobTot').textContent = money2.format(rows.reduce((s,r)=>s+parteDe(r.m),0));
-  rows.slice(0,8).forEach(({m,p})=>box.append(el('div',{class:'cob'},
-    el('div',{class:'cl'},el('b',{text:`${p} · ${m.desc||m.cat}`}),el('span',{text:`${shortDate(m.fecha)} ${m.fecha.getFullYear()} · pagaste ${money.format(m.monto)} entre ${m.entre}`})),
-    el('span',{class:'ca',text:money2.format(parteDe(m))}),
-    el('button',{class:'btn small',text:'Ya me pagó',onclick:async()=>{ m.reemb=[...(m.reemb||[]),p]; await changed(); toast(`${p} te reembolsó ${money2.format(parteDe(m))}`); }}))));
-  if(rows.length>8) box.append(el('div',{class:'more',text:`y ${rows.length-8} más`}));
+// ---------- cuentas con amigos: gastos compartidos pendientes + préstamos y deudas ----------
+const dResta = d => Math.max(0, Math.round((d.monto-(d.pagado||0))*100)/100);
+// {persona: {neto, items:[{kind:'comp'|'deuda', ...}]}}; neto > 0 = te debe, < 0 = le debes
+function cuentas(){
+  const P=new Map(), of=p=>{ const k=norm(p); if(!P.has(k)) P.set(k,{persona:p,neto:0,items:[]}); return P.get(k); };
+  S.movs.filter(m=>m.tipo==='Gasto' && m.entre>1).forEach(m=>pendientes(m).forEach(p=>{ const x=of(p); x.neto+=parteDe(m); x.items.push({kind:'comp',m,p,monto:parteDe(m),fecha:m.fecha}); }));
+  S.deudas.forEach(d=>{ const r=dResta(d); if(r<=0) return; const x=of(d.persona); x.neto+= d.tipo==='Me debe' ? r : -r; x.items.push({kind:'deuda',d,monto:r,fecha:d.fecha}); });
+  return [...P.values()].filter(x=>x.items.length).sort((a,b)=>b.neto-a.neto);
 }
+function renderCobrar(){
+  const card=$('#cobCard'), box=$('#cobList'), cs=cuentas();
+  card.classList.toggle('hidden', !cs.length && simple()); box.replaceChildren();
+  const meDeben=cs.filter(c=>c.neto>0).reduce((s,c)=>s+c.neto,0), debo=cs.filter(c=>c.neto<0).reduce((s,c)=>s-c.neto,0);
+  $('#cobTot').textContent = [meDeben?`te deben ${money.format(meDeben)}`:'', debo?`debes ${money.format(debo)}`:''].filter(Boolean).join(' · ');
+  $('#cobAdd').classList.toggle('hidden', simple());
+  if(!cs.length){ box.append(el('div',{class:'empty',style:{padding:'4px 0',textAlign:'left'},text:'Nadie te debe y no le debes a nadie.'})); return; }
+  cs.slice(0,8).forEach(c=>box.append(el('div',{class:'amigo',onclick:()=>openPersona(c.persona)},
+    el('div',{class:'al'},el('b',{text:c.persona}),el('span',{text:c.items.length===1?(c.items[0].kind==='comp'?(c.items[0].m.desc||c.items[0].m.cat):(c.items[0].d.concepto||'Préstamo')):`${c.items.length} pendientes`})),
+    el('span',{class:'aa '+(c.neto>=0?'in':'out'),text:Math.abs(c.neto)<0.5?'a mano':(c.neto>0?'te debe ':'le debes ')+money.format(Math.abs(c.neto))}))));
+  if(cs.length>8) box.append(el('div',{class:'more',text:`y ${cs.length-8} más`}));
+}
+function waTexto(c){
+  const ls=c.items.map(it=>it.kind==='comp' ? `• ${it.m.desc||it.m.cat} (${shortDate(it.fecha)}): tu parte ${money2.format(it.monto)}`
+    : `• ${it.d.concepto||'Préstamo'} (${shortDate(it.fecha)}): ${it.d.tipo==='Me debe'?'':'yo te debo '}${money2.format(it.monto)}`);
+  return `Hola ${c.persona}, te paso cómo vamos:\n${ls.join('\n')}\n${c.neto>=0?'Me debes':'Te debo'} en total ${money2.format(Math.abs(c.neto))}.`;
+}
+// Ventana de una persona: lo pendiente, marcar pagos, abonos, WhatsApp y nuevo préstamo
+function openPersona(nombre, nuevo){
+  const c=cuentas().find(x=>norm(x.persona)===norm(nombre||'')) || {persona:nombre||'',neto:0,items:[]};
+  const body=$('#pBody'), close=()=>$('#pBg').classList.remove('open');
+  const it2row = it => {
+    if(it.kind==='comp') return el('div',{class:'it'},
+      el('div',{class:'il'},it.m.desc||it.m.cat,el('span',{text:`${shortDate(it.fecha)} · pagaste ${money.format(it.m.monto)} entre ${it.m.entre}`})),
+      el('b',{class:'gtag',text:money2.format(it.monto)}),
+      el('button',{class:'btn small',text:'Ya me pagó',onclick:async()=>{ it.m.reemb=[...(it.m.reemb||[]),it.p]; await changed(); openPersona(c.persona); toast(`${it.p} te pagó ${money2.format(it.monto)}`); }}));
+    const d=it.d, ab=el('input',{type:'number',min:0,step:'any',placeholder:'todo','aria-label':'Monto del abono (vacío = todo)',title:'Vacío = se salda completo'});
+    return el('div',{class:'it'},
+      el('div',{class:'il'},d.concepto||'Préstamo',el('span',{text:`${shortDate(d.fecha)} · ${d.tipo==='Me debe'?'te debe':'le debes'} ${money.format(d.monto)}${d.pagado?` · abonado ${money.format(d.pagado)}`:''}`})),
+      el('b',{class:d.tipo==='Me debe'?'gtag':'overtag',text:money2.format(it.monto)}),
+      ab, el('button',{class:'btn small',text:'Abonar',onclick:async()=>{ const v=num(ab.value)||dResta(d); d.pagado=Math.min(d.monto,(d.pagado||0)+v); await changed(); openPersona(c.persona); toast(dResta(d)?`Abono de ${money2.format(v)} anotado`:'Quedó saldado'); }}),
+      el('button',{class:'btn small ghost danger',text:'✕',title:'Borrar',onclick:async()=>{ S.deudas=S.deudas.filter(x=>x!==d); await changed(); openPersona(c.persona); }}));
+  };
+  // formulario para anotar un préstamo o una deuda nueva
+  let tipo='Me debe';
+  const fPer=el('input',{type:'text',value:c.persona,placeholder:'¿Con quién?',list:'perList',autocomplete:'off'});
+  const fMon=el('input',{type:'number',min:0,step:'any',placeholder:'0.00',inputmode:'decimal'});
+  const fCon=el('input',{type:'text',placeholder:'ej. le presté para la renta'});
+  const seg=el('div',{class:'seg'},...['Me debe','Le debo'].map(t=>el('button',{type:'button',class:t===tipo?'on':'',text:t==='Me debe'?'Me debe (le presté)':'Le debo',onclick:e=>{ tipo=t; [...seg.children].forEach(b=>b.classList.toggle('on',b===e.target)); }})));
+  const conocidos=[...new Set([...roomies(),...cuentas().map(x=>x.persona),...S.deudas.map(d=>d.persona)])];
+  const form=el('div',{class:'form',style:{marginTop:'14px'}},
+    el('div',{class:'full'},seg),
+    el('label',{},'Persona',fPer), el('label',{},'Monto',fMon), el('label',{class:'full'},'Concepto (opcional)',fCon),
+    el('datalist',{id:'perList'},...conocidos.map(p=>el('option',{value:p}))),
+    el('div',{class:'full actions',style:{marginTop:0}},el('button',{class:'btn primary small',text:'Anotar',onclick:async()=>{
+      const p=fPer.value.trim(), m=num(fMon.value);
+      if(!p || !(m>0)){ toast('Pon la persona y el monto',true); return; }
+      S.deudas.push({id:newRecId(),persona:p,concepto:fCon.value.trim(),tipo,monto:Math.round(m*100)/100,pagado:0,fecha:today()});
+      await changed(); openPersona(p); toast('Anotado');
+    }})));
+  body.replaceChildren(
+    el('div',{class:'mhead'},el('h3',{text:c.persona||'Préstamo o deuda'}),el('button',{class:'icon',text:'✕','aria-label':'Cerrar',onclick:close})),
+    c.items.length ? el('p',{class:'sub',style:{margin:'0 0 8px'}},Math.abs(c.neto)<0.5?'Están a mano.':c.neto>0?`Te debe ${money2.format(c.neto)} en total.`:`Le debes ${money2.format(-c.neto)} en total.`) : null,
+    c.items.length ? el('div',{class:'persona'},...c.items.sort((a,b)=>a.fecha-b.fecha).map(it2row)) : null,
+    c.items.length ? el('div',{class:'actions',style:{justifyContent:'flex-start'}},
+      el('a',{class:'btn small',href:'https://wa.me/?text='+encodeURIComponent(waTexto(c)),target:'_blank',rel:'noopener',text:'💬 Mandar por WhatsApp'}),
+      simple()||nuevo ? null : el('button',{class:'btn small ghost',text:'+ Otro préstamo',onclick:e=>{ e.target.remove(); form.classList.remove('hidden'); fMon.focus(); }})) : null,
+    simple() && !nuevo ? null : form);
+  if(c.items.length && !nuevo) form.classList.add('hidden');
+  $('#pBg').classList.add('open');
+  if(nuevo) setTimeout(()=>(c.persona?fMon:fPer).focus(),30);
+}
+$('#pBg').addEventListener('mousedown',e=>{ if(e.target.id==='pBg') $('#pBg').classList.remove('open'); });
+$('#cobAdd').onclick=()=>openPersona('',true);
 function renderMetas(){
   const card=$('#metasCard'), box=$('#metasList');
   card.classList.toggle('hidden', !S.metas.length); box.replaceChildren();
@@ -1319,13 +1682,13 @@ function renderMetas(){
     let sub = obj ? (falta<=0 ? '✓ ¡Meta cumplida!' : `faltan ${money.format(falta)}`) : 'pon un objetivo en Presupuesto y categorías';
     if(obj && falta>0 && mt.fecha){
       const ml=(mt.fecha.getFullYear()-td.getFullYear())*12+(mt.fecha.getMonth()-td.getMonth());
-      sub += mt.fecha<td ? ' · la fecha límite ya pasó' : ` · aparta ${money.format(falta/Math.max(1,ml))} al mes hasta ${MESES[mt.fecha.getMonth()]} ${mt.fecha.getFullYear()}`;
+      sub += mt.fecha<td ? ' · la fecha límite ya pasó' : ` · aparta ${money.format(falta/Math.max(1,ml))} al mes (${money.format(falta/Math.max(1,ml)/2)} por quincena) hasta ${MESES[mt.fecha.getMonth()]} ${mt.fecha.getFullYear()}`;
     }
     const sel=S.selCat===mt.nombre;
-    box.append(el('button',{class:'mrow'+(sel?' sel':''),onclick:()=>{ S.selCat=sel?null:mt.nombre; S.selGroup=null; render(); }},
+    box.append(el('div',{class:'mrow'+(sel?' sel':''),role:'button',tabindex:0,onclick:()=>{ S.selCat=sel?null:mt.nombre; S.selGroup=null; render(); }},
       el('div',{class:'mt'},el('b',{text:mt.nombre}),el('span',{text:`${money.format(acum)} de ${money.format(obj)} · ${Math.round(pct)}%`})),
       el('div',{class:'mb'},el('i',{style:{width:pct+'%'}})),
-      el('div',{class:'ms',text:sub})));
+      el('div',{class:'ms'},falta>0||!obj?el('button',{class:'btn small mbtn',text:'+ Abonar',onclick:e=>{ e.stopPropagation(); openModal(null,{tipo:'Gasto',cat:mt.nombre,desc:'Ahorro '+mt.nombre,metodo:'Transferencia'}); }}):null,sub)));
   });
 }
 function renderCats(){
@@ -1336,6 +1699,7 @@ function renderCats(){
   rows.sort((x,y)=> (y.spent/(y.bud||1)) - (x.spent/(x.bud||1)) || y.bud-x.bud);
   const list=$('#catList'); list.replaceChildren();
   if(!rows.length){ list.append(el('div',{class:'empty',text:'Pon un presupuesto a tus categorías en la pestaña Presupuesto.'})); return; }
+  const pr=simple()?null:proyeccion();
   rows.forEach(({c,bud,spent})=>{
     // en categorías de ahorro, pasarse del presupuesto es bueno: no se marca en rojo
     const ahorro=c.grupo==='Ahorro', extra = ahorro && bud>0 && spent>bud;
@@ -1344,7 +1708,8 @@ function renderCats(){
     const st = over ? el('div',{class:'cr-st overtag',text:`${money.format(spent-bud)} arriba del presupuesto`})
       : noBud ? el('div',{class:'cr-st overtag',text:'sin presupuesto'})
       : extra ? el('div',{class:'cr-st gtag',text:`${money.format(spent-bud)} de más`})
-      : warn ? el('div',{class:'cr-st warntag',text:`quedan ${money.format(bud-spent)}`}) : null;
+      : warn ? el('div',{class:'cr-st warntag',text:`quedan ${money.format(bud-spent)}`})
+      : pr && !ahorro && bud>0 && (pr.porCat[c.nombre]||0)>bud*1.05 ? el('div',{class:'cr-st warntag',text:`a este ritmo te pasas por ~${money.format(pr.porCat[c.nombre]-bud)}`}) : null;
     const sel = S.selCat===c.nombre;
     list.append(el('button',{class:'catrow'+(sel?' sel':'')+(S.selCat&&!sel?' dim':''),title:c.nota||'Clic para filtrar',
       onclick:()=>{ S.selCat = sel?null:c.nombre; S.selGroup=null; render(); }},
@@ -1487,11 +1852,11 @@ function movRow(m, compact){
   const tag = t => t ? el('span',{class:'tag',style:{marginLeft:'6px'},text:t}) : null;
   return el('tr',{class:'mv',onclick:()=>openModal(o)},
     el('td',{class:'date',text:shortDate(m.fecha)+(compact?'':` ${m.fecha.getFullYear()}`)}),
-    el('td',{},m.desc||'—', tag(msi), tag(cub), tag(sh),
+    el('td',{},m.desc||'—', tag(msi), tag(cub), tag(sh), ...(o.tags||[]).map(t=>el('span',{class:'htag',text:'#'+t})),
       el('div',{class:'c-sub',text:m.cat}),
       o.comp?.length ? el('a',{class:'clip',href:o.comp[0],target:'_blank',rel:'noopener',title:'Ver comprobante',text:'📎',onclick:e=>e.stopPropagation()}) : null),
     el('td',{class:'c-cat'},el('span',{class:'tag'},el('span',{style:{display:'inline-block',width:'7px',height:'7px',borderRadius:'2px',background:GCOLOR[c?.grupo]||'var(--good-ink)',marginRight:'6px'}}),m.cat)),
-    compact?null:el('td',{text:m.metodo||'',style:{color:'var(--ink2)'}}),
+    compact?null:el('td',{text:metLbl(m),style:{color:'var(--ink2)'}}),
     el('td',{class:'money'+(m.tipo==='Ingreso'?' in':''),text:(m.tipo==='Ingreso'?'+':'')+money2.format(cuenta(m))}));
 }
 function renderRecent(){
@@ -1502,11 +1867,21 @@ function renderRecent(){
     el('tbody',{},ms.slice(0,10).map(m=>movRow(m,true)))));
   if(ms.length>10) box.append(el('div',{class:'empty',text:`y ${ms.length-10} más…`}));
 }
+// Etiquetas con su total (de todos los periodos); clic = buscar esa etiqueta
+function renderTagBar(){
+  const bar=$('#tagBar'), tot=new Map();
+  if(!simple()) S.movs.forEach(m=>(m.tags||[]).forEach(t=>tot.set(t,(tot.get(t)||0)+(m.tipo==='Gasto'?cuenta(m):0))));
+  bar.classList.toggle('hidden',!tot.size); bar.replaceChildren();
+  const q=norm($('#q').value);
+  [...tot].sort((a,b)=>b[1]-a[1]).slice(0,20).forEach(([t,v])=>bar.append(el('button',{type:'button',class:q==='#'+t?'on':'',title:'Ver los movimientos con esta etiqueta',
+    onclick:()=>{ const on=q==='#'+t; $('#q').value=on?'':'#'+t; $('#fPeriodo').checked=on; renderMovTable(); }},'#'+t,el('span',{text:money.format(v)}))));
+}
 function renderMovTable(){
+  renderTagBar();
   const q=norm($('#q').value), ft=$('#fTipo').value, onlyP=$('#fPeriodo').checked;
   let ms=(onlyP?movsIn(S.P):S.movs).filter(m=>(!ft||m.tipo===ft) &&
     (S.selCat?m.cat===S.selCat:S.selGroup?groupOf(m.cat)===S.selGroup:true) &&
-    (!q || norm(`${m.desc} ${m.cat} ${m.metodo} ${m.monto}`).includes(q)));
+    (!q || (q[0]==='#' ? ((m.src||m).tags||[]).includes(q.slice(1)) : norm(`${m.desc} ${m.cat} ${metLbl(m)} ${m.monto} ${((m.src||m).tags||[]).map(t=>'#'+t).join(' ')}`).includes(q))));
   ms.sort((a,b)=>b.fecha-a.fecha||b.id-a.id);
   const gi=ms.filter(m=>m.tipo==='Ingreso').reduce((a,m)=>a+cuenta(m),0), gg=ms.filter(m=>m.tipo==='Gasto').reduce((a,m)=>a+cuenta(m),0);
   const box=$('#movTable'), sm=matchMedia('(max-width:560px)').matches; box.replaceChildren();
@@ -1535,21 +1910,50 @@ function renderPres(){
       c[k]=v; changed(); };
     const gsel=el('select',{onchange:e=>upd('grupo',e.target.value),disabled:c.tipo==='Ingreso'},
       ...(c.tipo==='Ingreso'?['Ingreso']:GRUPOS).map(g=>el('option',{selected:g===c.grupo,text:g})));
+    const sm=simple();   // modo sencillo: solo nombre y cuánto al mes
     tbody.append(el('tr',{},
-      el('td',{},el('input',{type:'text',value:c.nombre,onchange:e=>upd('nombre',e.target.value)})),
-      el('td',{},el('select',{onchange:e=>upd('tipo',e.target.value)},...['Gasto','Ingreso'].map(t=>el('option',{selected:t===c.tipo,text:t})))),
-      el('td',{},gsel),
+      el('td',{},el('input',{type:'text',value:c.nombre,onchange:e=>upd('nombre',e.target.value)}), sm&&c.tipo==='Ingreso'?el('div',{class:'c-sub',style:{display:'block',padding:'0 10px'},text:'ingreso'}):null),
+      sm?null:el('td',{},el('select',{onchange:e=>upd('tipo',e.target.value)},...['Gasto','Ingreso'].map(t=>el('option',{selected:t===c.tipo,text:t})))),
+      sm?null:el('td',{},gsel),
       el('td',{},el('input',{type:'number',class:'money',min:0,step:'any',value:c.mensual||'',placeholder:c.anual?`(${Math.round(c.anual/12)})`:'0',onchange:e=>upd('mensual',num(e.target.value))})),
-      el('td',{},el('input',{type:'number',class:'money',min:0,step:'any',value:c.anual||'',placeholder:'—',onchange:e=>upd('anual',num(e.target.value))})),
-      el('td',{},el('input',{type:'text',value:c.nota||'',onchange:e=>upd('nota',e.target.value)})),
+      sm?null:el('td',{},el('input',{type:'number',class:'money',min:0,step:'any',value:c.anual||'',placeholder:'—',onchange:e=>upd('anual',num(e.target.value))})),
+      sm?null:el('td',{},el('input',{type:'text',value:c.nota||'',onchange:e=>upd('nota',e.target.value)})),
       el('td',{},el('button',{class:'btn small ghost danger',title:used.has(c.nombre)?'Tiene movimientos o pagos recurrentes: no se puede borrar (puedes renombrarla)':'Borrar categoría',disabled:used.has(c.nombre),text:'✕',
         onclick:()=>{ S.cats.splice(ix,1); if(S.selCat===c.nombre) S.selCat=null; changed(); }}))));
   });
-  $('#catTable').replaceChildren(el('table',{class:'cattable'},
-    el('thead',{},el('tr',{},...['Categoría','Tipo','Grupo','Mensual','Anual','Nota',''].map((h,i)=>el('th',{class:i===3||i===4?'money':null,text:h})))), tbody));
+  const heads = simple() ? ['Categoría','Al mes',''] : ['Categoría','Tipo','Grupo','Mensual','Anual','Nota',''];
+  $('#catTable').replaceChildren(el('table',{class:'cattable',style:simple()?{minWidth:'0'}:null},
+    el('thead',{},el('tr',{},...heads.map(h=>el('th',{class:['Mensual','Anual','Al mes'].includes(h)?'money':null,text:h})))), tbody));
+  $('#metaCard').classList.toggle('hidden', simple() && !S.metas.length);
   renderMetaTable(); renderRecTable();
-  $('#cfgPago').value=S.cfg.DiasPago; $('#cfgCorte').value=S.cfg.DiaCorte; $('#cfgN').value=S.cfg.MetaNecesidad; $('#cfgG').value=S.cfg.MetaGusto; $('#cfgA').value=S.cfg.MetaAhorro;
+}
+function renderCfg(){
+  $('#cfgSimple').checked=simple(); $('#cfgBig').checked=lsGet('pres.big')==='1';
+  $('#cfgCorte').value=S.tarjetas[0].corte; $('#cfgCorteWrap').classList.toggle('hidden', !(simple() && S.mode==='corte'));
+  $('#cfgN').value=S.cfg.MetaNecesidad; $('#cfgG').value=S.cfg.MetaGusto; $('#cfgA').value=S.cfg.MetaAhorro; $('#cfgBase').value=S.cfg.BaseIngreso;
   $('#cfgMode').value=S.mode; $('#cfgRoomies').value=S.cfg.Roomies||''; $('#cfgKey').value=S.gemKey||''; $('#cfgModel').value=lsGet('pres.geminiModel')||'';
+  const lb=+lsGet('pres.backup')||0;
+  $('#bkSub').textContent = 'Descarga todo en Excel de vez en cuando. Si algo falla, con ese archivo recuperas tus datos. '
+    + (lb ? `Tu último respaldo en este dispositivo: ${shortDate(new Date(lb))} ${new Date(lb).getFullYear()}.` : 'Aún no has descargado ninguno en este dispositivo.');
+  renderTjTable();
+}
+function renderTjTable(){
+  const tbody=el('tbody');
+  S.tarjetas.forEach((t,ix)=>{
+    const upd=(k,v)=>{
+      if(k==='nombre'){ v=v.trim(); if(!v || v.includes('|') || S.tarjetas.some((o,j)=>j!==ix&&o.nombre===v)){ toast('Ese nombre está vacío o ya existe',true); render(); return; }
+        [...S.movs,...S.recs].forEach(m=>{ if(m.tarjeta===t.nombre) m.tarjeta=v; }); }
+      t[k]=v; if(ix===0){ S.cfg.DiaCorte=t.corte; S.cfg.DiasPago=t.pago; S.P=idxOf(today()); } changed(); };
+    const usada=S.movs.some(m=>isTC(m) && tjOf(m)===t);
+    tbody.append(el('tr',{},
+      el('td',{},el('input',{type:'text',value:t.nombre,placeholder:'ej. BBVA',onchange:e=>upd('nombre',e.target.value)})),
+      el('td',{},el('input',{type:'number',min:1,max:31,step:1,value:t.corte,onchange:e=>upd('corte',Math.min(31,Math.max(1,Math.round(num(e.target.value))||1)))})),
+      el('td',{},el('input',{type:'number',min:0,max:60,step:1,value:t.pago,onchange:e=>upd('pago',Math.min(60,Math.max(0,Math.round(num(e.target.value)))))})),
+      el('td',{},ix===0 ? el('span',{class:'sub',text:'principal'}) : el('button',{class:'btn small ghost danger',text:'✕',disabled:usada,
+        title:usada?'Tiene movimientos: no se puede borrar (puedes renombrarla)':'Borrar tarjeta',onclick:()=>{ S.recs.forEach(r=>{ if(r.tarjeta===t.nombre) r.tarjeta=''; }); S.tarjetas.splice(ix,1); changed(); }}))));
+  });
+  $('#tjTable').replaceChildren(el('table',{class:'cattable',style:{minWidth:'0'}},
+    el('thead',{},el('tr',{},...['Nombre','Día de corte','Días para pagar',''].map(h=>el('th',{text:h})))), tbody));
 }
 
 function renderRecTable(){
@@ -1562,18 +1966,52 @@ function renderRecTable(){
       el('td',{},el('input',{type:'text',value:r.nombre,placeholder:'ej. Netflix',onchange:e=>{ const v=e.target.value.trim(); if(!v){ toast('Ponle un nombre',true); render(); return; } upd('nombre',v); }})),
       el('td',{},catSel),
       el('td',{},el('input',{type:'number',class:'money',min:0,step:'any',value:r.monto||'',placeholder:'0',onchange:e=>upd('monto',num(e.target.value))})),
-      el('td',{},el('select',{onchange:e=>upd('metodo',e.target.value)},el('option',{value:'',text:'—',selected:!r.metodo}),...METODOS.map(m=>el('option',{text:m,selected:m===r.metodo})))),
+      el('td',{},el('select',{onchange:e=>{ const p=metParse(e.target.value); r.tarjeta=p.tarjeta; upd('metodo',p.metodo); }},el('option',{value:'',text:'—',selected:!r.metodo}),...metOpts(metVal(r.metodo,r.tarjeta)))),
       el('td',{},el('select',{onchange:e=>upd('cada',e.target.value)},el('option',{value:'Mes',text:'Cada mes',selected:r.cada==='Mes'}),el('option',{value:'Quincena',text:'Cada quincena (15 y último)',selected:r.cada==='Quincena'}),el('option',{value:'Año',text:'Cada año',selected:r.cada==='Año'}))),
       el('td',{style:{whiteSpace:'nowrap'}},el('input',{type:'number',min:1,max:31,step:1,value:r.cada!=='Quincena'&&r.dia?r.dia:'',placeholder:r.cada==='Quincena'?'—':'1',disabled:r.cada==='Quincena',title:'Día en que se paga',style:{width:'58px'},
         onchange:e=>upd('dia',Math.min(31,Math.max(0,Math.round(num(e.target.value)))))}),
         r.cada==='Año' ? el('select',{title:'Mes en que se paga',style:{width:'auto'},onchange:e=>upd('mes',+e.target.value)},...MESES.map((n,i)=>el('option',{value:i+1,text:n,selected:i+1===(r.mes||1)}))) : null),
       el('td',{style:{textAlign:'center'}},el('input',{type:'checkbox',checked:r.activo,title:'Activo (desmárcalo para pausarlo sin borrarlo)',onchange:e=>upd('activo',e.target.checked)})),
-      el('td',{},el('button',{class:'btn small ghost danger',title:'Borrar (los movimientos ya registrados se quedan)',text:'✕',onclick:()=>{ S.recs.splice(ix,1); changed(); }}))));
+      el('td',{style:{whiteSpace:'nowrap'}},
+        r.activo && r.monto>0 ? el('a',{class:'btn small ghost',href:gcalUrl(r),target:'_blank',rel:'noopener',title:'Agregarlo a Google Calendar (se repite solo)',text:'📅'}) : null,
+        el('button',{class:'btn small ghost danger',title:'Borrar (los movimientos ya registrados se quedan)',text:'✕',onclick:()=>{ S.recs.splice(ix,1); changed(); }}))));
   });
   $('#recTable').replaceChildren(S.recs.length ? el('table',{class:'cattable'},
     el('thead',{},el('tr',{},...['Nombre','Categoría','Monto','Método','Frecuencia','Cuándo','Activo',''].map((h,i)=>el('th',{class:i===2?'money':null,text:h})))), tbody)
     : el('div',{class:'empty',text:'Lo que pagas o cobras seguido (Netflix, renta, sueldo, seguro anual). Aparecen en el Resumen para registrarlos con un clic.'}));
+  $('#recIcs').classList.toggle('hidden', !S.recs.some(r=>r.activo && r.monto>0));
 }
+// ---------- recordatorios en el calendario del celular (la app no puede mandar avisos con la app cerrada) ----------
+// Regla de repetición: cada mes el día X (29-31 = último día), quincena = 15 y último, cada año = mes y día
+function recRule(r){
+  const d=r.dia||1, md = r.cada==='Quincena' ? '15,-1' : d>28 ? '-1' : String(d);
+  return r.cada==='Año' ? `FREQ=YEARLY;BYMONTH=${r.mes||1};BYMONTHDAY=${md}` : `FREQ=MONTHLY;BYMONTHDAY=${md}`;
+}
+function recNext(r){   // primera fecha de hoy en adelante (y no antes de "desde")
+  const td=today(), ini=r.desde && r.desde>td ? r.desde : td;
+  for(let k=0;k<14;k++){ const i=mKey(ini)+k, y=Math.floor(i/12), m=i%12, last=daysIn(y,m);
+    if(r.cada==='Año' && m!==(r.mes||1)-1) continue;
+    const ds = r.cada==='Quincena' ? [15,last] : [(r.dia||1)>28?last:Math.min(r.dia||1,last)];
+    for(const d of ds){ const f=new Date(y,m,d); if(f>=ini) return f; } }
+  return ini;
+}
+const ymd = d => isoDate(d).replace(/-/g,'');
+const recTitulo = r => `${recTipo(r)==='Ingreso'?'Cobrar':'Pagar'} ${r.nombre} ${money.format(r.monto)}`;
+function gcalUrl(r){
+  const f=recNext(r), g=new Date(f); g.setDate(g.getDate()+1);
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(recTitulo(r))
+    +'&dates='+ymd(f)+'/'+ymd(g)+'&recur='+encodeURIComponent('RRULE:'+recRule(r))+'&details='+encodeURIComponent('Recordatorio de Mi Presupuesto. Al pagarlo, regístralo en la app.');
+}
+function descargarIcs(){
+  const esc=s=>String(s).replace(/[\\,;]/g,m=>'\\'+m), stamp=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z';
+  const ev=S.recs.filter(r=>r.activo && r.monto>0).map(r=>{ const f=recNext(r), g=new Date(f); g.setDate(g.getDate()+1);
+    return ['BEGIN:VEVENT',`UID:${r.id}@mi-presupuesto`,`DTSTAMP:${stamp}`,`DTSTART;VALUE=DATE:${ymd(f)}`,`DTEND;VALUE=DATE:${ymd(g)}`,`RRULE:${recRule(r)}`,
+      `SUMMARY:${esc(recTitulo(r))}`,'DESCRIPTION:Recordatorio de Mi Presupuesto','BEGIN:VALARM','ACTION:DISPLAY',`DESCRIPTION:${esc(recTitulo(r))}`,'TRIGGER:-PT15H','END:VALARM','END:VEVENT'].join('\r\n'); });
+  const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Mi Presupuesto//ES','CALSCALE:GREGORIAN',...ev,'END:VCALENDAR'].join('\r\n');
+  const a=el('a',{href:URL.createObjectURL(new Blob([ics],{type:'text/calendar'})),download:'Pagos recurrentes.ics'}); document.body.append(a); a.click(); a.remove();
+  toast('Ábrelo con tu app de calendario: te avisará un día antes de cada pago.');
+}
+$('#recIcs').onclick=descargarIcs;
 function addRec(){
   const c=S.cats.find(c=>c.tipo==='Gasto' && norm(c.nombre).includes('entreten')) || gastoCats()[0];
   const td=today();
@@ -1622,13 +2060,42 @@ function fillQuickOn(){
     ...(cs.length>top.length ? [el('button',{type:'button',class:'otra',text:'Otra…',onclick:()=>{ s.classList.toggle('hidden'); if(!s.classList.contains('hidden')) s.focus(); }})] : []));
 }
 $('#mCat').onchange=()=>{ $('#mCat').classList.add('hidden'); fillQuickOn(); };
-function setTipo(t, sel){ mTipo=t; $$('#mTipo button').forEach(b=>b.classList.toggle('on',b.dataset.t===t)); fillCatSelect(sel); if(!sel && t==='Ingreso') $('#mMetodo').value='Transferencia'; msiUI(); }
+function setTipo(t, sel){ mTipo=t; $$('#mTipo button').forEach(b=>b.classList.toggle('on',b.dataset.t===t)); fillCatSelect(sel); if(!sel && t==='Ingreso') $('#mMetodo').value='Transferencia'; msiUI(); advUI(); }
+// Opciones de método: una por tarjeta de crédito (si tienes varias) + débito, efectivo, transferencia
+function metOpts(sel){
+  return [...S.tarjetas.map(t=>{ const v=TC+'|'+t.nombre; return el('option',{value:v,text:S.tarjetas.length>1?'💳 '+t.nombre:TC,selected:v===sel}); }),
+    ...METODOS.slice(1).map(m=>el('option',{value:m,text:m,selected:m===sel}))];
+}
+const setMet = v => { $('#mMetodo').replaceChildren(...metOpts(v)); if(v) $('#mMetodo').value=v; };
+// Modo sencillo: en "Cambiar" solo quedan fecha, método y "se repite"
+function advUI(){
+  const sm=simple(), g=mTipo==='Gasto';
+  if(sm){ $('#mMsiWrap').classList.add('hidden'); $('#mPerWrap').classList.add('hidden'); $('#mShareWrap').classList.add('hidden'); }
+  $('#mTagWrap').classList.toggle('hidden', sm);
+  $('#mFoto').classList.toggle('hidden', !S.gemKey || !!editing);
+  if(sm && !g) $('#mShareWrap').classList.add('hidden');
+}
+// Lo que más capturas (últimos 90 días): un toque llena todo y solo ajustas el monto
+function fillFreq(show){
+  const box=$('#mFreq'); box.replaceChildren(); box.classList.add('hidden');
+  if(!show) return;
+  const desde=new Date(today()); desde.setDate(desde.getDate()-90);
+  const by=new Map(), recN=new Set(S.recs.map(r=>norm(r.nombre)));
+  S.movs.filter(m=>m.fecha>=desde && m.desc && !m.rec && !recN.has(norm(m.desc))).forEach(m=>{ const k=norm(m.desc)+'|'+m.cat; const x=by.get(k)||{n:0,m}; x.n++; if(m.fecha>=x.m.fecha) x.m=m; by.set(k,x); });
+  const top=[...by.values()].filter(x=>x.n>=2).sort((a,b)=>b.n-a.n).slice(0,5);
+  if(!top.length) return;
+  box.classList.remove('hidden');
+  box.append(...top.map(({m})=>el('button',{type:'button',title:`${m.cat} · ${metLbl(m)}`,text:`${m.desc} ${money.format(m.monto)}`,onclick:e=>{
+    setTipo(m.tipo,m.cat); setMet(metVal(m.metodo,m.tarjeta)); $('#mDesc').value=m.desc; $('#mMonto').value=m.monto; msiUI();
+    box.querySelectorAll('button').forEach(b=>b.classList.remove('on')); e.currentTarget.classList.add('on');
+    $('#mMonto').focus(); $('#mMonto').select(); }})));
+}
 // Gasto compartido y periodo del recibo (solo gastos). mReemb = quiénes ya te pagaron, mientras editas
 let mReemb=[], mRec='';   // mRec = llave del pago recurrente que registra este movimiento
 const modalMov = () => ({monto:num($('#mMonto').value), entre:$('#mShared').checked?Math.max(2,Math.round(num($('#mEntre').value))||2):1, con:$('#mCon').value, reemb:mReemb});
 function shareUI(){
   const gasto = mTipo==='Gasto', on = gasto && $('#mShared').checked;
-  $('#mShareWrap').classList.toggle('hidden',!gasto);
+  $('#mShareWrap').classList.toggle('hidden',!gasto || (simple() && !on));
   $('#mShareBox').classList.toggle('hidden',!on);
   const mm=modalMov();
   const ps=personas(mm); mReemb=mReemb.filter(p=>ps.includes(p)); mm.reemb=mReemb;
@@ -1638,13 +2105,14 @@ function shareUI(){
   cubreUI();
 }
 function moreUI(){
-  const f=parseDate($('#mFecha').value), t=[!f?'Sin fecha':isoDate(f)===isoDate(today())?'Hoy':shortDate(f)+(f.getFullYear()!==today().getFullYear()?' '+f.getFullYear():''), $('#mMetodo').value];
+  const f=parseDate($('#mFecha').value), t=[!f?'Sin fecha':isoDate(f)===isoDate(today())?'Hoy':shortDate(f)+(f.getFullYear()!==today().getFullYear()?' '+f.getFullYear():''), $('#mMetodo').selectedOptions[0]?.text||''];
   if(mTipo==='Gasto'){
     if(!$('#mMsiWrap').classList.contains('hidden') && +$('#mMeses').value>1) t.push($('#mMeses').value+' MSI');
     const [del]=fixPer(parseYM($('#mPDel').value), parseYM($('#mPAl').value)); if(del && !$('#mPerWrap').classList.contains('hidden')) t.push('recibo');
     if($('#mShared').checked) t.push('compartido ÷'+modalMov().entre);
   }
   if(mRec || $('#mRepeat').checked) t.push('cada mes');
+  splitTags($('#mTags').value).forEach(x=>t.push('#'+x));
   $('#mMoreTxt').textContent=t.join(' · ');
 }
 function setMore(open){ $('#mMore').classList.toggle('hidden',!open); $('#mMoreBtn').setAttribute('aria-expanded',open); $('#mMoreLbl').textContent=open?'Ocultar ▴':'Cambiar ▾'; }
@@ -1659,7 +2127,7 @@ function recUI(){
 $('#mRepeat').addEventListener('change',recUI);
 function cubreUI(){
   const msi = !$('#mMsiWrap').classList.contains('hidden') && +$('#mMeses').value>1;
-  $('#mPerWrap').classList.toggle('hidden', mTipo!=='Gasto' || msi);
+  $('#mPerWrap').classList.toggle('hidden', mTipo!=='Gasto' || msi || simple());
   const [del,al]=fixPer(parseYM($('#mPDel').value), parseYM($('#mPAl').value)), mm=modalMov();
   $('#mPClr').classList.toggle('hidden',!del); moreUI();
   if(!del || !(mm.monto>0)){ $('#mPerHint').textContent=''; return; }
@@ -1677,15 +2145,15 @@ $('#mPAl').addEventListener('change',()=>{ if($('#mPAl').value && !$('#mPDel').v
 $('#mPClr').onclick=()=>{ $('#mPDel').value=''; $('#mPAl').value=''; cubreUI(); };
 // Meses sin intereses: solo para gastos con tarjeta de crédito
 function msiUI(){
-  const ok = mTipo==='Gasto' && norm($('#mMetodo').value).includes('credito');
+  const ok = mTipo==='Gasto' && norm($('#mMetodo').value).includes('credito') && (!simple() || +$('#mMeses').value>1);
   $('#mMsiWrap').classList.toggle('hidden',!ok);
   const n=+$('#mMeses').value, monto=num($('#mMonto').value);
   shareUI();
   if(!ok || n<=1){ $('#mMsiHint').textContent=''; return; }
-  const f=parseDate($('#mFecha').value);
-  $('#mMsiHint').textContent = `${n} pagos de ${money2.format(monto/n)}`+(f?(()=>{ const e=cutDateOf(addMonths(f,n-1)); return ` · del corte ${shortDate(cutDateOf(f))} al ${shortDate(e)} ${e.getFullYear()}`; })():'');
+  const f=parseDate($('#mFecha').value), tj=S.tarjetas.find(t=>t.nombre===metParse($('#mMetodo').value).tarjeta)||S.tarjetas[0];
+  $('#mMsiHint').textContent = `${n} pagos de ${money2.format(monto/n)}`+(f?(()=>{ const e=cutDateOf(addMonths(f,n-1),tj); return ` · del corte ${shortDate(cutDateOf(f,tj))} al ${shortDate(e)} ${e.getFullYear()}`; })():'');
 }
-['#mMetodo','#mMeses','#mFecha'].forEach(s=>$(s).addEventListener('change',msiUI)); $('#mFecha').addEventListener('input',moreUI); $('#mMonto').addEventListener('input',msiUI);
+['#mMetodo','#mMeses','#mFecha'].forEach(s=>$(s).addEventListener('change',msiUI)); $('#mFecha').addEventListener('input',moreUI); $('#mMonto').addEventListener('input',msiUI); $('#mTags').addEventListener('input',moreUI);
 $$('#mTipo button').forEach(b=>b.onclick=()=>setTipo(b.dataset.t));
 // Descripciones usadas antes -> última categoría, tipo y método (para autocompletar)
 let descMemo=new Map();
@@ -1698,7 +2166,7 @@ $('#mDesc').addEventListener('change',()=>{
   if(editing) return;
   const prev=descMemo.get(norm($('#mDesc').value)); if(!prev) return;
   if(prev.tipo!==mTipo) setTipo(prev.tipo, prev.cat); else { $('#mCat').value=prev.cat; fillQuickOn(); }
-  if(prev.metodo) $('#mMetodo').value=prev.metodo;
+  if(prev.metodo) setMet(metVal(prev.metodo,prev.tarjeta));
   msiUI();
 });
 // m = movimiento a editar; pre = valores sugeridos para uno nuevo (pendientes, duplicar)
@@ -1717,14 +2185,16 @@ function openModal(m, pre){
   $('#mCon').value = sh ? (m?personas(m).join(', '):(pre.con??roomies().join(', '))) : '';
   mReemb = m ? [...(m.reemb||[])] : [];
   mRec = m ? (m.rec||'') : (pre.rec||''); $('#mRepeat').checked=false;
-  $('#mDesc').value = m?m.desc:(pre.desc||''); $('#mMetodo').value = m?(m.metodo||'Tarjeta de crédito'):(pre.metodo||'Tarjeta de crédito');
+  $('#mTags').value = ((m?m.tags:pre.tags)||[]).join(', ');
+  $('#mDesc').value = m?m.desc:(pre.desc||''); setMet(m?metVal(m.metodo||TC,m.tarjeta):(pre.metodo||metVal(TC)));
   const preCat = m?m.cat:(pre.cat||S.selCat||undefined);
   setTipo(m?m.tipo:(pre.tipo||(S.selCat && catByName(S.selCat)?.tipo==='Ingreso'?'Ingreso':'Gasto')), preCat);
-  if(!m) $('#mMetodo').value = pre.metodo || (mTipo==='Ingreso'?'Transferencia':'Tarjeta de crédito');
+  if(!m) setMet(pre.metodo || (mTipo==='Ingreso'?'Transferencia':metVal(TC)));
   msiUI(); recUI();
-  setMore(!!(m && (m.meses>1 || m.entre>1 || hasPer(m))) || !!(pre.entre>1 || pre.meses>1));
+  setMore(!!(m && (m.meses>1 || m.entre>1 || hasPer(m) || m.tags?.length)) || !!(pre.entre>1 || pre.meses>1));
   $('#mErr').textContent='';
-  fillDescList();
+  fillDescList(); fillFreq(!m && !Object.keys(pre).length); advUI();
+  $('#tagList').replaceChildren(...[...new Set(S.movs.flatMap(x=>x.tags||[]))].map(t=>el('option',{value:t})));
   $('#modalBg').classList.add('open'); setTimeout(()=>{ $('#mMonto').focus(); $('#mMonto').select(); },30);
 }
 function closeModal(){ $('#modalBg').classList.remove('open'); editing=null; }
@@ -1733,25 +2203,35 @@ async function saveModal(more){
   if(!(monto>0)){ $('#mErr').textContent='Pon un monto mayor a 0.'; $('#mMonto').focus(); return; }
   if(!fecha){ setMore(true); $('#mErr').textContent='Pon una fecha válida.'; return; }
   if(saveModal.busy) return;
-  const metodo=$('#mMetodo').value, meses=(mTipo==='Gasto' && norm(metodo).includes('credito')) ? +$('#mMeses').value||1 : 1;
+  const {metodo,tarjeta}=metParse($('#mMetodo').value), meses=(mTipo==='Gasto' && norm(metodo).includes('credito')) ? +$('#mMeses').value||1 : 1;
   const mm=modalMov(), gasto=mTipo==='Gasto';
   const sh=gasto && mm.entre>1, con=sh?personas(mm).join(', '):'';
-  const data={fecha,tipo:mTipo,desc:$('#mDesc').value.trim(),cat,monto,metodo,meses,
+  // "#viaje" escrito en la descripción también cuenta como etiqueta
+  const dRaw=$('#mDesc').value.trim(), tags=splitTags($('#mTags').value+' '+(dRaw.match(/#[^\s#,]+/g)||[]).join(' '));
+  const data={fecha,tipo:mTipo,desc:dRaw.replace(/\s*#[^\s#,]+/g,'').trim(),cat,monto,metodo,tarjeta,meses,tags,
     ...(()=>{ const [pdel,pal]=gasto && meses<=1 ? fixPer(parseYM($('#mPDel').value), parseYM($('#mPAl').value)) : [null,null]; return {pdel,pal}; })(),
     entre: sh?mm.entre:1, con, reemb: sh?mReemb.filter(p=>splitNames(con).includes(p)):[], rec:mRec};
   if(!mRec && $('#mRepeat').checked){
-    const r={id:newRecId(), nombre:data.desc||cat, cat, monto, metodo, cada:'Mes', dia:fecha.getDate(), activo:true, desde:new Date(fecha.getFullYear(),fecha.getMonth(),1)};
+    const r={id:newRecId(), nombre:data.desc||cat, cat, monto, metodo, tarjeta, cada:'Mes', dia:fecha.getDate(), activo:true, desde:new Date(fecha.getFullYear(),fecha.getMonth(),1)};
     S.recs.push(r); data.rec=recKey(r,fecha,'');
   }
   if(editing) Object.assign(editing,data); else S.movs.push({id:S.nextId++,...data,comp:[]});
-  if(!more) closeModal(); else { $('#mMonto').value=''; $('#mDesc').value=''; mReemb=[]; mRec=''; $('#mRepeat').checked=false; recUI(); shareUI(); $('#mMonto').focus(); }
+  if(!more) closeModal(); else { $('#mMonto').value=''; $('#mDesc').value=''; $('#mTags').value=''; mReemb=[]; mRec=''; $('#mRepeat').checked=false; recUI(); shareUI(); fillFreq(true); $('#mMonto').focus(); }
   await changed();
   toast(editing||!more?'Guardado':'Guardado. Captura el siguiente.');
 }
 $('#mSave').onclick=()=>saveModal(false);
 $('#mSaveMore').onclick=()=>saveModal(true);
 $('#mCancel').onclick=closeModal;
-$('#mDup').onclick=()=>{ const m=editing; openModal(null,{tipo:m.tipo,cat:m.cat,monto:m.monto,desc:m.desc,metodo:m.metodo,meses:m.meses,entre:m.entre,con:m.entre>1?personas(m).join(', '):undefined,fecha:today()}); };
+$('#mDup').onclick=()=>{ const m=editing; openModal(null,{tipo:m.tipo,cat:m.cat,monto:m.monto,desc:m.desc,metodo:metVal(m.metodo,m.tarjeta),meses:m.meses,entre:m.entre,con:m.entre>1?personas(m).join(', '):undefined,fecha:today(),tags:m.tags}); };
+// 📷 Ticket: toma la foto y la IA lo captura (mismo flujo que la barra de arriba)
+$('#mFoto').onclick=()=>$('#mFotoFile').click();
+$('#mFotoFile').onchange=async e=>{
+  const f=e.target.files[0]; e.target.value=''; if(!f) return;
+  closeModal(); S.tab='resumen'; render();
+  try{ aiFiles=[await fileForAI(f)]; renderAiFiles(); $('#aiCard').scrollIntoView({behavior:'smooth',block:'start'}); aiInterpret(); }
+  catch(err){ aiMsg(err.message||String(err),true); }
+};
 $('#mDel').onclick=async()=>{
   const b=$('#mDel'); if(!b.dataset.armed){ b.dataset.armed='1'; b.textContent='¿Seguro? Clic otra vez'; return; }
   S.movs=S.movs.filter(x=>x!==editing); closeModal(); await changed(); toast('Movimiento eliminado');
@@ -1843,6 +2323,8 @@ Reglas:
 - Si dice que un roomie le pagó/reembolsó su parte de un gasto, NO lo registres (eso se marca aparte en la app); menciónalo en "duda" de otro movimiento si hay.
 - descripcion: corta y clara, en español, con mayúscula inicial (ej. "Comida", "Cine", "Luz CFE", "Quincena").
 - metodo: uno de ${METODOS.join(', ')}, solo si lo dice o es obvio ("con la tarjeta", "en efectivo", "transferí"); si no, "".
+- tarjeta: ${S.tarjetas.length>1?`si es con tarjeta de crédito y dice cuál, uno de: ${S.tarjetas.map(t=>t.nombre).join(', ')}; si no, "".`:'siempre "".'}
+- etiquetas: si el texto trae palabras con # (ej. "#viaje"), esas palabras sin el #, separadas por coma; si no, "".
 - compartido_entre: número de personas entre las que se divide el gasto si dice que es compartido, entre los roomies, a medias o "entre 3". "A medias" = 2. ${roomies().length?`Si dice "con los roomies" sin número = ${roomies().length+1} (roomies: ${roomies().join(', ')}).`:'Si dice "con los roomies" sin número = 3.'} Si no es compartido = 1.
 - periodo_del / periodo_al (formato YYYY-MM): solo para recibos o pagos que cubren un periodo de consumo distinto o más largo que el día del pago. Si dice de qué meses es (ej. "la luz de septiembre y octubre" = 2026-09 a 2026-10, "el agua de octubre" = 2026-10 a 2026-10), úsalos. Si dice que es bimestral / cubre N meses pero no dice cuáles, usa los N meses que terminan en el mes del pago. Si no aplica, "" y "".
 - duda: si algo no está claro (monto, categoría), explícalo en pocas palabras; si no, "".
@@ -1860,48 +2342,115 @@ Si es un ESTADO DE CUENTA (lista de movimientos del banco o de la tarjeta):
 ${texto||'(sin texto, solo las imágenes)'}
 >>>`;
 }
+// Llama a Gemini; si un modelo está saturado, no existe o se le acabó el límite gratis, intenta con otro
+// (cada modelo tiene su propio límite y capacidad; el "lite" suele estar menos saturado). Regresa el texto.
+async function gemCall(body){
+  const models=await gemModels(); let j=null, last=null;
+  const cands=[...new Set([models[0], models.find(n=>/lite/.test(n)), ...models])].filter(Boolean).slice(0,4);
+  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+  for(const mdl of cands){
+    for(let intento=0; intento<2 && !j; intento++){
+      try{ j=await gemFetch(`models/${mdl}:generateContent`,body); }
+      catch(e){
+        last=e; if(!(e.quota||e.model||e.busy)) throw e;
+        if(e.model) lsSet('pres.geminiModels','');
+        if(!e.busy) break;
+        aiMsg('Gemini está ocupado, reintentando…'); if(intento===0) await wait(2000);
+      }
+    }
+    if(j) break;
+  }
+  if(!j) throw last;
+  const txt=(j.candidates?.[0]?.content?.parts||[]).filter(p=>!p.thought).map(p=>p.text||'').join('');
+  if(!txt) throw new Error('Gemini no regresó respuesta'+(j.promptFeedback?.blockReason?` (${j.promptFeedback.blockReason})`:'')+'. Intenta escribirlo de otra forma.');
+  return txt;
+}
+// ¿Es una pregunta? ("¿cuánto gasté en Rappi?", "en qué me pasé en octubre?")
+const esPregunta = t => /^\s*¿/.test(t) || /\?\s*$/.test(t);
+// Tus datos en texto compacto para que la IA conteste (últimos 13 meses, con lo que de verdad te cuesta)
+function datosParaIA(){
+  const desde=new Date(today()); desde.setMonth(desde.getMonth()-13);
+  const ms=[...S.movs].filter(m=>m.fecha>=desde).sort((a,b)=>a.fecha-b.fecha).slice(-2500);
+  return `Categorías (nombre | tipo | grupo | presupuesto mensual):\n${S.cats.map(c=>`${c.nombre} | ${c.tipo} | ${c.grupo} | ${catBudget(c)?Math.round(catBudget(c)):'-'}`).join('\n')}
+
+Periodo: ${S.mode==='corte'?`por corte de tarjeta, día ${S.cfg.DiaCorte} (el periodo "${labelOf(idxOf(today()))}" es el actual)`:'mes calendario'}.
+
+Movimientos (fecha | tipo | descripción | categoría | monto que le cuesta al usuario | método | etiquetas | nota):
+${ms.map(m=>[isoDate(m.fecha),m.tipo,m.desc,m.cat,Math.round(netoDe(m)*100)/100,metLbl(m),(m.tags||[]).map(t=>'#'+t).join(' '),
+  [m.meses>1?`a ${m.meses} MSI (total)`:'', m.entre>1?`compartido entre ${m.entre}, pagó ${m.monto}`:'', hasPer(m)?`recibo de ${perTxt(m)}`:''].filter(Boolean).join('; ')].join(' | ')).join('\n')}`;
+}
+async function aiAsk(texto){
+  const go=$('#aiGo'); go.disabled=true; go.textContent='Pensando…'; aiMsg(''); aiAns('');
+  try{
+    const td=today();
+    const prompt=`Eres el asistente de una app de presupuesto personal en México (pesos MXN). Hoy es ${DIAS[td.getDay()]} ${isoDate(td)}.
+Contesta la pregunta del usuario usando SOLO estos datos. En español, corto y claro (máximo 6 renglones), con cantidades en pesos ($1,234).
+Si haces una suma, di brevemente de qué. Si los datos no alcanzan para contestar, dilo. Sin tablas ni markdown (nada de asteriscos ni #).
+
+${datosParaIA()}
+
+Pregunta: ${texto}`;
+    const txt=await gemCall({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{temperature:0.2}});
+    aiAns(txt.replace(/\*\*|__|^#+\s*/gm,'').trim());
+    $('#aiTxt').value=''; $('#aiTxt').style.height='';
+  }catch(e){ aiMsg(e.message||String(e),true); }
+  finally{ go.disabled=false; go.textContent='Interpretar'; }
+}
+function aiAns(t){
+  const b=$('#aiAns'); b.replaceChildren();
+  if(t) b.append(t, el('button',{class:'icon x',text:'✕','aria-label':'Cerrar respuesta',onclick:()=>aiAns('')}));
+}
+// Resumen del periodo con IA (pestaña Análisis): se guarda en este dispositivo hasta que cambien tus datos
+function renderIaRes(){
+  const box=$('#iaRes'), btn=$('#iaResGo'), k='pres.iares.'+S.mode+'.'+S.P;
+  $('#iaResCard').classList.toggle('hidden', !S.gemKey);
+  let c=null; try{ c=JSON.parse(lsGet(k)||'null'); }catch(e){}
+  box.textContent = c ? c.t : 'Tres renglones sobre cómo vas este periodo comparado con el anterior, y una sugerencia.';
+  box.style.color = c ? '' : 'var(--muted)';
+  btn.textContent = c ? 'Actualizar' : 'Resumir con IA';
+}
+$('#iaResGo').onclick=async()=>{
+  const btn=$('#iaResGo'), box=$('#iaRes'), k='pres.iares.'+S.mode+'.'+S.P;
+  const t=periodTotals(S.P), tp=periodTotals(S.P-1);
+  const cats=Object.keys({...t.byCat,...tp.byCat}).filter(c=>catByName(c)?.tipo!=='Ingreso')
+    .map(c=>`${c}: ${Math.round(t.byCat[c]||0)} (antes ${Math.round(tp.byCat[c]||0)}, presupuesto ${Math.round(catBudget(catByName(c)))||'-'})`).join('\n');
+  const top=movsIn(S.P).filter(m=>m.tipo==='Gasto').sort((a,b)=>b.monto-a.monto).slice(0,8).map(m=>`${m.desc||m.cat} ${Math.round(m.monto)} (${m.cat})`).join('; ');
+  const [a,b]=rangeOf(S.P), td=today(), enCurso=td>=a&&td<=b;
+  const prompt=`Eres el asistente de una app de presupuesto personal en México. Escribe un resumen del periodo ${labelOf(S.P)}${enCurso?` (va en curso: día ${dayDiff(a,td)+1} de ${dayDiff(a,b)+1})`:''}.
+Máximo 3 renglones cortos de cómo va (lo más importante primero, con cantidades en pesos) y 1 renglón final que empiece con "Sugerencia:". En español, tono amable, sin markdown ni viñetas con asterisco.
+Ingresos ${Math.round(t.ingreso)} (esperado ${Math.round(t.esperado)}); gastos ${Math.round(t.gasto)} (periodo anterior ${Math.round(tp.gasto)}); ahorro ${Math.round(t.ahorro)}.
+Por categoría (este periodo, anterior, presupuesto):\n${cats}\nGastos más grandes: ${top||'-'}`;
+  btn.disabled=true; btn.textContent='Pensando…';
+  try{ const txt=(await gemCall({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{temperature:0.3}})).replace(/\*\*|__|^#+\s*/gm,'').trim();
+    lsSet(k,JSON.stringify({t:txt})); renderIaRes(); }
+  catch(e){ box.textContent=e.message||String(e); box.style.color='var(--crit-ink)'; btn.textContent='Reintentar'; }
+  finally{ btn.disabled=false; }
+};
 async function aiInterpret(){
   const texto=$('#aiTxt').value.trim();
   if(!texto && !aiFiles.length){ aiMsg('Escribe tus movimientos o sube la foto de un ticket.',true); $('#aiTxt').focus(); return; }
-  if(!S.gemKey){ aiMsg('Primero pega tu clave de Gemini (es gratis): da clic en “⚙ Configuración” arriba a la derecha.',true); return; }
+  if(!S.gemKey){ aiMsg('Primero pega tu clave de Gemini (es gratis): da clic en “⚙” arriba a la derecha.',true); return; }
   fillDescList();
+  if(!aiFiles.length && esPregunta(texto)) return aiAsk(texto);
   const schema={type:'OBJECT',properties:{movimientos:{type:'ARRAY',items:{type:'OBJECT',properties:{
     fecha:{type:'STRING',description:'YYYY-MM-DD'}, tipo:{type:'STRING',enum:['Gasto','Ingreso']}, descripcion:{type:'STRING'},
-    categoria:{type:'STRING',enum:S.cats.map(c=>c.nombre)}, monto:{type:'NUMBER'}, metodo:{type:'STRING'},
+    categoria:{type:'STRING',enum:S.cats.map(c=>c.nombre)}, monto:{type:'NUMBER'}, metodo:{type:'STRING'}, tarjeta:{type:'STRING'}, etiquetas:{type:'STRING'},
     compartido_entre:{type:'INTEGER'}, periodo_del:{type:'STRING'}, periodo_al:{type:'STRING'}, duda:{type:'STRING'}},
-    required:['fecha','tipo','descripcion','categoria','monto','metodo','compartido_entre','periodo_del','periodo_al','duda']}}},required:['movimientos']};
+    required:['fecha','tipo','descripcion','categoria','monto','metodo','tarjeta','etiquetas','compartido_entre','periodo_del','periodo_al','duda']}}},required:['movimientos']};
   const files=[...aiFiles];
   if(files.reduce((s,p)=>s+p.b64.length,0)>19e6){ aiMsg('Los archivos pesan demasiado juntos (máx. ~14 MB). Sube menos páginas a la vez.',true); return; }
   const body={contents:[{role:'user',parts:[{text:aiPrompt(texto,files.length)},...files.map(p=>({inline_data:{mime_type:p.mime,data:p.b64}}))]}],generationConfig:{temperature:0,responseMimeType:'application/json',responseSchema:schema}};
-  const go=$('#aiGo'); go.disabled=true; go.textContent='Pensando…'; aiMsg('');
+  const go=$('#aiGo'); go.disabled=true; go.textContent='Pensando…'; aiMsg(''); aiAns('');
   try{
-    const models=await gemModels(); let j=null, last=null;
-    // si un modelo está saturado, no existe o se le acabó el límite gratis, se intenta con otro
-    // (cada modelo tiene su propio límite y capacidad; el "lite" suele estar menos saturado)
-    const cands=[...new Set([models[0], models.find(n=>/lite/.test(n)), ...models])].filter(Boolean).slice(0,4);
-    const wait=ms=>new Promise(r=>setTimeout(r,ms));
-    for(const mdl of cands){
-      for(let intento=0; intento<2 && !j; intento++){
-        try{ j=await gemFetch(`models/${mdl}:generateContent`,body); }
-        catch(e){
-          last=e; if(!(e.quota||e.model||e.busy)) throw e;
-          if(e.model) lsSet('pres.geminiModels','');
-          if(!e.busy) break;
-          aiMsg('Gemini está ocupado, reintentando…'); if(intento===0) await wait(2000);
-        }
-      }
-      if(j) break;
-    }
-    if(!j) throw last;
-    const txt=(j.candidates?.[0]?.content?.parts||[]).filter(p=>!p.thought).map(p=>p.text||'').join('');
-    if(!txt) throw new Error('Gemini no regresó respuesta'+(j.promptFeedback?.blockReason?` (${j.promptFeedback.blockReason})`:'')+'. Intenta escribirlo de otra forma.');
+    const txt=await gemCall(body);
     let out; try{ out=JSON.parse(txt).movimientos||[]; }catch(e){ throw new Error('No entendí la respuesta de Gemini. Intenta de nuevo.'); }
     aiRows=out.filter(r=>num(r.monto)>0).map(r=>{
       const cat=catByName(r.categoria)||(r.tipo==='Ingreso'?ingresoCats()[0]:gastoCats()[0]);
       const tipo=cat?.tipo||(r.tipo==='Ingreso'?'Ingreso':'Gasto'), f=parseDate(r.fecha)||today(), g=tipo==='Gasto';
-      const metodo=METODOS.includes(r.metodo)?r.metodo:(lastMethod(cat?.nombre)||(g?'Tarjeta de crédito':'Transferencia'));
+      const tj=S.tarjetas.find(t=>norm(t.nombre)===norm(r.tarjeta))?.nombre;
+      const metodo=METODOS.includes(r.metodo)?metVal(r.metodo,tj):(lastMethod(cat?.nombre)||(g?metVal(TC,tj):'Transferencia'));
       return {on:true, fecha:f>today()?today():f, tipo, desc:String(r.descripcion||'').trim(), cat:cat?.nombre||'Otros', monto:Math.round(num(r.monto)*100)/100,
-        metodo, entre:g?Math.min(6,Math.max(1,Math.round(num(r.compartido_entre))||1)):1, ...(()=>{ const [pdel,pal]=g?fixPer(parseYM(r.periodo_del),parseYM(r.periodo_al)):[null,null]; return {pdel,pal}; })(), duda:String(r.duda||'').trim()};
+        metodo, tags:splitTags(r.etiquetas), entre:g?Math.min(6,Math.max(1,Math.round(num(r.compartido_entre))||1)):1, ...(()=>{ const [pdel,pal]=g?fixPer(parseYM(r.periodo_del),parseYM(r.periodo_al)):[null,null]; return {pdel,pal}; })(), duda:String(r.duda||'').trim()};
     });
     if(!aiRows.length){ aiMsg('No encontré movimientos con monto en el texto. Revisa que diga cuánto fue.',true); renderAiPrev(); return; }
     const usados=new Set(), tomadas=new Set();
@@ -1930,10 +2479,11 @@ function renderAiPrev(){
       el('td',{style:{minWidth:'140px'}},el('input',{type:'text',value:r.desc,onchange:e=>{ r.desc=e.target.value.trim(); }}),
         r.dup?el('div',{class:'dup',text:`✓ Ya lo tenías: ${r.dup.desc||r.dup.cat}, ${shortDate(r.dup.fecha)}${r.dup.meses>1?' (a meses)':''}`}):null,
         r.rec?el('div',{class:'rtag',text:`↻ cuenta como tu pago recurrente “${r.recNombre}”`}):null,
+        r.tags?.length?el('div',{class:'rtag',text:r.tags.map(t=>'#'+t).join(' ')}):null,
         r.duda?el('div',{style:{fontSize:'11px',color:'var(--warn-ink)',marginTop:'2px'},text:'⚠ '+r.duda}):null),
       el('td',{style:{minWidth:'150px'}},catSel(r)),
       el('td',{style:{minWidth:'96px'}},el('input',{type:'number',class:'money',min:0,step:'0.01',value:r.monto,onchange:e=>{ r.monto=num(e.target.value); renderAiPrev(); }})),
-      el('td',{class:'w-met'},el('select',{onchange:e=>{ r.metodo=e.target.value; }},...METODOS.map(m=>el('option',{text:m,selected:m===r.metodo})))),
+      el('td',{class:'w-met'},el('select',{onchange:e=>{ r.metodo=e.target.value; }},...metOpts(r.metodo))),
       el('td',{class:'w-sh'},g?el('select',{title:'Gasto compartido: entre cuántas personas',onchange:e=>{ r.entre=+e.target.value; renderAiPrev(); }},
         ...[1,2,3,4,5,6].map(n=>el('option',{value:n,text:n===1?'Solo yo':`÷ ${n}`,selected:n===r.entre}))):el('span',{class:'tag',style:{color:'var(--good-ink)'},text:'Ingreso'}),
         g && r.entre>1 ? el('div',{class:'sub2',text:`tu parte ${money.format(r.monto/r.entre)}`}) : null),
@@ -1954,7 +2504,7 @@ function renderAiPrev(){
 async function aiSave(){
   const sel=aiRows.filter(r=>r.on && r.monto>0); if(!sel.length || aiSave.busy) return;
   const con=roomies().join(', ');
-  sel.forEach(r=>S.movs.push({id:S.nextId++,fecha:r.fecha,tipo:r.tipo,desc:r.desc,cat:r.cat,monto:r.monto,metodo:r.metodo,meses:1,
+  sel.forEach(r=>S.movs.push({id:S.nextId++,fecha:r.fecha,tipo:r.tipo,desc:r.desc,cat:r.cat,monto:r.monto,...metParse(r.metodo),meses:1,tags:r.tags||[],
     pdel:r.tipo==='Gasto'?r.pdel:null, pal:r.tipo==='Gasto'?r.pal:null, entre:r.entre, con:r.entre>1?personas({entre:r.entre,con}).join(', '):'', reemb:[], comp:[], rec:r.rec||''}));
   aiRows=[]; aiFiles=[]; renderAiFiles(); renderAiPrev(); $('#aiTxt').value=''; $('#aiTxt').style.height=''; aiMsg('');
   await changed(); toast(`Se guardaron ${sel.length} movimiento${sel.length>1?'s':''}`);
@@ -1996,6 +2546,7 @@ $('#cfgKey').onchange=async e=>{
   m.textContent='Probando la clave…';
   try{ const l=await gemModels(); m.textContent=`✓ Clave correcta. Se usará ${l[0]}.`; m.style.color='var(--good-ink)'; }
   catch(err){ m.textContent=err.message; m.style.color='var(--crit-ink)'; }
+  render();
 };
 $('#cfgModel').onchange=e=>{ lsSet('pres.geminiModel',e.target.value.trim()); lsSet('pres.geminiModels',''); };
 
@@ -2009,8 +2560,30 @@ $('#seeAll').onclick=()=>{S.tab='movs';render();};
 $('#q').oninput=renderMovTable; $('#fTipo').onchange=renderMovTable; $('#fPeriodo').onchange=renderMovTable;
 $('#fab').onclick=()=>openModal();
 $('#btnSave').onclick=()=>save();
-// Lleva a la tarjeta de Configuración (al final de "Presupuesto y categorías")
-$('#btnCfg').onclick=()=>{ S.tab='pres'; render(); $('#cfgCard').scrollIntoView({behavior:'smooth',block:'start'}); };
+// ⚙ abre Configuración (otra vez = regresa al Resumen)
+$('#btnCfg').onclick=()=>{ S.tab = S.tab==='cfg' ? 'resumen' : 'cfg'; render(); window.scrollTo({top:0}); };
+$('#cfgSimple').onchange=e=>{ S.cfg.Simple=e.target.checked?1:0; changed(); toast(e.target.checked?'Modo sencillo activado':'Ahora ves todas las funciones'); };
+$('#cfgBig').onchange=e=>{ lsSet('pres.big',e.target.checked?'1':''); if(e.target.checked) document.documentElement.dataset.big='1'; else delete document.documentElement.dataset.big; render(); };
+$('#cfgBase').onchange=e=>{ S.cfg.BaseIngreso=e.target.value; changed(); };
+$('#cfgTour').onclick=()=>tour(0);
+$('#addTj').onclick=()=>{ let n='Tarjeta 2', k=3; while(S.tarjetas.some(t=>t.nombre===n)) n=`Tarjeta ${k++}`; S.tarjetas.push({nombre:n,corte:S.tarjetas[0].corte,pago:S.tarjetas[0].pago}); changed();
+  setTimeout(()=>{ const i=document.querySelector('#tjTable tbody tr:last-child input'); if(i){ i.focus(); i.select(); } },0); };
+// ---------- tutorial de la primera vez (3 pantallas) ----------
+const TOUR=[
+  ['✍️','Anota cada gasto','Toca “+ Agregar”, pon cuánto y en qué. Lo que más repites aparece listo para un solo toque. Si activas la IA, también puedes escribirlo o dictarlo: “ayer 200 de gasolina”.'],
+  ['👀','Mira cuánto te queda','Arriba ves lo que te queda del periodo y lo que llevas gastado. Las barras de cada categoría se ponen amarillas o rojas cuando te acercas al límite.'],
+  ['🗓️','Arma tu presupuesto','En “Presupuesto” pon cuánto quieres gastar en cada cosa y tus pagos fijos (renta, Netflix, sueldo). La app te recuerda cuáles faltan. En ⚙ puedes cambiar a modo sencillo o letra grande.']];
+function tour(i){
+  const box=$('#tour'), body=$('#tourBody'), fin=()=>{ box.classList.remove('open'); lsSet('pres.tour','1'); };
+  if(i>=TOUR.length) return fin();
+  const [ico,t,p]=TOUR[i];
+  body.replaceChildren(el('div',{class:'ico',text:ico}),el('h3',{text:t}),el('p',{text:p}),
+    el('div',{class:'dots'},...TOUR.map((_,k)=>el('i',{class:k===i?'on':null}))),
+    el('div',{class:'actions',style:{justifyContent:'center'}},
+      i<TOUR.length-1?el('button',{class:'btn ghost',text:'Saltar',onclick:fin}):null,
+      el('button',{class:'btn primary',text:i<TOUR.length-1?'Siguiente':'Empezar',onclick:()=>tour(i+1)})));
+  box.classList.add('open');
+}
 $('#btnTheme').onclick=()=>{
   const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches;
   const t = dark?'light':'dark'; document.documentElement.dataset.theme=t; lsSet('pres.theme',t); render();
@@ -2022,11 +2595,14 @@ $('#addMeta').onclick=()=>{
   let n='Nueva meta', k=2; while(catByName(n)||S.metas.some(m=>m.nombre===n)) n=`Nueva meta ${k++}`;
   S.metas.push({nombre:n,objetivo:0,fecha:null}); S.cats.push({nombre:n,tipo:'Gasto',grupo:'Ahorro',mensual:0,anual:0,nota:'Meta de ahorro',fijo:false}); changed();
 };
-[['#cfgCorte','DiaCorte',1,31],['#cfgPago','DiasPago',0,60],['#cfgN','MetaNecesidad',0,100],['#cfgG','MetaGusto',0,100],['#cfgA','MetaAhorro',0,100]].forEach(([s,k,lo,hi])=>{
-  $(s).onchange=e=>{ const v=Math.min(hi,Math.max(lo,Math.round(num(e.target.value)))); S.cfg[k]=v; if(k==='DiaCorte') S.P=idxOf(today()); changed(); };
+[['#cfgN','MetaNecesidad',0,100],['#cfgG','MetaGusto',0,100],['#cfgA','MetaAhorro',0,100]].forEach(([s,k,lo,hi])=>{
+  $(s).onchange=e=>{ const v=Math.min(hi,Math.max(lo,Math.round(num(e.target.value)))); S.cfg[k]=v; changed(); };
 });
+// día de corte en modo sencillo = el de la tarjeta principal
+$('#cfgCorte').onchange=e=>{ const v=Math.min(31,Math.max(1,Math.round(num(e.target.value))||1)); S.tarjetas[0].corte=S.cfg.DiaCorte=v; S.P=idxOf(today()); changed(); };
 $('#btnBackup').onclick=descargarExcel;
 document.addEventListener('keydown',e=>{
+  if($('#pBg').classList.contains('open')){ if(e.key==='Escape') $('#pBg').classList.remove('open'); return; }
   if($('#modalBg').classList.contains('open')){ if(e.key==='Escape') closeModal(); return; }
   if($('#app').classList.contains('hidden') || ['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName)) return;
   if(e.key==='n'||e.key==='N'){ e.preventDefault(); openModal(); }
@@ -2035,7 +2611,7 @@ document.addEventListener('keydown',e=>{
 });
 window.addEventListener('beforeunload',e=>{ if(S.dirty){ e.preventDefault(); e.returnValue=''; } });
 let rz; window.addEventListener('resize',()=>{ clearTimeout(rz); rz=setTimeout(()=>{ if(S.tab==='analisis' && !$('#app').classList.contains('hidden')) { renderPace(); renderTrend(); } },120); });
-if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+swInit();
 boot();
 </script>
 </body>
