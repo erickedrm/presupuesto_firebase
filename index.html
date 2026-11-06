@@ -368,6 +368,7 @@ a.btn{text-decoration:none;color:var(--ink);display:inline-flex;align-items:cent
 #impLink,#invMail{width:100%;background:var(--raised);border:1px solid var(--border);border-radius:8px;padding:7px 9px;min-width:0;color:var(--ink)}
 #fotoBg{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
 #fotoBg.open{display:flex}
+#gisBtn:not([hidden]){display:flex;justify-content:center;margin-top:16px;min-height:44px}
 #fotoBody{background:var(--surface);border-radius:12px;padding:12px;max-width:100%;max-height:100%;overflow:auto;display:flex;flex-direction:column;gap:8px;align-items:center}
 #fotoBody img{max-width:100%;max-height:75vh;border-radius:6px}
 </style>
@@ -383,6 +384,7 @@ a.btn{text-decoration:none;color:var(--ink);display:inline-flex;align-items:cent
     <button class="btn primary" id="btnRetry" hidden>Reintentar</button>
     <button class="btn" id="btnOut" hidden>Usar otra cuenta</button>
   </div>
+  <div id="gisBtn" hidden></div>
   <p class="sub" id="loginHint" hidden style="margin-top:18px"></p>
   <div class="setup" id="nuevo" hidden>
     <label class="sub" style="display:block;margin-bottom:6px" for="plantilla">¿Qué se parece más a tu vida? (para sugerirte categorías)</label>
@@ -855,7 +857,10 @@ const FBX = {
   },
   user(){ return FB.auth.currentUser ? Promise.resolve(FB.auth.currentUser) : new Promise(res=>{ const off=FB.A.onAuthStateChanged(FB.auth,u=>{ off(); res(u); }); }); },
   async signIn(){ const p=new FB.A.GoogleAuthProvider(); p.setCustomParameters({prompt:'select_account'}); return (await FB.A.signInWithPopup(FB.auth,p)).user; },
-  signOut(){ return FB.A.signOut(FB.auth); },
+  // iPhone / Safari: el botón oficial de Google da un comprobante (ID token) y con eso se entra a Firebase,
+  // sin la ventana de firebaseapp.com que Safari bloquea por privacidad ("The requested action is invalid")
+  async signInToken(idToken){ return (await FB.A.signInWithCredential(FB.auth, FB.A.GoogleAuthProvider.credential(idToken))).user; },
+  signOut(){ try{ window.google?.accounts?.id?.disableAutoSelect(); }catch(e){} return FB.A.signOut(FB.auth); },
   async get(path, server){ const r=FB.F.doc(FB.db,path), s=await (server?FB.F.getDocFromServer(r):FB.F.getDoc(r)); return s.exists()?s.data():null; },
   async list(path){ const q=await FB.F.getDocs(FB.F.collection(FB.db,path)); return q.docs.map(d=>({id:d.id,data:d.data()})); },
   set(path, data){ return FB.F.setDoc(FB.F.doc(FB.db,path),data,{merge:true}); },
@@ -1156,6 +1161,28 @@ function wShow(msg, ...ids){
   W('welcomeMsg').textContent=msg;
   ['btnLogin','btnRetry','btnOut','nuevo'].forEach(i=>W(i).hidden=!ids.includes(i));
   W('loginHint').hidden=!ids.includes('btnLogin');
+  W('gisBtn').hidden=true;
+}
+// iPhone, iPad y Safari de Mac bloquean la ventana normal de "Entrar con Google": ahí se usa el botón oficial de Google.
+// Necesita googleClientId en config.js (el "Web client ID" de Firebase › Authentication › Google).
+const usarGIS = () => !!window.FB_CONFIG?.googleClientId && (/iPad|iPhone|iPod/.test(navigator.userAgent)
+  || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1)
+  || (/Safari\//.test(navigator.userAgent) && !/Chrome|Chromium|CriOS|Edg|OPR|Firefox|FxiOS/.test(navigator.userAgent)));
+function gisBoton(){
+  const box=W('gisBtn'); box.hidden=false; W('btnLogin').hidden=true;
+  const pinta=()=>{
+    google.accounts.id.initialize({client_id:window.FB_CONFIG.googleClientId, ux_mode:'popup', auto_select:false, cancel_on_tap_outside:true,
+      callback:async r=>{
+        try{ W('welcomeMsg').textContent='Entrando…'; await FBX.signInToken(r.credential); boot(); }
+        catch(e){ W('welcomeMsg').textContent='No se pudo entrar: '+(e.message||e); }
+      }});
+    box.replaceChildren();
+    google.accounts.id.renderButton(box,{theme:'filled_blue',size:'large',shape:'pill',text:'signin_with',locale:'es',width:260});
+  };
+  if(window.google?.accounts?.id) return pinta();
+  const s=document.createElement('script'); s.src='https://accounts.google.com/gsi/client'; s.async=true; s.onload=pinta;
+  s.onerror=()=>{ W('btnLogin').hidden=false; box.hidden=true; W('welcomeMsg').textContent='No se pudo cargar el botón de Google. Revisa tu internet y vuelve a abrir la app.'; };
+  document.head.append(s);
 }
 async function boot(){
   const th=lsGet('pres.theme'); if(th) document.documentElement.dataset.theme=th;
@@ -1172,6 +1199,7 @@ async function boot(){
       W('loginHint').textContent = (enApp ? '⚠ Parece que abriste el link dentro de otra app. ' : '')
         + 'Si abriste el link desde WhatsApp u otra app y te sale un error al entrar, cópialo y ábrelo directo en Safari (iPhone) o Chrome (Android).';
       W('loginHint').classList.toggle('warntag', enApp);
+      if(usarGIS()) gisBoton();
       return;
     }
     ME.uid=u.uid; ME.email=(u.email||'').toLowerCase(); ME.nombre=u.displayName||ME.email;
