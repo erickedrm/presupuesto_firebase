@@ -383,6 +383,7 @@ a.btn{text-decoration:none;color:var(--ink);display:inline-flex;align-items:cent
     <button class="btn primary" id="btnRetry" hidden>Reintentar</button>
     <button class="btn" id="btnOut" hidden>Usar otra cuenta</button>
   </div>
+  <p class="sub" id="loginHint" hidden style="margin-top:18px"></p>
   <div class="setup" id="nuevo" hidden>
     <label class="sub" style="display:block;margin-bottom:6px" for="plantilla">¿Qué se parece más a tu vida? (para sugerirte categorías)</label>
     <select id="plantilla" style="width:100%"><option value="general">General</option><option value="estudiante">Estudiante</option><option value="familia">Familia con hijos</option><option value="jubilado">Jubilado o pensionado</option></select>
@@ -1154,6 +1155,7 @@ function wShow(msg, ...ids){
   W('welcome').classList.remove('hidden');
   W('welcomeMsg').textContent=msg;
   ['btnLogin','btnRetry','btnOut','nuevo'].forEach(i=>W(i).hidden=!ids.includes(i));
+  W('loginHint').hidden=!ids.includes('btnLogin');
 }
 async function boot(){
   const th=lsGet('pres.theme'); if(th) document.documentElement.dataset.theme=th;
@@ -1163,7 +1165,15 @@ async function boot(){
   try{
     await FBX.init();
     const u=await FBX.user();
-    if(!u) return wShow('Entra con tu cuenta de Google. Tus gastos solo los ves tú.','btnLogin');
+    if(!u){
+      wShow('Entra con tu cuenta de Google. Tus gastos solo los ves tú.','btnLogin');
+      // dentro de WhatsApp, Instagram, Facebook… Google no deja entrar ("The requested action is invalid")
+      const enApp=/FBAN|FBAV|Instagram|WhatsApp|Line\/|; wv\)|GSA\//.test(navigator.userAgent);
+      W('loginHint').textContent = (enApp ? '⚠ Parece que abriste el link dentro de otra app. ' : '')
+        + 'Si abriste el link desde WhatsApp u otra app y te sale un error al entrar, cópialo y ábrelo directo en Safari (iPhone) o Chrome (Android).';
+      W('loginHint').classList.toggle('warntag', enApp);
+      return;
+    }
     ME.uid=u.uid; ME.email=(u.email||'').toLowerCase(); ME.nombre=u.displayName||ME.email;
     wShow('Cargando tus datos…');
     const r=await gs('cargar');

@@ -56,7 +56,12 @@ Tiene dos modos (se cambian en ⚙ Configuración):
 5. Para usar la IA, pega tu propia clave gratis de Gemini en ⚙ Configuración
    ([aistudio.google.com/apikey](https://aistudio.google.com/apikey)). Cada quien usa la suya.
 
-**Instalarla en el celular:** ábrela en Chrome › menú ⋮ › "Agregar a pantalla principal" / "Instalar app".
+**Instalarla en el celular:**
+- Android: ábrela en Chrome › menú ⋮ › "Agregar a pantalla principal" / "Instalar app".
+- iPhone: ábrela en Safari › botón Compartir › "Agregar a pantalla de inicio".
+
+Si te pasan el link por WhatsApp, Instagram o Facebook, ábrelo en Safari o Chrome: dentro de esas apps Google no
+deja entrar (sale "The requested action is invalid").
 
 ## Privacidad
 
