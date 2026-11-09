@@ -345,6 +345,44 @@ body.simple .full-only{display:none!important}
 .icon.on{background:var(--track);color:var(--ink)}
 a.btn{text-decoration:none;color:var(--ink);display:inline-flex;align-items:center}
 
+/* ---------- efectos y transiciones ---------- */
+@keyframes fxFade{from{opacity:0}}
+@keyframes fxUp{from{opacity:0;transform:translateY(10px)}}
+@keyframes fxPop{from{opacity:0;transform:translateY(14px) scale(.97)}}
+@keyframes fxOut{to{opacity:0}}
+@keyframes fxPopOut{to{opacity:0;transform:translateY(8px) scale(.97)}}
+@keyframes fxGrowX{from{transform:scaleX(0)}}
+@keyframes fxGrowY{from{transform:scaleY(0)}}
+@keyframes fxDraw{from{stroke-dashoffset:1}}
+@keyframes fxFlash{0%,35%{background:var(--accent-weak)}}
+/* 1. cambio de pestaña  3. tarjetas en cascada */
+.fx-in{animation:fxFade .2s ease-out}
+.fx-in .card,.fx-in .kpi{animation:fxUp .32s cubic-bezier(.2,.7,.3,1) both;animation-delay:calc(var(--i,0)*45ms)}
+/* 2. ventanas: entran creciendo y salen al revés */
+.backdrop.closing,#tour.closing{display:flex;pointer-events:none;animation:fxOut .16s ease-in forwards}
+.backdrop.closing .modal,#tour.closing .modal{animation:fxPopOut .16s ease-in forwards}
+.backdrop.open,#tour.open{animation:fxFade .2s ease-out}
+.backdrop.open .modal,#tour.open .modal{animation:fxPop .26s cubic-bezier(.2,.8,.3,1.1)}
+/* 5. barras y gráficas crecen desde cero */
+.fx-bars .bar4 i,.fx-bars .mb i,.fx-bars .rfill{transform-origin:left;animation:fxGrowX .6s cubic-bezier(.2,.7,.3,1) both}
+.fx-bars svg.chart path.bar{transform-box:fill-box;transform-origin:bottom;animation:fxGrowY .55s cubic-bezier(.2,.7,.3,1) both;animation-delay:calc(var(--i,0)*30ms)}
+.fx-bars svg.chart .line{stroke-dasharray:1;animation:fxDraw .8s ease-out both}
+.fx-bars svg.chart .lastdot{animation:fxFade .3s .6s both}
+/* 6. movimiento guardado se resalta; el borrado se desvanece */
+tr.mv.flash td{animation:fxFlash 1.6s ease-out}
+tr.mv.gone td{opacity:0;transition:opacity .25s}
+/* 7. botones se hunden al tocarlos */
+.btn{transition:background .15s,transform .12s,box-shadow .15s}
+.icon,.seg button,.quick button,.catrow,.mrow,.rrow{transition:background .15s,transform .12s,color .15s}
+.tab{transition:background .2s,color .2s,box-shadow .2s,transform .12s}
+.btn:active,.icon:active,.tab:active,.seg button:active,.quick button:active{transform:scale(.95)}
+.catrow:active,.mrow:active,.rrow:active{transform:scale(.985)}
+.fab:active{transform:scale(.93)}
+/* quien tiene apagadas las animaciones en su teléfono no ve nada de esto */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+
 @media (max-width:860px){
   .grid{grid-template-columns:minmax(0,1fr)}
 }
@@ -1426,6 +1464,39 @@ function startApp(){
 }
 function fixSelection(){ if(S.selCat && !catByName(S.selCat)) S.selCat=null; }
 
+// ---------- efectos ----------
+const noFx = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const FX = {tab:null, P:null, kv:{}, t:0, flash:null};
+// cerrar una ventana con animación (sigue visible ~0.16 s mientras se desvanece)
+function hideBg(b){
+  if(!b.classList.contains('open')) return;
+  b.classList.remove('open');
+  if(noFx()) return;
+  b.classList.add('closing');
+  setTimeout(()=>b.classList.remove('closing'),170);
+}
+// al cambiar de pestaña (o al abrir la app) las tarjetas entran en cascada; al cambiar de periodo solo crecen las barras
+function fxPane(pane, full){
+  if(noFx() || !pane) return;
+  pane.classList.remove('fx-in','fx-bars'); void pane.offsetWidth;
+  if(full) [...pane.querySelectorAll('.kpi,.card')].filter(c=>c.offsetParent).forEach((c,i)=>c.style.setProperty('--i',Math.min(i,8)));
+  pane.classList.add('fx-bars'); if(full) pane.classList.add('fx-in');
+  clearTimeout(FX.t); FX.t=setTimeout(()=>pane.classList.remove('fx-in','fx-bars'),1100);
+}
+// números grandes que cuentan del valor anterior al nuevo
+function countUp(node, to, key){
+  const from = FX.kv[key] ?? 0;
+  if(noFx() || from===to){ FX.kv[key]=to; return; }
+  const t0=performance.now(), dur=650, tok=FX.kv[key+'#']=(FX.kv[key+'#']||0)+1;
+  const step=now=>{
+    if(FX.kv[key+'#']!==tok) return;
+    const k=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-k,3), v=from+(to-from)*e;
+    FX.kv[key]=v; node.textContent=money.format(Math.round(v));
+    if(k<1) requestAnimationFrame(step); else FX.kv[key]=to;
+  };
+  node.textContent=money.format(Math.round(from)); requestAnimationFrame(step);
+}
+
 // ---------- render ----------
 function render(){
   document.body.classList.toggle('simple', simple());
@@ -1447,6 +1518,9 @@ function render(){
   if(S.tab==='movs') renderMovTable();
   if(S.tab==='pres') renderPres();
   if(S.tab==='cfg') renderCfg();
+  const tabChg = FX.tab!==S.tab, perChg = FX.P!==S.P;
+  if(tabChg || perChg) fxPane($('#tab-'+S.tab), tabChg);
+  FX.tab=S.tab; FX.P=S.P;
   badge();
 }
 // Número en el ícono de la app instalada: pagos recurrentes vencidos o de hoy que no has registrado
@@ -1516,6 +1590,7 @@ function renderKpis(){
   $('#kpis').replaceChildren(
     kpi('Te queda', money.format(disp), left+(!t.real && t.ingreso<t.esperado?' · con ingreso esperado':''), disp<0),
     kpi('Gastado', money.format(t.gasto), budG?`de ${money.format(budG)} (${Math.round(t.gasto/budG*100)}%)`:'', false, vsPrev()));
+  const vs=$$('#kpis .kpi .v'); countUp(vs[0], disp, 'queda'); countUp(vs[1], t.gasto, 'gastado');
   const f=simple()?'':fondoTxt();
   $('#kline').replaceChildren('Ingresos ', el('b',{text:money.format(t.ingreso)}), t.ingreso<t.esperado?` de ${money.format(t.esperado)}`:'',
     ' · Ahorrado ', el('b',{text:money.format(t.ahorro)}), f?` · ${f}`:'');
@@ -1666,7 +1741,7 @@ function waTexto(c){
 // Ventana de una persona: lo pendiente, marcar pagos, abonos, WhatsApp y nuevo préstamo
 function openPersona(nombre, nuevo){
   const c=cuentas().find(x=>norm(x.persona)===norm(nombre||'')) || {persona:nombre||'',neto:0,items:[]};
-  const body=$('#pBody'), close=()=>$('#pBg').classList.remove('open');
+  const body=$('#pBody'), close=()=>hideBg($('#pBg'));
   const it2row = it => {
     if(it.kind==='comp') return el('div',{class:'it'},
       el('div',{class:'il'},it.m.desc||it.m.cat,el('span',{text:`${shortDate(it.fecha)} · pagaste ${money.format(it.m.monto)} entre ${it.m.entre}`})),
@@ -1708,7 +1783,7 @@ function openPersona(nombre, nuevo){
   $('#pBg').classList.add('open');
   if(nuevo) setTimeout(()=>(c.persona?fMon:fPer).focus(),30);
 }
-$('#pBg').addEventListener('mousedown',e=>{ if(e.target.id==='pBg') $('#pBg').classList.remove('open'); });
+$('#pBg').addEventListener('mousedown',e=>{ if(e.target.id==='pBg') hideBg($('#pBg')); });
 $('#cobAdd').onclick=()=>openPersona('',true);
 function renderMetas(){
   const card=$('#metasCard'), box=$('#metasList');
@@ -1798,8 +1873,8 @@ function renderPace(){
   if(bud>0) svg.append(el('line',{x1:X(0),y1:Y(0),x2:X(N-1),y2:Y(bud),stroke:'var(--muted)','stroke-width':1.5,'stroke-dasharray':'5 4'}));
   if(lastDay>=0){
     const pts=cum.slice(0,lastDay+1).map((v,i)=>`${X(i)},${Y(v)}`).join(' ');
-    svg.append(el('polyline',{points:pts,fill:'none',stroke:'var(--s1)','stroke-width':2,'stroke-linejoin':'round'}));
-    svg.append(el('circle',{cx:X(lastDay),cy:Y(cum[lastDay]),r:4,fill:'var(--s1)',stroke:'var(--surface)','stroke-width':2}));
+    svg.append(el('polyline',{class:'line',pathLength:1,points:pts,fill:'none',stroke:'var(--s1)','stroke-width':2,'stroke-linejoin':'round'}));
+    svg.append(el('circle',{class:'lastdot',cx:X(lastDay),cy:Y(cum[lastDay]),r:4,fill:'var(--s1)',stroke:'var(--surface)','stroke-width':2}));
   }
   const cross=el('line',{x1:0,x2:0,y1:T,y2:T+ih,stroke:'var(--axis)','stroke-width':1,opacity:0});
   const dot=el('circle',{r:4,fill:'var(--s1)',stroke:'var(--surface)','stroke-width':2,opacity:0});
@@ -1861,7 +1936,7 @@ function renderTrend(){
     const v=vals[k], cx=L+slot*k+slot/2, x=cx-bw/2, y=Y(v), h=T+ih-y, r=Math.min(4,h);
     const sel=i===S.P, future=i>cur;
     const g=el('g',{style:{cursor:'pointer'}});
-    if(v>0) g.append(el('path',{d:`M${x},${T+ih} V${y+r} Q${x},${y} ${x+r},${y} H${x+bw-r} Q${x+bw},${y} ${x+bw},${y+r} V${T+ih} Z`,fill:'var(--s1)',opacity:sel?1:.5}));
+    if(v>0) g.append(el('path',{class:'bar',style:'--i:'+k,d:`M${x},${T+ih} V${y+r} Q${x},${y} ${x+r},${y} H${x+bw-r} Q${x+bw},${y} ${x+bw},${y+r} V${T+ih} Z`,fill:'var(--s1)',opacity:sel?1:.5}));
     g.append(el('text',{x:cx,y:H-8,'text-anchor':'middle',text:shortLabelOf(i),style:{fill:sel?'var(--ink)':'var(--muted)',fontWeight:sel?600:400}}));
     if(sel && v>0) g.append(el('text',{x:cx,y:y-6,'text-anchor':'middle',text:kfmt(v),style:{fill:'var(--ink)',fontWeight:600}}));
     g.append(el('rect',{class:'bar-hit',x:L+slot*k,y:T,width:slot,height:ih+B}));
@@ -1888,7 +1963,7 @@ function movRow(m, compact){
   const pend = o.entre>1 ? pendientes(o).length : 0;
   const sh = o.entre>1 ? (pend ? `÷${o.entre} · te deben ${money.format(parteDe(o)*pend)}` : `÷${o.entre} ✓ reembolsado`) : null;
   const tag = t => t ? el('span',{class:'tag',style:{marginLeft:'6px'},text:t}) : null;
-  return el('tr',{class:'mv',onclick:()=>openModal(o)},
+  const tr = el('tr',{class:'mv'+(FX.flash===o?' flash':''),onclick:()=>openModal(o)},
     el('td',{class:'date',text:shortDate(m.fecha)+(compact?'':` ${m.fecha.getFullYear()}`)}),
     el('td',{},m.desc||'—', tag(msi), tag(cub), tag(sh), ...(o.tags||[]).map(t=>el('span',{class:'htag',text:'#'+t})),
       el('div',{class:'c-sub',text:m.cat}),
@@ -1896,6 +1971,7 @@ function movRow(m, compact){
     el('td',{class:'c-cat'},el('span',{class:'tag'},el('span',{style:{display:'inline-block',width:'7px',height:'7px',borderRadius:'2px',background:GCOLOR[c?.grupo]||'var(--good-ink)',marginRight:'6px'}}),m.cat)),
     compact?null:el('td',{text:metLbl(m),style:{color:'var(--ink2)'}}),
     el('td',{class:'money'+(m.tipo==='Ingreso'?' in':''),text:(m.tipo==='Ingreso'?'+':'')+money2.format(cuenta(m))}));
+  tr._mov=o; return tr;
 }
 function renderRecent(){
   const ms=movsIn(S.P).filter(m=>S.selCat?m.cat===S.selCat:S.selGroup?groupOf(m.cat)===S.selGroup:true).sort((a,b)=>b.fecha-a.fecha||b.id-a.id);
@@ -2235,7 +2311,7 @@ function openModal(m, pre){
   $('#tagList').replaceChildren(...[...new Set(S.movs.flatMap(x=>x.tags||[]))].map(t=>el('option',{value:t})));
   $('#modalBg').classList.add('open'); setTimeout(()=>{ $('#mMonto').focus(); $('#mMonto').select(); },30);
 }
-function closeModal(){ $('#modalBg').classList.remove('open'); editing=null; }
+function closeModal(){ hideBg($('#modalBg')); editing=null; }
 async function saveModal(more){
   const monto=num($('#mMonto').value), fecha=parseDate($('#mFecha').value), cat=$('#mCat').value;
   if(!(monto>0)){ $('#mErr').textContent='Pon un monto mayor a 0.'; $('#mMonto').focus(); return; }
@@ -2253,7 +2329,9 @@ async function saveModal(more){
     const r={id:newRecId(), nombre:data.desc||cat, cat, monto, metodo, tarjeta, cada:'Mes', dia:fecha.getDate(), activo:true, desde:new Date(fecha.getFullYear(),fecha.getMonth(),1)};
     S.recs.push(r); data.rec=recKey(r,fecha,'');
   }
-  if(editing) Object.assign(editing,data); else S.movs.push({id:S.nextId++,...data,comp:[]});
+  let guardado = editing;
+  if(editing) Object.assign(editing,data); else S.movs.push(guardado={id:S.nextId++,...data,comp:[]});
+  FX.flash=guardado; setTimeout(()=>{ if(FX.flash===guardado) FX.flash=null; },1700);
   if(!more) closeModal(); else { $('#mMonto').value=''; $('#mDesc').value=''; $('#mTags').value=''; mReemb=[]; mRec=''; $('#mRepeat').checked=false; recUI(); shareUI(); fillFreq(true); $('#mMonto').focus(); }
   await changed();
   toast(editing||!more?'Guardado':'Guardado. Captura el siguiente.');
@@ -2272,7 +2350,10 @@ $('#mFotoFile').onchange=async e=>{
 };
 $('#mDel').onclick=async()=>{
   const b=$('#mDel'); if(!b.dataset.armed){ b.dataset.armed='1'; b.textContent='¿Seguro? Clic otra vez'; return; }
-  S.movs=S.movs.filter(x=>x!==editing); closeModal(); await changed(); toast('Movimiento eliminado');
+  const mv=editing; closeModal();
+  const rows=[...document.querySelectorAll('tr.mv')].filter(r=>r._mov===mv);
+  if(rows.length && !noFx()){ rows.forEach(r=>r.classList.add('gone')); await new Promise(r=>setTimeout(r,260)); }
+  S.movs=S.movs.filter(x=>x!==mv); await changed(); toast('Movimiento eliminado');
 };
 $('#modalBg').addEventListener('mousedown',e=>{ if(e.target.id==='modalBg') closeModal(); });
 $('.modal').addEventListener('keydown',e=>{ if(e.key==='Enter' && e.target.tagName==='INPUT'){ e.preventDefault(); saveModal(false); } });
@@ -2612,7 +2693,7 @@ const TOUR=[
   ['👀','Mira cuánto te queda','Arriba ves lo que te queda del periodo y lo que llevas gastado. Las barras de cada categoría se ponen amarillas o rojas cuando te acercas al límite.'],
   ['🗓️','Arma tu presupuesto','En “Presupuesto” pon cuánto quieres gastar en cada cosa y tus pagos fijos (renta, Netflix, sueldo). La app te recuerda cuáles faltan. En ⚙ puedes cambiar a modo sencillo o letra grande.']];
 function tour(i){
-  const box=$('#tour'), body=$('#tourBody'), fin=()=>{ box.classList.remove('open'); lsSet('pres.tour','1'); };
+  const box=$('#tour'), body=$('#tourBody'), fin=()=>{ hideBg(box); lsSet('pres.tour','1'); };
   if(i>=TOUR.length) return fin();
   const [ico,t,p]=TOUR[i];
   body.replaceChildren(el('div',{class:'ico',text:ico}),el('h3',{text:t}),el('p',{text:p}),
@@ -2640,7 +2721,7 @@ $('#addMeta').onclick=()=>{
 $('#cfgCorte').onchange=e=>{ const v=Math.min(31,Math.max(1,Math.round(num(e.target.value))||1)); S.tarjetas[0].corte=S.cfg.DiaCorte=v; S.P=idxOf(today()); changed(); };
 $('#btnBackup').onclick=descargarExcel;
 document.addEventListener('keydown',e=>{
-  if($('#pBg').classList.contains('open')){ if(e.key==='Escape') $('#pBg').classList.remove('open'); return; }
+  if($('#pBg').classList.contains('open')){ if(e.key==='Escape') hideBg($('#pBg')); return; }
   if($('#modalBg').classList.contains('open')){ if(e.key==='Escape') closeModal(); return; }
   if($('#app').classList.contains('hidden') || ['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName)) return;
   if(e.key==='n'||e.key==='N'){ e.preventDefault(); openModal(); }
