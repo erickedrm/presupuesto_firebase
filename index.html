@@ -493,13 +493,29 @@ tr.mv.gone td{opacity:0;transition:opacity .25s}
 #gisBtn:not([hidden]){display:flex;justify-content:center;margin-top:16px;min-height:44px}
 #fotoBody{background:var(--surface);border-radius:12px;padding:12px;max-width:100%;max-height:100%;overflow:auto;display:flex;flex-direction:column;gap:8px;align-items:center}
 #fotoBody img{max-width:100%;max-height:75vh;border-radius:6px}
+/* pantalla de carga: gráfica que sube y baja (v11) */
+.loader{display:flex;align-items:flex-end;justify-content:center;gap:6px;height:48px;margin:18px 0 6px}
+.loader[hidden]{display:none}
+.loader i{width:10px;height:30%;border-radius:4px 4px 2px 2px;background:var(--s1);animation:ldGrow 1.1s ease-in-out infinite}
+.loader i:nth-child(2){animation-delay:.12s;background:var(--s3)}
+.loader i:nth-child(3){animation-delay:.24s}
+.loader i:nth-child(4){animation-delay:.36s;background:var(--s2)}
+.loader i:nth-child(5){animation-delay:.48s}
+@keyframes ldGrow{0%,100%{height:25%}50%{height:100%}}
+#app:not(.hidden){animation:appIn .35s ease}
+@keyframes appIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  .loader i:nth-child(1){height:45%} .loader i:nth-child(2){height:75%} .loader i:nth-child(3){height:55%}
+  .loader i:nth-child(4){height:100%} .loader i:nth-child(5){height:65%}
+}
 </style>
 </head>
 <body>
 
 <!-- Pantalla inicial: entrar con Google -->
-<div id="welcome" class="welcome hidden">
+<div id="welcome" class="welcome">
   <h1>Mi Presupuesto</h1>
+  <div id="loader" class="loader" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
   <p id="welcomeMsg">Cargando…</p>
   <div class="actions">
     <button class="btn primary" id="btnLogin" hidden>Entrar con Google</button>
@@ -1352,6 +1368,7 @@ function wShow(msg, ...ids){
   W('welcomeMsg').textContent=msg;
   ['btnLogin','btnRetry','btnOut','nuevo'].forEach(i=>W(i).hidden=!ids.includes(i));
   W('loginHint').hidden=!ids.includes('btnLogin');
+  W('loader').hidden=ids.length>0;   // la gráfica de carga solo mientras no hay nada que hacer
   W('gisBtn').hidden=true;
 }
 // Botón oficial de Google para todos: la ventana normal de Firebase (firebaseapp.com) ya falla en iPhone/Safari
@@ -1362,8 +1379,8 @@ function gisBoton(){
   const pinta=()=>{
     google.accounts.id.initialize({client_id:window.FB_CONFIG.googleClientId, ux_mode:'popup', use_fedcm_for_button:true, auto_select:false, cancel_on_tap_outside:true,
       callback:async r=>{
-        try{ W('welcomeMsg').textContent='Entrando…'; await FBX.signInToken(r.credential); boot(); }
-        catch(e){ W('welcomeMsg').textContent='No se pudo entrar: '+(e.message||e); }
+        try{ W('welcomeMsg').textContent='Entrando…'; W('loader').hidden=false; W('gisBtn').hidden=true; await FBX.signInToken(r.credential); boot(); }
+        catch(e){ W('loader').hidden=true; W('gisBtn').hidden=false; W('welcomeMsg').textContent='No se pudo entrar: '+(e.message||e); }
       }});
     box.replaceChildren();
     google.accounts.id.renderButton(box,{theme:'filled_blue',size:'large',shape:'pill',text:'signin_with',locale:'es',width:260});
@@ -1377,9 +1394,10 @@ async function boot(){
   const th=lsGet('pres.theme'); if(th) document.documentElement.dataset.theme=th;
   const h=new URLSearchParams(location.hash.slice(1));
   if(h.get('u') && h.get('k')){ lsSet('pres.impLink',location.href); history.replaceState(null,'',location.pathname); }
-  wShow('Cargando…');
+  wShow('Conectando…');
   try{
     await FBX.init();
+    W('welcomeMsg').textContent='Revisando tu sesión…';
     const u=await FBX.user();
     if(!u){
       wShow('Entra con tu cuenta de Google. Tus gastos solo los ves tú.','btnLogin');
