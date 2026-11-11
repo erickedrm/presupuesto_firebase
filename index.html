@@ -1354,15 +1354,13 @@ function wShow(msg, ...ids){
   W('loginHint').hidden=!ids.includes('btnLogin');
   W('gisBtn').hidden=true;
 }
-// iPhone, iPad y Safari de Mac bloquean la ventana normal de "Entrar con Google": ahí se usa el botón oficial de Google.
-// Necesita googleClientId en config.js (el "Web client ID" de Firebase › Authentication › Google).
-const usarGIS = () => !!window.FB_CONFIG?.googleClientId && (/iPad|iPhone|iPod/.test(navigator.userAgent)
-  || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1)
-  || (/Safari\//.test(navigator.userAgent) && !/Chrome|Chromium|CriOS|Edg|OPR|Firefox|FxiOS/.test(navigator.userAgent)));
+// Botón oficial de Google para todos: la ventana normal de Firebase (firebaseapp.com) ya falla en iPhone/Safari
+// y en Chrome de Android ("The requested action is invalid"). Si no hay googleClientId, se usa la ventana normal.
+const usarGIS = () => !!window.FB_CONFIG?.googleClientId;
 function gisBoton(){
   const box=W('gisBtn'); box.hidden=false; W('btnLogin').hidden=true;
   const pinta=()=>{
-    google.accounts.id.initialize({client_id:window.FB_CONFIG.googleClientId, ux_mode:'popup', auto_select:false, cancel_on_tap_outside:true,
+    google.accounts.id.initialize({client_id:window.FB_CONFIG.googleClientId, ux_mode:'popup', use_fedcm_for_button:true, auto_select:false, cancel_on_tap_outside:true,
       callback:async r=>{
         try{ W('welcomeMsg').textContent='Entrando…'; await FBX.signInToken(r.credential); boot(); }
         catch(e){ W('welcomeMsg').textContent='No se pudo entrar: '+(e.message||e); }
