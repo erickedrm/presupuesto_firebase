@@ -1,0 +1,52 @@
+# Cada vez que subes algo a main: corre las pruebas y, solo si pasan, publica en GitHub Pages.
+# Si una prueba falla, NO se publica (sigue en línea la versión anterior) y GitHub te manda un correo.
+name: Probar y publicar
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:        # botón "Run workflow" en la pestaña Actions para correrlo a mano
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: "Prueba 2: la versión de sw.js cambió si cambió la app"
+        run: node pruebas/version.mjs
+
+      - name: Instalar Chrome para las pruebas
+        working-directory: pruebas
+        run: npm install --no-audit --no-fund && npx playwright install --with-deps chromium
+
+      - name: "Prueba 1: la app abre sin errores"
+        run: node pruebas/carga.mjs
+
+  publicar:
+    needs: pruebas
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Juntar solo los archivos de la app
+        run: rsync -a --exclude .git --exclude .github --exclude pruebas --exclude _site ./ _site/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v4
