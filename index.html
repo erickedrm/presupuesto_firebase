@@ -21,6 +21,7 @@
   --crit:#d03b3b; --crit-ink:#b42d2d; --good-ink:#0a7a2f; --warn:#f0a818; --warn-ink:#8a5a00;
   --shadow:0 8px 30px rgba(0,0,0,.08);
   --r:16px;
+  --glass:rgba(120,170,220,.10); --glass-line:rgba(60,90,120,.35); --glass-shine:rgba(255,255,255,.8);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -32,6 +33,7 @@
     --accent:#4a90e8; --accent-ink:#ffffff; --accent-weak:#172a42;
     --crit:#d94545; --crit-ink:#ee7474; --good-ink:#3cc46a; --warn:#f0a818; --warn-ink:#f5bd45;
     --shadow:0 8px 30px rgba(0,0,0,.5);
+    --glass:rgba(140,190,255,.07); --glass-line:rgba(170,200,235,.35); --glass-shine:rgba(255,255,255,.22);
   }
 }
 :root[data-theme="dark"]{
@@ -43,6 +45,7 @@
   --accent:#4a90e8; --accent-ink:#ffffff; --accent-weak:#172a42;
   --crit:#d94545; --crit-ink:#ee7474; --good-ink:#3cc46a; --warn:#f0a818; --warn-ink:#f5bd45;
   --shadow:0 8px 30px rgba(0,0,0,.5);
+  --glass:rgba(140,190,255,.07); --glass-line:rgba(170,200,235,.35); --glass-shine:rgba(255,255,255,.22);
 }
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -552,6 +555,36 @@ button.pl{border:0;background:transparent;padding:0;text-align:left;font:inherit
 #tour ul{text-align:left;color:var(--ink2);margin:10px 0 0;padding-left:20px;font-size:14px}
 #tour li{margin:5px 0}
 #tour li b{color:var(--ink);font-weight:600}
+
+/* ---------- v14: racha (frasco de monedas) y calendario ---------- */
+.racha{display:flex;gap:14px;align-items:center}
+.jar{width:150px;height:180px;flex:none;position:relative;touch-action:manipulation;cursor:pointer}
+.jar canvas{display:block}
+.rinfo{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.rnum{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.rnum b{display:inline-block;font-size:40px;font-weight:780;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.rnum b.pop{animation:rpop .8s cubic-bezier(.2,.9,.3,1.5)}
+@keyframes rpop{0%{transform:scale(.4) rotate(-10deg)}55%{transform:scale(1.25) rotate(3deg)}100%{transform:none}}
+.rnum span{font-size:13px;color:var(--ink2)}
+.rsub{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--muted)}
+.rsub .ok{color:var(--good-ink)}
+#sinGasto{align-self:flex-start;margin-top:2px}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.calh{font-size:11px;color:var(--muted);text-align:center}
+.cd{position:relative;height:54px;border:0;border-radius:10px;background:var(--track);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font:inherit;color:var(--ink);padding:2px;min-width:0}
+.cd b{font-size:13px;font-weight:600;line-height:1.1}
+.cd small{font-size:10px;color:var(--ink2);font-variant-numeric:tabular-nums;white-space:nowrap;line-height:1.1}
+.cd.hot b,.cd.hot small{color:#fff}
+.cd.fut{background:transparent;border:1px dashed var(--axis);color:var(--muted);cursor:default}
+.cd.hoy{outline:2px solid var(--accent);outline-offset:1px}
+.cd i{position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%;background:#e8b234;box-shadow:0 0 0 1.5px var(--surface)}
+.cd:not(.fut):hover{filter:brightness(.96)}
+.callg{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
+.callg .grad{width:70px;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--track),var(--s2))}
+.callg .dot{width:7px;height:7px;border-radius:50%;background:#e8b234;margin-left:10px}
+.calins{font-size:13px;color:var(--ink2);margin:10px 0 0}
+.calins b{color:var(--ink);font-weight:600}
+@media (max-width:560px){ .cd{height:46px;border-radius:8px} .cd small{font-size:9px} }
 /* quien tiene apagadas las animaciones en su teléfono no ve nada de esto */
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
@@ -697,6 +730,17 @@ button.pl{border:0;background:transparent;padding:0;text-align:left;font:inherit
         <div class="catlist" id="catList"></div>
       </div>
       <div class="col">
+        <div class="card" id="rachaCard">
+          <h2 data-h="racha">Tu racha</h2>
+          <div class="racha">
+            <div class="jar" id="jarBox" title="Toca para revolver las monedas"></div>
+            <div class="rinfo">
+              <div class="rnum"><b id="rachaN">0</b><span id="rachaTxt">días seguidos</span></div>
+              <div class="rsub" id="rachaSub"></div>
+              <button class="btn small" id="sinGasto">Hoy no gasté nada</button>
+            </div>
+          </div>
+        </div>
         <div class="card hidden" id="wkCard">
           <h2 data-h="semana">Tu semana</h2>
           <div id="wkBody"></div>
@@ -760,6 +804,10 @@ button.pl{border:0;background:transparent;padding:0;text-align:left;font:inherit
         <div class="legend" id="paceLegend"></div>
         <div id="paceChart"></div>
       </div>
+      <div class="card span2" id="calCard">
+        <h2 data-h="calendario"><span id="calTitle">Calendario de gastos</span></h2>
+        <div id="calBody"></div>
+      </div>
       <div class="card">
         <h2 data-h="regla">Regla 50/30/20</h2>
         <p class="sub" id="ruleSub"></p>
@@ -803,6 +851,7 @@ button.pl{border:0;background:transparent;padding:0;text-align:left;font:inherit
       <h2>General</h2>
       <label class="chkrow"><input type="checkbox" id="cfgSimple"><span>Modo sencillo<small>Muestra solo lo básico: cuánto te queda, tus categorías y tus movimientos. Las demás funciones siguen ahí, solo se esconden.</small></span></label>
       <label class="chkrow"><input type="checkbox" id="cfgBig"><span>Letra grande<small>Solo en este dispositivo.</small></span></label>
+      <label class="chkrow"><input type="checkbox" id="cfgSnd"><span>Sonidos<small>Las monedas de tu racha suenan al caer. Solo en este dispositivo.</small></span></label>
       <div class="cfg" style="margin-top:8px">
         <label><span class="lt" data-h="periodo">Ver el periodo por</span><select id="cfgMode"><option value="corte">Corte de tarjeta</option><option value="mes">Mes calendario</option></select></label>
         <label id="cfgCorteWrap">Día de corte de tu tarjeta<input type="number" min="1" max="31" id="cfgCorte"></label>
@@ -999,7 +1048,7 @@ const dayDiff = (a,b) => Math.round((b-a)/864e5);
 // ---------- estado ----------
 const S = {
   movs:[], cats:[], recs:[], cfg:{DiaCorte:11,DiaLimite:0,DiasPago:20,MetaNecesidad:50,MetaGusto:30,MetaAhorro:20,Roomies:'',Simple:0,BaseIngreso:'esperado'}, metas:[],
-  tarjetas:[{nombre:'Principal',corte:11,limite:1}], deudas:[], alias:[],
+  tarjetas:[{nombre:'Principal',corte:11,limite:1}], deudas:[], alias:[], sinGasto:[],
   dirty:false, nextId:1, remoteVer:'', gemKey:'', sheetUrl:'', exportUrl:'',
   mode: lsGet('pres.mode')==='mes' ? 'mes' : 'corte',
   P:0, selCat:null, selGroup:null, tab:'resumen', ver:0
@@ -1347,6 +1396,9 @@ function loadData(hojas){
   // nombres que se agrupan como uno solo en "¿En qué se te va?" (ej. "OXXO Juárez" -> "Oxxo")
   const wa = findSheet(hojas,'Alias');
   const alias = wa ? rowsOf(wa).map(r=>({nombre:String(r['nombre']??'').trim(), grupo:String(r['agrupar como']??'').trim()})).filter(a=>a.nombre && a.grupo) : [];
+  // días que marcaste "Hoy no gasté nada" (cuentan para la racha)
+  const wg = findSheet(hojas,'Racha');
+  const sinGasto = wg ? [...new Set(rowsOf(wg).map(r=>{ const d=parseDate(r['sin gasto']); return d?isoDate(d):null; }).filter(Boolean))] : [];
   const wt = findSheet(hojas,'Metas');
   const metas = wt ? rowsOf(wt).map(r=>({nombre:String(r['meta']).trim(), objetivo:num(r['objetivo']), fecha:parseDate(r['fecha limite'])})).filter(x=>x.nombre) : [];
   metas.forEach(mt=>{ if(!cats.some(c=>c.nombre===mt.nombre)) cats.push({nombre:mt.nombre,tipo:'Gasto',grupo:'Ahorro',mensual:0,anual:0,nota:'Meta de ahorro',fijo:false}); });
@@ -1354,7 +1406,7 @@ function loadData(hojas){
   movs.forEach(m=>{ if(!cats.some(c=>c.nombre===m.cat)) cats.push({nombre:m.cat,tipo:m.tipo,grupo:m.tipo==='Ingreso'?'Ingreso':'Gusto',mensual:0,anual:0,nota:''}); });
   // sin hoja "Recurrentes" todavía: las categorías marcadas como "Fijo" (versión anterior) se pasan a pagos recurrentes
   S.migrated = !recs && cats.some(c=>c.fijo);
-  S.movs=movs; S.cats=cats; S.cfg=cfg; S.metas=metas; S.nextId=id; S.tarjetas=tarjetas; S.deudas=deudas; S.alias=alias; S.recs=recs || migrarFijos(cats,movs); S.ver++;
+  S.movs=movs; S.cats=cats; S.cfg=cfg; S.metas=metas; S.nextId=id; S.tarjetas=tarjetas; S.deudas=deudas; S.alias=alias; S.sinGasto=sinGasto; S.recs=recs || migrarFijos(cats,movs); S.ver++;
   document.body.classList.toggle('simple', simple());
 }
 let recSeq=0;
@@ -1400,7 +1452,8 @@ function buildSheets(){
     'Metas':[["Meta","Objetivo","Fecha límite"],...S.metas.map(m=>[m.nombre,m.objetivo||'',m.fecha?toSerial(m.fecha):''])],
     'Tarjetas':[["Nombre","Día de corte","Día límite","Días para pagar"],...S.tarjetas.map(t=>[t.nombre,t.corte,t.limite,diasPago(t)])],
     'Deudas':[["Id","Persona","Concepto","Tipo","Monto","Pagado","Fecha"],...S.deudas.map(d=>[d.id,d.persona,d.concepto,d.tipo,d.monto,d.pagado||'',toSerial(d.fecha)])],
-    'Alias':[["Nombre","Agrupar como"],...S.alias.map(a=>[a.nombre,a.grupo])]
+    'Alias':[["Nombre","Agrupar como"],...S.alias.map(a=>[a.nombre,a.grupo])],
+    'Racha':[["Sin gasto"],...[...S.sinGasto].sort().map(d=>[toSerial(parseDate(d))])]
   };
   const formatos={
     'Movimientos':{0:DAT,1:TXT,2:TXT,3:TXT,4:MON,5:TXT,7:DAT,8:'yyyy-mm',9:'yyyy-mm',11:TXT,12:TXT,13:TXT,14:TXT,15:TXT,16:TXT},
@@ -1409,7 +1462,8 @@ function buildSheets(){
     'Metas':{0:TXT,1:MON,2:DAT},
     'Tarjetas':{0:TXT},
     'Deudas':{0:TXT,1:TXT,2:TXT,3:TXT,4:MON,5:MON,6:DAT},
-    'Alias':{0:TXT,1:TXT}
+    'Alias':{0:TXT,1:TXT},
+    'Racha':{0:DAT}
   };
   return {hojas,formatos};
 }
@@ -1791,10 +1845,13 @@ function initFold(){
 }
 function abrirDesdeAviso(){
   const q=new URLSearchParams(location.search);
-  if(!q.has('nuevo') && !q.has('semana')) return;
+  if(!q.has('nuevo') && !q.has('semana') && !q.has('dictar')) return;
   try{ history.replaceState(null,'',location.pathname+location.hash); }catch(e){}
   S.tab='resumen'; S.P=idxOf(today()); render();
   if(q.has('nuevo')) setTimeout(()=>openModal(),250);
+  // atajo "Dictar gasto": la barra de la IA lista para escribir o hablar (sin clave de Gemini, la ventana normal)
+  else if(q.has('dictar')) setTimeout(()=>{ if(!S.gemKey || $('#aiCard').classList.contains('hidden')) return openModal();
+    $('#aiCard').scrollIntoView({block:'center'}); $('#aiTxt').focus(); if(!$('#aiMic').classList.contains('hidden')) $('#aiMic').click(); },350);
   else setTimeout(()=>{ const c=$('#wkCard'); if(c.classList.contains('hidden')) return;
     c.scrollIntoView({behavior:noFx()?'auto':'smooth',block:'center'});
     if(!noFx()){ c.classList.remove('flash'); void c.offsetWidth; c.classList.add('flash'); setTimeout(()=>c.classList.remove('flash'),1900); } },350);
@@ -1852,8 +1909,8 @@ function render(){
   ['resumen','movs','analisis','pres','cfg'].forEach(t=>$('#tab-'+t).classList.toggle('hidden',t!==S.tab));
   // la barra de IA: en modo sencillo solo si ya pusiste tu clave
   $('#aiCard').classList.toggle('hidden', simple() && !S.gemKey);
-  if(S.tab==='resumen'){ renderKpis(); renderNudge(); renderSemana(); renderCats(); renderTC(); renderCobrar(); renderPending(); renderMetas(); renderRecent(); }
-  if(S.tab==='analisis'){ renderIaRes(); renderTop(); renderHormiga(); renderPace(); renderRule(); renderTrend(); }
+  if(S.tab==='resumen'){ renderKpis(); renderNudge(); renderRacha(); renderSemana(); renderCats(); renderTC(); renderCobrar(); renderPending(); renderMetas(); renderRecent(); }
+  if(S.tab==='analisis'){ renderIaRes(); renderTop(); renderHormiga(); renderPace(); renderCal(); renderRule(); renderTrend(); }
   if(S.tab==='movs') renderMovTable();
   if(S.tab==='pres') renderPres();
   if(S.tab==='cfg') renderCfg();
@@ -2889,7 +2946,7 @@ function openArmar(){
   if(!inc0) setTimeout(()=>incIn.focus(),30);
 }
 function renderCfg(){
-  $('#cfgSimple').checked=simple(); $('#cfgBig').checked=lsGet('pres.big')==='1';
+  $('#cfgSimple').checked=simple(); $('#cfgBig').checked=lsGet('pres.big')==='1'; $('#cfgSnd').checked=sonido();
   $('#cfgCorte').value=S.tarjetas[0].corte; $('#cfgCorteWrap').classList.toggle('hidden', !(simple() && S.mode==='corte'));
   $('#cfgN').value=S.cfg.MetaNecesidad; $('#cfgG').value=S.cfg.MetaGusto; $('#cfgA').value=S.cfg.MetaAhorro; $('#cfgBase').value=S.cfg.BaseIngreso;
   $('#cfgMode').value=S.mode; $('#cfgRoomies').value=S.cfg.Roomies||''; $('#cfgKey').value=S.gemKey||''; $('#cfgModel').value=lsGet('pres.geminiModel')||'';
@@ -3672,9 +3729,172 @@ $('#btnCfg').onclick=()=>{ S.tab = S.tab==='cfg' ? 'resumen' : 'cfg'; render(); 
 $('#cfgSimple').onchange=e=>{ S.cfg.Simple=e.target.checked?1:0; changed(); toast(e.target.checked?'Modo sencillo activado':'Ahora ves todas las funciones'); };
 $('#cfgBig').onchange=e=>{ lsSet('pres.big',e.target.checked?'1':''); if(e.target.checked) document.documentElement.dataset.big='1'; else delete document.documentElement.dataset.big; render(); };
 $('#cfgBase').onchange=e=>{ S.cfg.BaseIngreso=e.target.value; changed(); };
+$('#cfgSnd').onchange=e=>{ lsSet('pres.sonido',e.target.checked?'1':'0'); if(e.target.checked) SFX.chime(); };
 $('#cfgTour').onclick=()=>tour(0);
 $('#addTj').onclick=()=>{ let n='Tarjeta 2', k=3; while(S.tarjetas.some(t=>t.nombre===n)) n=`Tarjeta ${k++}`; S.tarjetas.push({nombre:n,corte:S.tarjetas[0].corte,limite:S.tarjetas[0].limite}); changed();
   setTimeout(()=>{ const i=document.querySelector('#tjTable tbody tr:last-child input'); if(i){ i.focus(); i.select(); } },0); };
+// ---------- sonidos cortos (sintetizados, sin archivos); se apagan en Configuración ----------
+const sonido = () => lsGet('pres.sonido')!=='0';
+let ACX=null, tClink=0;
+function tono(f,t0,dur,vol,tipo){
+  if(!sonido()) return;
+  try{
+    ACX=ACX||new (window.AudioContext||window.webkitAudioContext)(); if(ACX.state==='suspended') ACX.resume();
+    const o=ACX.createOscillator(), g=ACX.createGain(), t=ACX.currentTime+t0; o.type=tipo||'sine'; o.frequency.value=f;
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+.005); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(g).connect(ACX.destination); o.start(t); o.stop(t+dur+.02);
+  }catch(e){}
+}
+const SFX = {
+  clink(v){ const t=performance.now(); if(t-tClink<35) return; tClink=t; const f=2300+Math.random()*1100; tono(f,0,.09,Math.min(.06,v*.011),'triangle'); tono(f*1.52,0,.06,Math.min(.025,v*.005)); },
+  chime(){ [523,659,784,1047].forEach((f,i)=>tono(f,i*.09,.5,.07,'triangle')); }
+};
+
+// ---------- racha: días seguidos anotando ----------
+// Un día cuenta si anotaste algo con esa fecha (los pagos recurrentes de un toque no cuentan) o si marcaste "Hoy no gasté nada".
+// Comodín: si se te pasa un día no pierdes la racha; se recupera cada 7 días de racha. Hoy no rompe la racha mientras no termine.
+const RACHA_M = [3,7,14,30,60,100];
+let RCACHE=null;
+function racha(){
+  const td=today(), key=S.ver+'|'+isoDate(td);
+  if(RCACHE && RCACHE.key===key) return RCACHE.r;
+  const act=new Set(S.sinGasto); S.movs.forEach(m=>{ if(!m.rec) act.add(isoDate(m.fecha)); });
+  const d=new Date(td); d.setDate(d.getDate()-420);
+  let n=0, com=true, best=0;
+  for(; d<=td; d.setDate(d.getDate()+1)){
+    if(act.has(isoDate(d))){ n++; if(n%7===0) com=true; }
+    else if(+d!==+td){ if(n>0 && com) com=false; else { n=0; com=true; } }
+    if(n>best) best=n;
+  }
+  return (RCACHE={key, r:{n, com, best, hoy:act.has(isoDate(td)), act}}).r;
+}
+// Frasco: cada día cae una moneda con física de verdad (Matter.js, se carga solo cuando se ve la tarjeta)
+let MATTER=null;
+const cargaMatter = () => MATTER || (MATTER=new Promise((res,rej)=>{
+  if(window.Matter) return res();
+  const sc=document.createElement('script'); sc.src='matter.min.js'; sc.onload=res; sc.onerror=()=>{ MATTER=null; rej(); }; document.head.append(sc); }));
+const MEDC = {3:['#f3c49a','#cd7f32','#8a5222'],7:['#f4f7fa','#aab4be','#6f7a85'],14:['#fff1b8','#e8b234','#a8790f'],30:['#cfe3ff','#2f7cf6','#174a9c'],60:['#ead9ff','#8b46f0','#4f1f99'],100:['#ffd2d4','#e5484d','#8f1f23']};
+const JAR = {W:150, H:180, n:null, ok:false, vis:false, run:false, sonar:0, coins:[], col:{}};
+function jarInit(){
+  if(JAR.ok || JAR.cargando) return; JAR.cargando=true;
+  cargaMatter().then(()=>{
+    const {Engine,Bodies,Composite,Body,Events}=Matter, W=JAR.W, H=JAR.H, d=Math.min(2,devicePixelRatio||1);
+    const cv=el('canvas',{width:W*d,height:H*d,style:{width:W+'px',height:H+'px'},'aria-hidden':'true'}), ctx=cv.getContext('2d');
+    ctx.setTransform(d,0,0,d,0,0); $('#jarBox').replaceChildren(cv);
+    const E=Engine.create({enableSleeping:true}), st={isStatic:true,friction:.2,restitution:.2};
+    const floor=Bodies.rectangle(75,182,150,20,st);
+    Composite.add(E.world,[floor, Bodies.rectangle(14,100,14,180,st), Bodies.rectangle(136,100,14,180,st)]);
+    const coins=JAR.coins;
+    const add=(m,x,y)=>{ const r=m?11:7.5, b=Bodies.circle(x??(32+Math.random()*86), y??(-8-Math.random()*20), r,
+        {restitution:m?.45:.38,friction:.04,frictionAir:.004,density:m?.004:.002,sleepThreshold:40});
+      b.plugin={m}; Body.setAngularVelocity(b,(Math.random()-.5)*.4); Composite.add(E.world,b); coins.push(b); return b; };
+    Events.on(E,'collisionStart',ev=>{ if(Date.now()>JAR.sonar) return;
+      for(const p of ev.pairs){ const a=p.bodyA, b=p.bodyB, v=Math.hypot(a.velocity.x-b.velocity.x,a.velocity.y-b.velocity.y); if(v>1.8) SFX.clink(v); } });
+    const moneda=b=>{
+      const r=b.circleRadius, m=b.plugin.m, [c1,c2,c3]=m?MEDC[m]:['#fff0a8','#eab83a','#b0821c'];
+      ctx.save(); ctx.translate(b.position.x,b.position.y); ctx.rotate(b.angle);
+      const g=ctx.createRadialGradient(-r*.4,-r*.4,r*.1,0,0,r); g.addColorStop(0,c1); g.addColorStop(.6,c2); g.addColorStop(1,c3);
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,0,r,0,7); ctx.fill();
+      ctx.strokeStyle=c3; ctx.globalAlpha=.55; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(0,0,r*.72,0,7); ctx.stroke(); ctx.globalAlpha=1;
+      ctx.fillStyle=c3; ctx.font=`800 ${m?(m>=100?r*.72:r*.95):r*1.15}px system-ui,sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(m||'$',0,1);
+      ctx.restore(); };
+    const dibuja=()=>{
+      const c=JAR.col; ctx.clearRect(0,0,W,H);
+      ctx.fillStyle=c.glass; ctx.beginPath(); ctx.roundRect(21,24,108,150,[5,5,18,18]); ctx.fill();
+      coins.forEach(moneda);
+      ctx.strokeStyle=c.line; ctx.lineWidth=2.5; ctx.beginPath(); ctx.roundRect(21,24,108,150,[5,5,18,18]); ctx.stroke();
+      ctx.strokeStyle=c.shine; ctx.lineCap='round'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(32,44); ctx.lineTo(32,118); ctx.stroke();
+      ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(32,130); ctx.lineTo(32,140); ctx.stroke();
+      ctx.fillStyle=c.line; ctx.beginPath(); ctx.roundRect(15,17,120,9,4.5); ctx.fill(); };
+    const paso=()=>{ Engine.update(E,1000/60); for(let i=coins.length-1;i>=0;i--) if(coins[i].position.y>H+40){ Composite.remove(E.world,coins[i]); coins.splice(i,1); } };
+    // solo se anima mientras la tarjeta se ve (no gasta batería en otras pestañas)
+    const frame=()=>{ if(!JAR.vis || document.hidden){ JAR.run=false; return; } JAR.run=true; paso(); dibuja(); requestAnimationFrame(frame); };
+    JAR.go=()=>{ if(!JAR.run && JAR.vis && !document.hidden && !noFx()) requestAnimationFrame(frame); else if(noFx()) dibuja(); };
+    new IntersectionObserver(es=>{ JAR.vis=es[0].isIntersecting; JAR.go(); }).observe(cv);
+    document.addEventListener('visibilitychange',()=>JAR.go());
+    // n monedas (máx. 70 normales) + las especiales de los premios; "al instante" = ya acomodadas
+    JAR.set=n=>{
+      clearTimeout(JAR.tm); coins.forEach(c=>Composite.remove(E.world,c)); coins.length=0;
+      const lista=[]; for(let k=1;k<=n;k++){ if(k<=70) lista.push(0); if(RACHA_M.includes(k)) lista.push(k); }
+      lista.forEach((m,i)=>add(m, 32+(i*23)%86, 160-Math.floor(i/6)*15));
+      for(let i=0;i<240;i++) paso();
+      dibuja(); JAR.go();
+    };
+    JAR.day=hito=>{
+      if(noFx()){ JAR.set(JAR.n); if(hito) SFX.chime(); return; }
+      JAR.sonar=Date.now()+2500; add(0); buzz(15); JAR.go();
+      if(hito) JAR.tm=setTimeout(()=>{ coins.forEach(c=>{ Matter.Sleeping.set(c,false); Body.setVelocity(c,{x:(Math.random()-.5)*5,y:-5-Math.random()*5}); });
+        JAR.sonar=Date.now()+2500; SFX.chime(); confeti(); buzz([30,40,60]); setTimeout(()=>add(JAR.n),350); },650);
+    };
+    // tocar el frasco revuelve las monedas
+    cv.addEventListener('pointerdown',e=>{ const r=cv.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top; JAR.sonar=Date.now()+1200;
+      coins.forEach(c=>{ const dx=c.position.x-x, dy=c.position.y-y, dd=Math.hypot(dx,dy)||1; if(dd<60){ const k=1-dd/60; Matter.Sleeping.set(c,false); Body.setVelocity(c,{x:c.velocity.x+dx/dd*k*6,y:c.velocity.y+dy/dd*k*6-k*5}); } });
+      JAR.go(); });
+    JAR.ok=true; JAR.cargando=false; JAR.n=null; renderRacha();
+  }).catch(()=>{ JAR.cargando=false; });   // sin internet la primera vez: solo se ve el número
+}
+function renderRacha(){
+  const r=racha(), sig=RACHA_M.find(m=>m>r.n), b=$('#rachaN');
+  const antes=+b.textContent; b.textContent=r.n; $('#rachaTxt').textContent = r.n===1 ? 'día seguido' : 'días seguidos';
+  fill($('#rachaSub'),
+    el('span',{class:r.hoy?'ok':null,text: r.hoy ? '✓ Hoy ya cuenta' : r.n ? 'Anota algo hoy para sumar' : 'Anota tu primer gasto para empezar'}),
+    el('span',{text: sig ? `${sig-r.n===1?'Falta 1 día':`Faltan ${sig-r.n} días`} para la moneda de ${sig}` : '¡Ya tienes todas las monedas!'}),
+    el('span',{text: r.com ? 'Comodín de la semana disponible' : 'Ya usaste tu comodín de la semana'}),
+    r.best>r.n ? el('span',{text:`Tu mejor racha: ${r.best} días`}) : null);
+  $('#sinGasto').classList.toggle('hidden', r.hoy);
+  if(r.n>antes && !noFx()){ b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); }
+  JAR.col={glass:getComputedStyle(document.documentElement).getPropertyValue('--glass'), line:getComputedStyle(document.documentElement).getPropertyValue('--glass-line'), shine:getComputedStyle(document.documentElement).getPropertyValue('--glass-shine')};
+  jarInit();
+  if(!JAR.ok) return;
+  // un día más = cae una moneda; cualquier otro cambio = se acomoda al momento
+  if(JAR.n!=null && r.n===JAR.n+1){ JAR.n=r.n; JAR.day(RACHA_M.includes(r.n)); if(RACHA_M.includes(r.n)) setTimeout(()=>toast(`¡${r.n} días seguidos! Ganaste la moneda de ${r.n}.`),700); }
+  else if(r.n!==JAR.n){ JAR.n=r.n; JAR.set(r.n); }
+  else JAR.go();
+}
+$('#sinGasto').onclick=async()=>{
+  const k=isoDate(today()); if(S.sinGasto.includes(k)) return;
+  S.sinGasto.push(k); await changed();
+  toast('Anotado: hoy sin gastos. ¡También cuenta para tu racha!',false,{label:'Deshacer',fn:async()=>{ S.sinGasto=S.sinGasto.filter(x=>x!==k); await changed(); }});
+};
+
+// ---------- calendario de gastos (Análisis): un cuadro por día del periodo, más intenso = más gasto del día a día ----------
+function renderCal(){
+  const [a,b]=rangeOf(S.P), td=today(), N=dayDiff(a,b)+1, dia=new Array(N).fill(0), act=racha().act;
+  movsIn(S.P).forEach(m=>{ if(diaADia(m)) dia[dayDiff(a,m.fecha)]+=cuenta(m); });
+  const max=Math.max(1,...dia);
+  const celdas=['L','M','M','J','V','S','D'].map(x=>el('div',{class:'calh',text:x}));
+  for(let k=0;k<(a.getDay()+6)%7;k++) celdas.push(el('div'));
+  for(let i=0;i<N;i++){
+    const f=new Date(a); f.setDate(a.getDate()+i);
+    const fut=f>td, v=dia[i], pc=v>0 ? Math.round(18+72*Math.sqrt(v/max)) : 0;
+    celdas.push(el('button',{type:'button',class:'cd'+(fut?' fut':'')+(+f===+td?' hoy':'')+(pc>55?' hot':''),disabled:fut,
+      style:!fut && pc ? {background:`color-mix(in srgb,var(--s2) ${pc}%,var(--track))`} : null,
+      title:`${dayLabel(f)}${v?' · '+money.format(v):''}`, onclick:()=>openDia(f)},
+      el('b',{text:String(f.getDate())}), v ? el('small',{text:kfmt(v)}) : null, act.has(isoDate(f)) ? el('i') : null));
+  }
+  // en qué día de la semana se te va más (últimas 8 semanas, solo el día a día)
+  const sem=new Array(7).fill(0), desde=new Date(td); desde.setDate(td.getDate()-55);
+  expanded().forEach(m=>{ if(diaADia(m) && m.fecha>=desde && m.fecha<=td) sem[m.fecha.getDay()]+=cuenta(m); });
+  const top=sem.indexOf(Math.max(...sem)), tot=sem.reduce((x,y)=>x+y,0);
+  fill($('#calBody'), el('div',{class:'cal'},celdas),
+    el('div',{class:'callg'},'Menos',el('span',{class:'grad'}),'Más',el('span',{class:'dot'}),'Anotaste ese día'),
+    tot>0 ? el('p',{class:'calins'},'En las últimas 8 semanas gastas más los ',el('b',{text:DIAS[top]}),` (${money.format(sem[top]/8)} en promedio, de día a día).`) : null);
+}
+function openDia(f){
+  const body=$('#pBody'), close=()=>hideBg($('#pBg')), k=isoDate(f);
+  const ms=expanded().filter(m=>isoDate(m.fecha)===k).sort((x,y)=>(y.tipo==='Ingreso')-(x.tipo==='Ingreso') || cuenta(y)-cuenta(x));
+  const g=ms.filter(m=>m.tipo==='Gasto').reduce((t,m)=>t+cuenta(m),0);
+  fill(body,
+    el('div',{class:'mhead'},el('h3',{text:dayLabel(f)}),el('button',{class:'icon',text:'✕','aria-label':'Cerrar',onclick:close})),
+    el('p',{class:'sub',style:{margin:'0 0 8px'},text: ms.length ? `${ms.length} movimiento${ms.length>1?'s':''} · gastos ${money.format(g)}`
+      : S.sinGasto.includes(k) ? 'Marcaste este día sin gastos.' : 'No anotaste nada este día.'}),
+    ms.length ? el('div',{class:'persona'},...ms.map(m=>el('div',{class:'it',style:{cursor:'pointer'},title:'Ver o editar',onclick:()=>{ close(); openModal(m.src||m); }},
+      el('div',{class:'il'},(m.src||m).desc||m.cat,el('span',{text:[m.cat, m.cuota?`${m.cuota}/${m.of} MSI`:'', m.rec||(m.src&&m.src.rec)?'recurrente':''].filter(Boolean).join(' · ')})),
+      el('b',{class:m.tipo==='Ingreso'?'gtag':null,style:{fontWeight:600,fontVariantNumeric:'tabular-nums'},text:(m.tipo==='Ingreso'?'+':'')+money2.format(cuenta(m))})))) : null,
+    el('div',{class:'actions'},el('button',{class:'btn primary',text:'+ Agregar en este día',onclick:()=>{ close(); openModal(null,{fecha:f}); }})));
+  $('#pBg').classList.add('open');
+}
+
 // ---------- tutorial (4 pantallas). TOUR_V sube cuando cambia: quien ya lo vio, ve el nuevo una vez ----------
 const TOUR_V='2';
 const tIco = (...ds) => el('svg',{viewBox:'0 0 24 24',fill:'none',stroke:'currentColor','stroke-width':1.6,'stroke-linecap':'round','stroke-linejoin':'round','aria-hidden':'true'},...ds.map(d=>el('path',{d})));
@@ -3734,6 +3954,8 @@ const HELP = {
   roomies:'Roomies: con quién sueles dividir gastos; se llenan solos al marcar “Gasto compartido”. Los porcentajes son tus metas de la regla 50/30/20.',
   msi:'Si compraste a meses sin intereses, cada mensualidad cuenta en su periodo y no todo de golpe.',
   compartido:'Pagaste todo, pero solo te toca tu parte. Lo de los demás queda como “te deben” hasta que marques que ya te pagaron.',
+  racha:'Cuántos días seguidos llevas anotando. Cada día cae una moneda al frasco y a los 3, 7, 14, 30, 60 y 100 días ganas una moneda especial. Si un día no gastaste, toca “Hoy no gasté nada”: también cuenta. Tienes un comodín por semana, así que si se te pasa un día no pierdes la racha. Toca el frasco para revolver las monedas.',
+  calendario:'Cada cuadro es un día del periodo. Entre más intenso el color, más gastaste ese día en el día a día (sin pagos fijos, mensualidades ni ahorro). El punto dorado marca los días que anotaste. Toca un día para ver sus movimientos o agregar uno.',
   repite:'Si lo pagas o cobras seguido (renta, sueldo, Netflix), elige cada cuándo y la app te lo recordará en el Resumen para registrarlo con un toque.'
 };
 const helpBtn = k => el('button',{type:'button',class:'help','data-k':k,'aria-label':'¿Qué es esto?','aria-expanded':'false'});

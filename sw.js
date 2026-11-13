@@ -1,8 +1,8 @@
 // Mi Presupuesto (Firebase) - service worker: guarda la app en el celular para que abra rápido y Chrome la pueda instalar.
 // La app siempre intenta bajar la versión más nueva; si no hay internet usa la guardada. Las librerías de Firebase
 // (versión fija) se guardan una vez. Los datos (Firestore) y la IA (Gemini) no pasan por aquí.
-const CACHE = 'presupuesto-fb-v13';
-const SHELL = ['./', 'index.html', 'config.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
+const CACHE = 'presupuesto-fb-v14';
+const SHELL = ['./', 'index.html', 'config.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'matter.min.js'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)));
