@@ -55,8 +55,10 @@ Tiene dos modos (se cambian en ⚙ Configuración):
 - **Ingreso esperado**: sale del presupuesto de tu categoría de ingreso o de tus cobros recurrentes (ej. una quincena
   de $15,000 = $30,000 al mes), lo que sea mayor. "Te queda" se calcula con lo que esperas ganar o solo con lo que ya
   entró (para ingresos variables).
-- **Pagos recurrentes**: Netflix, renta, sueldo (por quincena) o el seguro anual. Aparecen en el Resumen para
-  registrarlos con un clic, y con 📅 los mandas a tu calendario para que te avise un día antes. En la app instalada,
+- **Pagos recurrentes**: Netflix, renta, sueldo (semanal o por quincena) o el seguro anual. En el Resumen salen
+  cuando faltan 3 días o menos (o si ya se pasó la fecha) para registrarlos con un toque; lo que viene después queda
+  en "Próximos" y lo ya registrado en "Registrados". Un sueldo semanal cuenta como 4 pagos al mes en el presupuesto.
+  Al capturar un movimiento, "¿Se repite?" lo convierte en pago recurrente, y con 📅 los mandas a tu calendario para que te avise un día antes. En la app instalada,
   el ícono muestra cuántos pagos están vencidos.
 - **Tarjetas de crédito** (una o varias), cada una con su **día de corte** y su **día límite de pago** (el que dice tu
   estado de cuenta). Para cada corte ves:
@@ -134,7 +136,7 @@ deja entrar (sale "The requested action is invalid"). En iPhone y Safari se entr
 |---|---|
 | Movimientos | Cada gasto o ingreso: fecha, categoría, monto, método, tarjeta, MSI, compartido, etiquetas, recurrente |
 | Categorías | Nombre, tipo, grupo (Necesidad / Gusto / Ahorro / Ingreso), presupuesto mensual o anual |
-| Recurrentes | Pagos y cobros que se repiten (cada mes, quincena o año) |
+| Recurrentes | Pagos y cobros que se repiten (cada semana, quincena, mes o año; en semanal, Día = 1 lunes … 7 domingo) |
 | Tarjetas | Nombre, día de corte, día límite de pago (y "días para pagar" aproximado, para versiones anteriores) |
 | Metas | Metas de ahorro con objetivo y fecha |
 | Deudas | Préstamos con amigos y abonos |

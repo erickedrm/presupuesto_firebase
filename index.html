@@ -218,6 +218,7 @@ tfoot td{font-weight:600;border-bottom:0;border-top:1px solid var(--border);font
 .cattable td{padding:3px 4px}
 .cattable{min-width:620px}#recTable .cattable{min-width:820px}
 .cattable input.money{text-align:right;font-variant-numeric:tabular-nums}
+.cattable select{min-width:8.5em}
 .cfg{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
 .cfg label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--ink2)}
 .card h2.h2b{margin-top:22px}
@@ -336,7 +337,7 @@ a.clip{text-decoration:none;margin-left:6px}
 #tour{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:70;padding:16px}
 #tour.open{display:flex}
 #tour .modal{text-align:center;padding:28px 22px 20px}
-#tour .ico{font-size:40px;line-height:1;margin-bottom:10px}
+#tour .ico{margin-bottom:10px}
 #tour p{color:var(--ink2);margin:6px 0 0}
 #tour .dots{display:flex;gap:6px;justify-content:center;margin-top:16px}
 #tour .dots i{width:7px;height:7px;border-radius:50%;background:var(--axis)}
@@ -529,6 +530,28 @@ h2.foldh::after{content:"";display:inline-block;width:6px;height:6px;border-righ
 .ticon{display:none}
 @keyframes fxSheet{from{transform:translateY(100%)}}
 @keyframes fxSheetOut{to{transform:translateY(100%)}}
+
+/* ---------- v13: pagos recurrentes por secciones, ayuda "?" y tutorial ---------- */
+button.pl{border:0;background:transparent;padding:0;text-align:left;font:inherit;color:inherit}
+.psec{display:flex;align-items:center;gap:10px;width:calc(100% + 16px);margin:6px -8px 0;padding:9px 8px;border:0;border-top:1px solid var(--grid);background:transparent;cursor:pointer;font-size:13px;color:var(--ink2);text-align:left}
+.psec:hover{background:var(--track)}
+.psec::before{content:"";width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(-45deg);transition:transform .2s;opacity:.6;flex:none;margin-left:2px}
+.psec[aria-expanded="true"]::before{transform:rotate(45deg)}
+.psec b{font-weight:600;color:var(--ink)}
+.psec span{margin-left:auto;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.pbox{padding-top:2px}
+.help{display:inline-grid;place-items:center;width:24px;height:24px;margin:-6px -2px -6px 3px;padding:0;border:0;background:transparent;border-radius:50%;cursor:pointer;color:var(--muted);vertical-align:middle;flex:none}
+.help::before{content:"?";display:grid;place-items:center;width:15px;height:15px;border-radius:50%;border:1.3px solid currentColor;font:700 10px/1 system-ui,sans-serif}
+.help:hover,.help[aria-expanded="true"]{color:var(--accent)}
+.help:focus-visible{outline:2px solid var(--accent)}
+.lt{display:flex;align-items:center}
+#helpPop{position:fixed;z-index:66;max-width:min(290px,calc(100vw - 32px));background:var(--raised);color:var(--ink);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.45;font-weight:400;text-align:left;animation:fxFade .15s ease-out}
+#helpPop[hidden]{display:none}
+#tour .ico{display:flex;justify-content:center;color:var(--accent)}
+#tour .ico svg{width:42px;height:42px}
+#tour ul{text-align:left;color:var(--ink2);margin:10px 0 0;padding-left:20px;font-size:14px}
+#tour li{margin:5px 0}
+#tour li b{color:var(--ink);font-weight:600}
 /* quien tiene apagadas las animaciones en su teléfono no ve nada de esto */
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
@@ -656,6 +679,7 @@ h2.foldh::after{content:"";display:inline-block;width:6px;height:6px;border-righ
       <div class="row">
         <textarea id="aiTxt" rows="1" placeholder="Gasto o pregunta…" title="Escribe o dicta un gasto (“200 de tacos”) o pregunta algo (“¿cuánto gasté en Rappi?”)"></textarea>
         <div class="btns">
+          <button type="button" class="help" data-k="ia" aria-label="Ayuda"></button>
           <button class="mic" id="aiMic" title="Dictar con el micrófono">🎤</button>
           <button class="mic" id="aiPhoto" title="Subir estado de cuenta, ticket o captura (foto o PDF)">📄</button>
           <input type="file" id="aiFile" accept="image/*,application/pdf" multiple hidden>
@@ -669,29 +693,29 @@ h2.foldh::after{content:"";display:inline-block;width:6px;height:6px;border-righ
     </div>
     <div class="grid">
       <div class="card" id="catCard">
-        <h2>Categorías</h2>
+        <h2 data-h="cats">Categorías</h2>
         <div class="catlist" id="catList"></div>
       </div>
       <div class="col">
         <div class="card hidden" id="wkCard">
-          <h2>Tu semana</h2>
+          <h2 data-h="semana">Tu semana</h2>
           <div id="wkBody"></div>
         </div>
         <div class="card" id="pendCard">
-          <div class="cardhead"><h2>Pagos recurrentes</h2><button class="btn small hidden" id="pendAll"></button><button class="btn small ghost" id="recEdit">Editar</button></div>
+          <div class="cardhead"><h2 data-h="recs">Pagos recurrentes</h2><button class="btn small hidden" id="pendAll"></button><button class="btn small ghost" id="recEdit">Editar</button></div>
           <div id="pendList"></div>
         </div>
         <div class="card hidden" id="tcCard">
-          <h2>Tarjeta de crédito</h2>
+          <h2 data-h="tc">Tarjeta de crédito</h2>
           <div id="tcList"></div>
           <p class="sub" id="tcSub" style="margin:6px 0 0"></p>
         </div>
         <div class="card hidden" id="cobCard">
-          <div class="cardhead"><h2>Cuentas con amigos</h2><span class="sub" id="cobTot" style="margin:0"></span><button class="btn small ghost" id="cobAdd" title="Anotar un préstamo o una deuda">+ Préstamo</button></div>
+          <div class="cardhead"><h2 data-h="cob">Cuentas con amigos</h2><span class="sub" id="cobTot" style="margin:0"></span><button class="btn small ghost" id="cobAdd" title="Anotar un préstamo o una deuda">+ Préstamo</button></div>
           <div id="cobList"></div>
         </div>
         <div class="card hidden" id="metasCard">
-          <h2>Metas de ahorro</h2>
+          <h2 data-h="metas">Metas de ahorro</h2>
           <div id="metasList"></div>
         </div>
       </div>
@@ -719,30 +743,30 @@ h2.foldh::after{content:"";display:inline-block;width:6px;height:6px;border-righ
   <section id="tab-analisis" class="hidden">
     <div class="grid">
       <div class="card span2" id="iaResCard">
-        <div class="cardhead"><h2>Resumen del periodo</h2><button class="btn small" id="iaResGo">Resumir con IA</button></div>
+        <div class="cardhead"><h2 data-h="iares">Resumen del periodo</h2><button class="btn small" id="iaResGo">Resumir con IA</button></div>
         <div class="iares" id="iaRes"></div>
       </div>
       <div class="card">
-        <div class="cardhead"><h2 id="topTitle">¿En qué se te va?</h2><button class="btn small ghost" id="topAlias" title="Unir nombres que son lo mismo (ej. “OXXO Juárez” y “Oxxo”)">Unir nombres</button></div>
+        <div class="cardhead"><h2 data-h="top"><span id="topTitle">¿En qué se te va?</span></h2><button class="btn small ghost" id="topAlias" title="Unir nombres que son lo mismo (ej. “OXXO Juárez” y “Oxxo”)">Unir nombres</button></div>
         <div class="catlist" id="topList"></div>
       </div>
       <div class="card">
-        <h2 id="hormTitle">Gastos hormiga</h2>
+        <h2 data-h="hormiga"><span id="hormTitle">Gastos hormiga</span></h2>
         <div id="hormBody"></div>
       </div>
       <div class="card">
-        <h2 id="paceTitle">Ritmo de gasto del periodo</h2>
+        <h2 data-h="ritmo"><span id="paceTitle">Ritmo de gasto del periodo</span></h2>
         <p class="sub" id="paceSub"></p>
         <div class="legend" id="paceLegend"></div>
         <div id="paceChart"></div>
       </div>
       <div class="card">
-        <h2>Regla 50/30/20</h2>
+        <h2 data-h="regla">Regla 50/30/20</h2>
         <p class="sub" id="ruleSub"></p>
         <div class="rule" id="ruleList"></div>
       </div>
       <div class="card span2">
-        <h2 id="trendTitle">Gasto por periodo</h2>
+        <h2 data-h="trend"><span id="trendTitle">Gasto por periodo</span></h2>
         <div class="legend" id="trendLegend"></div>
         <div id="trendChart"></div>
       </div>
@@ -754,17 +778,17 @@ h2.foldh::after{content:"";display:inline-block;width:6px;height:6px;border-righ
     <div class="hero"><div class="kpis" id="budKpis"></div><p class="kline" id="budLine"></p></div>
     <div class="stack">
     <div class="card">
-      <div class="cardhead"><h2>Categorías</h2><button class="btn small" id="armar" title="Te sugiero cuánto darle a cada categoría según tu sueldo">✨ Armar mi presupuesto</button></div>
+      <div class="cardhead"><h2 data-h="pcats">Categorías</h2><button class="btn small" id="armar" title="Te sugiero cuánto darle a cada categoría según tu sueldo">✨ Armar mi presupuesto</button></div>
       <div class="tablewrap" id="catTable"></div>
       <div class="actions" style="justify-content:flex-start"><button class="btn small ghost" id="addCat">+ Agregar categoría</button></div>
     </div>
     <div class="card" id="recCard">
-      <div class="cardhead"><h2>Pagos recurrentes</h2><button class="btn small ghost" id="recIcs" title="Descarga un archivo para tu calendario: te avisa un día antes de cada pago">📅 Al calendario</button></div>
+      <div class="cardhead"><h2 data-h="precs">Pagos recurrentes</h2><button class="btn small ghost" id="recIcs" title="Descarga un archivo para tu calendario: te avisa un día antes de cada pago">📅 Al calendario</button></div>
       <div class="tablewrap" id="recTable"></div>
       <div class="actions" style="justify-content:flex-start"><button class="btn small ghost" id="addRec">+ Agregar pago recurrente</button></div>
     </div>
     <div class="card" id="metaCard">
-      <h2>Metas de ahorro</h2>
+      <h2 data-h="pmetas">Metas de ahorro</h2>
       <div class="tablewrap" id="metaTable"></div>
       <div class="actions" style="justify-content:flex-start"><button class="btn small ghost" id="addMeta">+ Agregar meta</button></div>
     </div>
@@ -780,9 +804,9 @@ h2.foldh::after{content:"";display:inline-block;width:6px;height:6px;border-righ
       <label class="chkrow"><input type="checkbox" id="cfgSimple"><span>Modo sencillo<small>Muestra solo lo básico: cuánto te queda, tus categorías y tus movimientos. Las demás funciones siguen ahí, solo se esconden.</small></span></label>
       <label class="chkrow"><input type="checkbox" id="cfgBig"><span>Letra grande<small>Solo en este dispositivo.</small></span></label>
       <div class="cfg" style="margin-top:8px">
-        <label>Ver el periodo por<select id="cfgMode"><option value="corte">Corte de tarjeta</option><option value="mes">Mes calendario</option></select></label>
+        <label><span class="lt" data-h="periodo">Ver el periodo por</span><select id="cfgMode"><option value="corte">Corte de tarjeta</option><option value="mes">Mes calendario</option></select></label>
         <label id="cfgCorteWrap">Día de corte de tu tarjeta<input type="number" min="1" max="31" id="cfgCorte"></label>
-        <label class="full-only">“Te queda” se calcula con<select id="cfgBase"><option value="esperado">Lo que espero ganar</option><option value="real">Solo lo que ya me entró</option></select></label>
+        <label class="full-only"><span class="lt" data-h="base">“Te queda” se calcula con</span><select id="cfgBase"><option value="esperado">Lo que espero ganar</option><option value="real">Solo lo que ya me entró</option></select></label>
       </div>
       <div class="actions" style="justify-content:flex-start"><button class="btn small ghost" id="cfgTour">Ver el tutorial otra vez</button></div>
     </div>
@@ -800,7 +824,7 @@ h2.foldh::after{content:"";display:inline-block;width:6px;height:6px;border-righ
       <div class="actions" style="justify-content:flex-start"><button class="btn small ghost" id="addTj">+ Agregar tarjeta</button></div>
     </div>
     <div class="card full-only">
-      <h2>Gastos compartidos y regla 50/30/20</h2>
+      <h2 data-h="roomies">Gastos compartidos y regla 50/30/20</h2>
       <div class="cfg">
         <label>Roomies (separados por coma)<input type="text" id="cfgRoomies" placeholder="ej. Juan, Pedro"></label>
         <label>Meta Necesidad %<input type="number" min="0" max="100" id="cfgN"></label>
@@ -861,14 +885,14 @@ h2.foldh::after{content:"";display:inline-block;width:6px;height:6px;border-righ
       <button type="button" class="full morebtn" id="mMoreBtn" aria-expanded="false"><span id="mMoreTxt"></span><b id="mMoreLbl">Cambiar ▾</b></button>
       <div class="full form hidden" id="mMore">
       <label class="full">Método de pago<select id="mMetodo"></select></label>
-      <div class="full msi" id="mMsiWrap"><label>Meses sin intereses<select id="mMeses"><option value="1">De contado</option><option>3</option><option>6</option><option>9</option><option>12</option><option>18</option><option>24</option></select></label><span class="hint" id="mMsiHint"></span></div>
+      <div class="full msi" id="mMsiWrap"><label><span class="lt" data-h="msi">Meses sin intereses</span><select id="mMeses"><option value="1">De contado</option><option>3</option><option>6</option><option>9</option><option>12</option><option>18</option><option>24</option></select></label><span class="hint" id="mMsiHint"></span></div>
       <div class="full per" id="mPerWrap">
         <span>Periodo del recibo <i style="color:var(--muted);font-style:normal">(opcional: luz, agua, gas… de qué meses es el consumo)</i></span>
         <div class="perrow"><input type="month" id="mPDel" aria-label="Periodo del"><span>al</span><input type="month" id="mPAl" aria-label="Periodo al"><button type="button" class="btn small ghost" id="mPClr" title="Quitar periodo">✕</button></div>
         <span class="hint" id="mPerHint"></span>
       </div>
       <div class="full share" id="mShareWrap">
-        <label class="chk"><input type="checkbox" id="mShared"> Gasto compartido</label><span class="hint" id="mShareHint"></span>
+        <label class="chk"><input type="checkbox" id="mShared"> <span class="lt" data-h="compartido">Gasto compartido</span></label><span class="hint" id="mShareHint"></span>
         <div class="sharebox hidden" id="mShareBox">
           <label>Entre (personas)<input type="number" min="2" max="20" step="1" id="mEntre"></label>
           <label>Con quién<input type="text" id="mCon" placeholder="ej. Juan, Pedro"></label>
@@ -877,8 +901,9 @@ h2.foldh::after{content:"";display:inline-block;width:6px;height:6px;border-righ
       </div>
       <label class="full" id="mTagWrap">Etiquetas <i style="color:var(--muted);font-style:normal">(opcional: para sumar un viaje, una boda… aunque mezcle categorías)</i><input type="text" id="mTags" list="tagList" autocomplete="off" placeholder="ej. viaje-cancun"></label>
       <datalist id="tagList"></datalist>
-      <div class="full share" id="mRecWrap">
-        <label class="chk"><input type="checkbox" id="mRepeat"> Se repite cada mes</label><span class="hint" id="mRecHint"></span>
+      <div class="full per" id="mRecWrap">
+        <label id="mRepLbl"><span class="lt" data-h="repite">¿Se repite?</span><select id="mRepeat"><option value="">No</option><option value="Semana">Cada semana</option><option value="Quincena">Cada quincena (15 y último)</option><option value="Mes">Cada mes</option><option value="Año">Cada año</option></select></label>
+        <span class="hint" id="mRecHint"></span>
       </div>
       </div>
       <div class="err-msg" id="mErr"></div>
@@ -907,6 +932,7 @@ h2.foldh::after{content:"";display:inline-block;width:6px;height:6px;border-righ
 <div id="tour"><div class="modal" role="dialog" aria-modal="true" id="tourBody"></div></div>
 
 <div id="tip"></div>
+<div id="helpPop" role="note" hidden></div>
 <div id="toast"></div>
 
 <script>
@@ -1000,19 +1026,27 @@ function limDePago(corte, dias){
   d.setDate(d.getDate()+(dias>0?dias:20)); return d.getDate();
 }
 const diasPago = t => { const i=tjIdx(today(),t); return dayDiff(tjEnd(i,t),tjDue(i,t)); };
-// quincenas (15 y último día) que caen dentro del corte i: con ellas se cubre lo que gastaste en ese corte
-function tjQuincenas(i,t){
+// días en que te pagan dentro del corte i: con ellos se cubre lo que gastaste en ese corte. Si tienes cobros
+// recurrentes (sueldo semanal, quincena…) son esos; si no, las quincenas (15 y último día). quin = si son quincenas.
+function tjPagos(i,t){
   const a=new Date(tjEnd(i-1,t)); a.setDate(a.getDate()+1);
-  const b=tjEnd(i,t), out=[];
+  const b=tjEnd(i,t), rs=S.recs.filter(r=>r.activo && r.monto>0 && r.cada!=='Año' && recTipo(r)==='Ingreso');
+  if(rs.length){
+    const ds=[...new Map(rs.flatMap(r=>recOccIn(r,a,b)).map(o=>[+o.fecha,o.fecha])).values()].sort((x,y)=>x-y);
+    return {ds, quin:rs.every(r=>r.cada==='Quincena')};
+  }
+  const ds=[];
   for(let k=mKey(a);k<=mKey(b);k++){
     const y=Math.floor(k/12), m=k%12;
-    [15,daysIn(y,m)].forEach(d=>{ const f=new Date(y,m,d); if(f>=a && f<=b) out.push(f); });
+    [15,daysIn(y,m)].forEach(d=>{ const f=new Date(y,m,d); if(f>=a && f<=b) ds.push(f); });
   }
-  return out;
+  return {ds, quin:true};
 }
-// "15 y 31 oct" / "31 oct y 15 nov"
+// "a, b y c"
+const yJoin = a => a.length>1 ? a.slice(0,-1).join(', ')+' y '+a[a.length-1] : String(a[0]??'');
+// "15 y 31 oct" / "7, 14, 21 y 28 nov" / "31 oct y 15 nov"
 const diasTxt = ds => !ds.length ? '' : ds.every(d=>d.getMonth()===ds[0].getMonth())
-  ? `${ds.map(d=>d.getDate()).join(' y ')} ${MESES[ds[0].getMonth()]}` : ds.map(shortDate).join(' y ');
+  ? `${yJoin(ds.map(d=>d.getDate()))} ${MESES[ds[0].getMonth()]}` : yJoin(ds.map(shortDate));
 const tjOf = m => S.tarjetas.find(t=>t.nombre===m.tarjeta) || S.tarjetas[0];
 // En los <select> de método, la tarjeta va pegada: "Tarjeta de crédito|BBVA"
 const TC = 'Tarjeta de crédito';
@@ -1307,7 +1341,7 @@ function loadData(hojas){
   })).filter(m=>m.fecha && m.monto);
   const wr = findSheet(hojas,'Recurrentes');
   const recs = wr ? rowsOf(wr).map(r=>({id:String(r['id']??'').trim(), nombre:String(r['nombre']??'').trim(), cat:String(r['categoria']??'').trim(),
-    monto:Math.abs(num(r['monto'])), metodo:String(r['metodo de pago']??'').trim(), cada:norm(r['cada'])==='quincena'?'Quincena':norm(r['cada'])==='ano'?'Año':'Mes', mes:Math.min(12,Math.max(1,Math.round(num(r['mes']))||1)),
+    monto:Math.abs(num(r['monto'])), metodo:String(r['metodo de pago']??'').trim(), cada:({quincena:'Quincena',ano:'Año',semana:'Semana'})[norm(r['cada'])]||'Mes', mes:Math.min(12,Math.max(1,Math.round(num(r['mes']))||1)),
     dia:Math.min(31,Math.max(0,Math.round(num(r['dia'])))), activo:norm(r['activo'])!=='no', desde:parseYM(r['desde']), tarjeta:String(r['tarjeta']??'').trim()})).filter(x=>x.nombre) : null;
   if(recs) recs.forEach(x=>{ if(!x.id || recs.filter(y=>y.id===x.id).length>1) x.id=newRecId(); });
   // nombres que se agrupan como uno solo en "¿En qué se te va?" (ej. "OXXO Juárez" -> "Oxxo")
@@ -1724,7 +1758,7 @@ function startApp(){
   if(lsGet('pres.big')==='1') document.documentElement.dataset.big='1';
   setStatus('ok','En la nube'); render();
   if(S.migrated){ S.migrated=false; changed(); toast('Tus pagos fijos ahora están en “Pagos recurrentes”. Revísalos en Presupuesto › Pagos recurrentes.'); }
-  if(lsGet('pres.tour')!=='1') tour(0);
+  if(lsGet('pres.tour')!==TOUR_V) tour(0);
   else { abrirDesdeAviso(); celebrarCierre(); }
   initFold();
 }
@@ -1752,7 +1786,7 @@ function initFold(){
     h.classList.add('foldh'); h.setAttribute('role','button'); h.tabIndex=0;
     card.classList.toggle('folded', set.has(card.id));
     const tg=()=>{ const f=card.classList.toggle('folded'); f?set.add(card.id):set.delete(card.id); lsSet('pres.fold',JSON.stringify([...set])); };
-    h.addEventListener('click',tg); h.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); tg(); } });
+    h.addEventListener('click',tg); h.addEventListener('keydown',e=>{ if(e.target===h && (e.key==='Enter'||e.key===' ')){ e.preventDefault(); tg(); } });
   });
 }
 function abrirDesdeAviso(){
@@ -1883,14 +1917,15 @@ function proyeccion(){
 }
 // cobros recurrentes (quincena, sueldo…) que caen en el periodo i
 const recIngOcc = i => S.recs.filter(r=>r.activo && r.monto>0 && recTipo(r)==='Ingreso').flatMap(r=>recOcc(r,i));
-// un recurrente llevado a "por mes": quincena = 2 veces, anual = 1/12
-const recMensual = r => r.cada==='Quincena' ? r.monto*2 : r.cada==='Año' ? r.monto/12 : r.monto;
+// un recurrente llevado a "por mes": quincena = 2 veces, anual = 1/12, semanal = 4 veces (algunos meses traen 5:
+// se cuenta con 4 para que el presupuesto alcance todos los meses y la quinta quede de sobra)
+const recMensual = r => r.cada==='Quincena' ? r.monto*2 : r.cada==='Semana' ? r.monto*4 : r.cada==='Año' ? r.monto/12 : r.monto;
 // ingreso esperado al mes (sin periodo): presupuesto de la categoría o sus cobros recurrentes, lo mayor
 function ingresoMes(){
   const porRec={}; S.recs.filter(r=>r.activo && r.monto>0 && recTipo(r)==='Ingreso').forEach(r=>porRec[r.cat]=(porRec[r.cat]||0)+recMensual(r));
   return ingresoCats().reduce((a,c)=>a+Math.max(catBudget(c),porRec[c.nombre]||0),0);
 }
-function kpi(k,v,s,neg,extra){ return el('div',{class:'kpi'},el('div',{class:'k',text:k}),el('div',{class:'v'+(neg?' neg':''),text:v}),el('div',{class:'s',text:s}),extra||null); }
+function kpi(k,v,s,neg,extra,help){ return el('div',{class:'kpi'},el('div',{class:'k'},k,help?helpBtn(help):null),el('div',{class:'v'+(neg?' neg':''),text:v}),el('div',{class:'s',text:s}),extra||null); }
 // Gasto (sin ahorro) contra el periodo anterior; si el periodo va en curso, se compara al mismo número de días
 function vsPrev(){
   const [a,b]=rangeOf(S.P), [pa]=rangeOf(S.P-1), td=today();
@@ -1920,7 +1955,7 @@ function renderKpis(){
   const [a,b]=rangeOf(S.P); const td=today();
   const left = td>=a && td<=b ? `${dayDiff(td,b)===0?'hoy es el último día':`${dayDiff(td,b)} día${dayDiff(td,b)>1?'s':''} para el ${S.mode==='corte'?'corte':'fin de mes'}`}` : (td>b?'periodo cerrado':'periodo futuro');
   $('#kpis').replaceChildren(
-    kpi('Te queda', money.format(disp), left+(!t.real && t.ingreso<t.esperado?' · con ingreso esperado':''), disp<0),
+    kpi('Te queda', money.format(disp), left+(!t.real && t.ingreso<t.esperado?' · con ingreso esperado':''), disp<0, null, 'tequeda'),
     kpi('Gastado', money.format(t.gasto), budG?`de ${money.format(budG)} (${Math.round(t.gasto/budG*100)}%)`:'', false, vsPrev()));
   const vs=$$('#kpis .kpi .v'); countUp(vs[0], disp, 'queda'); countUp(vs[1], t.gasto, 'gastado');
   const h=salud(); if(h.cls && h.cls!=='neg') vs[0].classList.add(h.cls);
@@ -1932,9 +1967,9 @@ function renderKpis(){
   const f=simple()?'':fondoTxt();
   // cobros recurrentes del periodo que aún no registras: un toque abre la captura con el monto listo para cambiarlo
   const done=recDone(), faltan=recIngOcc(S.P).filter(o=>!done.has(o.key)).sort((x,y)=>x.fecha-y.fecha);
-  const falta = faltan.length ? [' · falta ', ...faltan.flatMap((o,k)=>[k?', ':null,
+  const falta = faltan.length ? [' · falta ', ...faltan.slice(0,2).flatMap((o,k)=>[k?', ':null,
     el('button',{type:'button',class:'klink',title:'Registrar (puedes cambiar el monto)',onclick:()=>openModal(null,recPre(o)),
-      text:`${o.r.nombre} ${shortDate(o.fecha)}`})])] : [];
+      text:`${o.r.nombre} ${shortDate(o.fecha)}`})]), faltan.length>2?` y ${faltan.length-2} más`:null] : [];
   fill($('#kline'),'Ingresos ', el('b',{text:money.format(t.ingreso)}), t.ingreso<t.esperado?` de ${money.format(t.esperado)}`:'', ...falta,
     ' · Ahorrado ', el('b',{text:money.format(t.ahorro)}), f?` · ${f}`:'');
   const p=proyeccion(), pj=$('#proj');
@@ -1953,12 +1988,23 @@ function fondoTxt(){
   return meta ? `fondo de emergencia ${Math.round(acum/meta*100)}% (${money.format(acum)} de ${money.format(meta)})` : '';
 }
 // ---------- pagos recurrentes ----------
-// Cada ocurrencia tiene una llave "id@AAAA-MM" (quincena: "-a" el 15 y "-b" el último día); el movimiento que la registra la guarda en "Recurrente"
+// Cada ocurrencia tiene una llave "id@AAAA-MM" (quincena: "-a" el 15 y "-b" el último día; semanal: "id@AAAA-MM-DD";
+// anual: "id@AAAA"); el movimiento que la registra la guarda en "Recurrente"
 const recTipo = r => catByName(r.cat)?.tipo || 'Gasto';
-const recKey = (r, f, s) => r.cada==='Año' ? `${r.id}@${f.getFullYear()}` : `${r.id}@${ymStr(f)}${s?'-'+s:''}`;
-// ocurrencias que caen en el periodo i
-function recOcc(r, i=S.P){
-  const [a,b]=rangeOf(i), out=[];
+const recKey = (r, f, s) => r.cada==='Año' ? `${r.id}@${f.getFullYear()}` : r.cada==='Semana' ? `${r.id}@${isoDate(f)}` : `${r.id}@${ymStr(f)}${s?'-'+s:''}`;
+// Semanal: "Día" guarda el día de la semana, lunes = 1 … domingo = 7 (sin día = viernes)
+const DIAS_SEM = ['lunes','martes','miércoles','jueves','viernes','sábado','domingo'];
+const isoDia = d => d.getDay()||7;
+const recDia = r => r.dia>=1 && r.dia<=7 ? r.dia : 5;
+const recWd = r => recDia(r)%7;   // como getDay(): 0 = domingo
+// ocurrencias entre las fechas a y b (incluidas)
+function recOccIn(r, a, b){
+  const out=[];
+  if(r.cada==='Semana'){
+    const f=new Date(Math.max(a, r.desde||a)); f.setDate(f.getDate()+(recWd(r)-f.getDay()+7)%7);
+    for(; f<=b; f.setDate(f.getDate()+7)){ const d=new Date(f); out.push({r, fecha:d, key:recKey(r,d)}); }
+    return out;
+  }
   for(let k=mKey(a); k<=mKey(b); k++){
     if(r.desde && k<mKey(r.desde)) continue;
     const y=Math.floor(k/12), m=k%12, last=daysIn(y,m);
@@ -1968,9 +2014,23 @@ function recOcc(r, i=S.P){
   }
   return out;
 }
-const recDone = () => new Map(S.movs.filter(m=>m.rec).map(m=>[m.rec,m]));
-// la ocurrencia a la que corresponde un movimiento con fecha f (para la captura con IA y "Se repite cada mes")
-const recKeyFor = (r, f) => recKey(r, f, r.cada==='Quincena' ? (f.getDate()<=22?'a':'b') : '');
+// ocurrencias que caen en el periodo i
+const recOcc = (r, i=S.P) => recOccIn(r, ...rangeOf(i));
+// movimientos que registran un pago recurrente, por llave (se recalcula solo cuando cambian los datos)
+let RDONE=null;
+const recDone = () => RDONE && RDONE.ver===S.ver ? RDONE.m : (RDONE={ver:S.ver, m:new Map(S.movs.filter(m=>m.rec).map(m=>[m.rec,m]))}).m;
+// la ocurrencia a la que corresponde un movimiento con fecha f (para la captura con IA y "¿Se repite?")
+// semanal: la de esa misma semana (hasta 3 días antes o después)
+function recKeyFor(r, f){
+  if(r.cada==='Semana'){ const k=(f.getDay()-recWd(r)+7)%7, d=new Date(f); d.setDate(f.getDate()+(k<=3?-k:7-k)); return recKey(r,d); }
+  return recKey(r, f, r.cada==='Quincena' ? (f.getDate()<=22?'a':'b') : '');
+}
+// cada cuándo te pagan: lo más común en tus cobros recurrentes (sin cobros = quincena)
+const PAGO = {Semana:{n:4,t:'por semana'}, Quincena:{n:2,t:'por quincena'}, Mes:{n:1,t:'al mes'}};
+function pagoCada(){
+  const n={}; S.recs.forEach(r=>{ if(r.activo && r.monto>0 && r.cada!=='Año' && recTipo(r)==='Ingreso') n[r.cada]=(n[r.cada]||0)+1; });
+  return Object.keys(n).sort((a,b)=>n[b]-n[a])[0] || 'Quincena';
+}
 // valores del movimiento que registra la ocurrencia o (fecha: hoy si estás en ese periodo; si no, la del pago)
 function recPre(o){
   const r=o.r, tipo=recTipo(r), [a,b]=rangeOf(S.P), td=today();
@@ -1984,44 +2044,63 @@ async function recRegistrar(os){
     {label:'Deshacer', fn:async()=>{ S.movs=S.movs.filter(m=>!nuevos.includes(m)); await changed(); }});
 }
 const goRecs = () => { S.tab='pres'; render(); $('#recCard').scrollIntoView({behavior:'smooth',block:'start'}); };
+// Tarjeta "Pagos recurrentes" del Resumen: arriba solo lo que toca (faltan 3 días o menos, o ya pasó y no lo registras);
+// lo que viene más adelante va en "Próximos" y lo ya registrado en "Registrados" (las dos se abren con un toque)
+const AVISO_DIAS = 3;
+let pendOpen; try{ pendOpen=new Set(JSON.parse(lsGet('pres.pendOpen')||'[]')); }catch(e){ pendOpen=new Set(); }
 function renderPending(){
-  const box=$('#pendList'), all=$('#pendAll'); box.replaceChildren();
+  const box=$('#pendList'), all=$('#pendAll');
   all.classList.add('hidden'); all.dataset.armed='';
   $('#recEdit').classList.toggle('hidden', !S.recs.length);
   if(!S.recs.length){
-    box.append(el('div',{class:'empty',text:'Agrega lo que pagas o cobras cada mes (renta, Netflix, sueldo…) y regístralo con un clic.'}),
+    fill(box, el('div',{class:'empty',text:'Agrega lo que pagas o cobras seguido (renta, Netflix, tu sueldo…) y regístralo con un toque.'}),
       el('button',{class:'btn small',text:'+ Agregar pago recurrente',onclick:()=>{ addRec(); goRecs(); }}));
     return;
   }
-  const done=recDone(), td=today();
-  const rows=S.recs.filter(r=>r.activo && r.monto>0).flatMap(r=>recOcc(r)).map(o=>({...o, m:done.get(o.key)}))
-    .sort((x,y)=>!!x.m-!!y.m || x.fecha-y.fecha || x.r.nombre.localeCompare(y.r.nombre));
-  // pagos anuales del siguiente periodo: aviso para que no te agarren desprevenido
-  const prox = S.P===idxOf(td) ? S.recs.filter(r=>r.activo && r.monto>0 && r.cada==='Año').flatMap(r=>recOcc(r,S.P+1)).filter(o=>!done.has(o.key)) : [];
-  if(!rows.length && !prox.length){ box.append(el('div',{class:'empty',text:'Nada que registrar en este periodo.'})); return; }
-  rows.forEach(o=>{
-    const inc=recTipo(o.r)==='Ingreso', m=o.m;
-    const cuando = m ? `registrado el ${shortDate(m.fecha)}` : o.fecha<td ? `${inc?'debió llegar':'venció'} el ${shortDate(o.fecha)}` : isoDate(o.fecha)===isoDate(td) ? 'hoy' : `el ${shortDate(o.fecha)}`;
-    box.append(el('div',{class:'pend'+(m?' ok':'')},
-      el('div',{class:'pl',title:m?'Ver o editar el movimiento':'Registrar con otro monto o fecha',
+  const done=recDone(), td=today(), lim=new Date(td), cur=S.P===idxOf(td);
+  lim.setDate(td.getDate()+AVISO_DIAS);
+  const act=S.recs.filter(r=>r.activo && r.monto>0);
+  const occ=act.flatMap(r=>recOcc(r));
+  // en el periodo actual también lo que llega en los primeros días del siguiente y los pagos anuales que vienen
+  if(cur) occ.push(...act.flatMap(r=>recOcc(r,S.P+1)).filter(o=>o.fecha<=lim || o.r.cada==='Año'));
+  const rows=occ.map(o=>({...o, m:done.get(o.key)})).sort((x,y)=>x.fecha-y.fecha || x.r.nombre.localeCompare(y.r.nombre));
+  const ya=rows.filter(o=>o.m), toca=rows.filter(o=>!o.m && o.fecha<=lim), prox=rows.filter(o=>!o.m && o.fecha>lim);
+  const row = o => {
+    const inc=recTipo(o.r)==='Ingreso', m=o.m, d=dayDiff(td,o.fecha);
+    const cuando = m ? `registrado el ${shortDate(m.fecha)}`
+      : d<0 ? `${inc?'debió llegar':'venció'} el ${shortDate(o.fecha)}`
+      : d===0 ? 'hoy' : d===1 ? 'mañana'
+      : `${o.r.cada==='Año'?'anual · ':''}${d<=AVISO_DIAS?`en ${d} días · `:''}${DIAS[o.fecha.getDay()]} ${shortDate(o.fecha)}`;
+    return el('div',{class:'pend'+(m?' ok':'')},
+      el('button',{type:'button',class:'pl',title:m?'Ver o editar el movimiento':'Registrar con otro monto o fecha',
         onclick:()=>m ? openModal(m) : openModal(null,recPre(o))},
-        el('span',{class:'pn',text:o.r.nombre}), el('span',{class:'pd'+(!m && o.fecha<td && !inc?' late':''),text:cuando})),
+        el('span',{class:'pn',text:o.r.nombre}), el('span',{class:'pd'+(!m && d<0 && !inc?' late':''),text:cuando})),
       el('span',{class:'pa'+(inc&&!m?' in':''),text:(inc?'+':'')+money.format(m?m.monto:o.r.monto)}),
-      m ? el('span',{class:'okm',text:'✓'}) : el('button',{class:'btn small',text:'Registrar',onclick:()=>recRegistrar([o])})));
-  });
-  prox.forEach(o=>box.append(el('div',{class:'pend soon',title:'Pago anual del próximo periodo'},
-    el('div',{class:'pl',onclick:goRecs},el('span',{class:'pn',text:o.r.nombre}),el('span',{class:'pd',text:`anual · viene el ${shortDate(o.fecha)}`})),
-    el('span',{class:'pa',text:money.format(o.r.monto)}), el('span',{class:'okm',text:'⏰'}))));
-  const pend=rows.filter(o=>!o.m);
-  if(pend.length>1){
-    all.classList.remove('hidden'); all.textContent=`Registrar ${pend.length}`;
+      m ? el('span',{class:'okm',text:'✓'}) : el('button',{class:'btn small',text:'Registrar',onclick:()=>recRegistrar([o])}));
+  };
+  // sección que se abre y se cierra (se recuerda en este dispositivo)
+  const sec = (k, titulo, list) => {
+    if(!list.length) return [];
+    const open=pendOpen.has(k), pb=el('div',{class:'pbox',hidden:!open},...list.map(row));
+    const b=el('button',{type:'button',class:'psec','aria-expanded':String(open),onclick:()=>{
+      const o=pb.hidden; pb.hidden=!o; b.setAttribute('aria-expanded',String(o));
+      o ? pendOpen.add(k) : pendOpen.delete(k); lsSet('pres.pendOpen',JSON.stringify([...pendOpen])); }},
+      el('b',{text:titulo}), el('span',{text:String(list.length)}));
+    return [b,pb];
+  };
+  const sig=prox[0];
+  fill(box,
+    toca.length ? toca.map(row) : el('div',{class:'empty',
+      text:(cur?'Nada por registrar estos días':'Nada pendiente en este periodo')+(sig?`. Lo próximo: ${sig.r.nombre}, el ${shortDate(sig.fecha)}.`:'.')}),
+    sec('prox','Próximos',prox), sec('reg','Registrados',ya));
+  if(toca.length>1){
+    all.classList.remove('hidden'); all.textContent=`Registrar ${toca.length}`;
     all.onclick=()=>{
-      if(!all.dataset.armed){ all.dataset.armed='1'; all.textContent=`¿Seguro? ${pend.length} movimientos`; return; }
-      recRegistrar(pend);
+      if(!all.dataset.armed){ all.dataset.armed='1'; all.textContent=`¿Seguro? ${toca.length} movimientos`; return; }
+      recRegistrar(toca);
     };
   }
 }
-// Tarjeta: total por corte (incluye cuotas MSI) y fecha límite de pago
 // Tarjetas: total por corte (incluye cuotas MSI), fecha límite de pago y MSI que faltan; una sección por tarjeta
 function renderTC(){
   const card=$('#tcCard'), box=$('#tcList');
@@ -2042,10 +2121,10 @@ function renderTC(){
       const cuando = left===0 ? '¡hoy!' : left===1 ? 'mañana' : `faltan ${left} días`;
       const st = open ? `en curso · cierra el ${shortDate(end)} · límite ${shortDate(due)}`
         : left>=0 ? `fecha límite ${DIAS[due.getDay()]} ${shortDate(due)} · ${cuando}` : `fecha límite ${shortDate(due)} (ya pasó)`;
-      // lo que gastaste en el corte se cubre con las quincenas que cayeron dentro de él
-      const qs=tjQuincenas(i,t);
-      const qt = !qs.length ? '' : `Lo cubren tus quincenas del ${diasTxt(qs)}`
-        + (!open && tot>0 && qs.length>1 ? ` (${money.format(tot/qs.length)} de cada una)` : '');
+      // lo que gastaste en el corte se cubre con los pagos (quincenas, sueldo semanal…) que cayeron dentro de él
+      const {ds:qs, quin}=tjPagos(i,t);
+      const qt = !qs.length ? '' : `Lo cubren tus ${quin?'quincenas':'pagos'} del ${diasTxt(qs)}`
+        + (!open && tot>0 && qs.length>1 ? ` (${money.format(tot/qs.length)} de cada ${quin?'una':'uno'})` : '');
       box.append(el('div',{class:'tc'+(open?' now':'')},
         el('div',{class:'tl'},el('b',{text:`${open?'Corte actual':'Corte'} ${shortDate(ini)} – ${shortDate(end)}`}),
           el('span',{}, !open && left>=0 && left<=5 ? el('span',{class:'warntag',text:'⚠ '}) : null, st, msi?` · incluye ${money.format(msi)} de MSI`:''),
@@ -2210,14 +2289,14 @@ $('#cobAdd').onclick=()=>openPersona('',true);
 function renderMetas(){
   const card=$('#metasCard'), box=$('#metasList');
   card.classList.toggle('hidden', !S.metas.length); box.replaceChildren();
-  const td=today();
+  const td=today(), pc=PAGO[pagoCada()];
   S.metas.forEach(mt=>{
     const acum=S.movs.filter(m=>m.cat===mt.nombre && m.tipo==='Gasto').reduce((s,m)=>s+m.monto,0);
     const obj=mt.objetivo||0, pct=obj?Math.min(100,acum/obj*100):0, falta=Math.max(0,obj-acum);
-    let sub = obj ? (falta<=0 ? '✓ ¡Meta cumplida!' : `faltan ${money.format(falta)}`) : 'pon un objetivo en Presupuesto y categorías';
+    let sub = obj ? (falta<=0 ? '✓ ¡Meta cumplida!' : `faltan ${money.format(falta)}`) : 'ponle un objetivo en la pestaña Presupuesto';
     if(obj && falta>0 && mt.fecha){
       const ml=(mt.fecha.getFullYear()-td.getFullYear())*12+(mt.fecha.getMonth()-td.getMonth());
-      sub += mt.fecha<td ? ' · la fecha límite ya pasó' : ` · aparta ${money.format(falta/Math.max(1,ml))} al mes (${money.format(falta/Math.max(1,ml)/2)} por quincena) hasta ${MESES[mt.fecha.getMonth()]} ${mt.fecha.getFullYear()}`;
+      sub += mt.fecha<td ? ' · la fecha límite ya pasó' : ` · aparta ${money.format(falta/Math.max(1,ml))} al mes${pc.n>1?` (${money.format(falta/Math.max(1,ml)/pc.n)} ${pc.t})`:''} hasta ${MESES[mt.fecha.getMonth()]} ${mt.fecha.getFullYear()}`;
     }
     const sel=S.selCat===mt.nombre;
     box.append(el('div',{class:'mrow'+(sel?' sel':''),role:'button',tabindex:0,onclick:()=>{ S.selCat=sel?null:mt.nombre; S.selGroup=null; render(); }},
@@ -2581,7 +2660,7 @@ function dayRows(ms, cols, mk){
 function renderRecent(){
   const ms=movsIn(S.P).filter(m=>S.selCat?m.cat===S.selCat:S.selGroup?groupOf(m.cat)===S.selGroup:true).sort((a,b)=>b.fecha-a.fecha||b.id-a.id);
   const box=$('#recent'); box.replaceChildren();
-  if(!ms.length){ box.append(el('div',{class:'empty',text:'Sin movimientos en este periodo. Usa “+ Agregar” (o la tecla N) para capturar uno.'})); return; }
+  if(!ms.length){ box.append(el('div',{class:'empty',text:`Sin movimientos en este periodo. Usa “+ Agregar”${sm()?'':' (o la tecla N)'} para capturar uno.`})); return; }
   box.append(el('table',{},el('tbody',{},dayRows(ms.slice(0,10),sm()?2:3,m=>movRow(m,true)))));
   if(ms.length>10) box.append(el('div',{class:'empty',text:`y ${ms.length-10} más…`}));
 }
@@ -2614,10 +2693,10 @@ function renderPres(){
   const inc=ingresoMes();
   const byG=g=>gastoCats().filter(c=>c.grupo===g).reduce((a,c)=>a+catBudget(c),0);
   const gas=byG('Necesidad')+byG('Gusto'), aho=byG('Ahorro'), sob=inc-gas-aho;
-  const pc = v => inc?` (${Math.round(v/inc*100)}%)`:'';
+  const pc = v => inc?` (${Math.round(v/inc*100)}%)`:'', pago=PAGO[pagoCada()];
   $('#budKpis').replaceChildren(
-    kpi('Sin asignar al mes',money.format(sob),sob<0?'presupuestas más de lo que entra':`${money.format(sob/2)} por quincena`,sob<0),
-    kpi('Ingreso esperado',money.format(inc),'al mes'));
+    kpi('Sin asignar al mes',money.format(sob),sob<0?'presupuestas más de lo que entra':pago.n>1?`${money.format(sob/pago.n)} ${pago.t}`:'por repartir',sob<0,null,'sinasignar'),
+    kpi('Ingreso esperado',money.format(inc),'al mes',false,null,'ingesp'));
   $('#budLine').replaceChildren('Gastos ',el('b',{text:money.format(gas)}),pc(gas),' · Ahorro ',el('b',{text:money.format(aho)}),pc(aho));
   const used=new Set([...S.movs.map(m=>m.cat),...S.recs.map(r=>r.cat)]);
   const sp=simple();   // modo sencillo: solo nombre y cuánto al mes
@@ -2751,15 +2830,15 @@ function openArmar(){
   if(!gastoCats().length){ toast('Primero agrega tus categorías de gasto',true); return; }
   // sueldo de arranque: tus cobros recurrentes o el presupuesto de ingreso; si no hay, el promedio de lo que te ha entrado
   const recI=S.recs.filter(r=>r.activo && r.monto>0 && recTipo(r)==='Ingreso');
-  const quin = recI.length ? recI.every(r=>r.cada==='Quincena') : true;
+  const K={s:4,q:2,m:1}, modo0 = recI.length ? ({Semana:'s',Quincena:'q',Mes:'m'})[pagoCada()] : 'q';
   let inc0=ingresoMes();
   if(!inc0){ const cur=idxOf(today()), ps=[1,2,3].map(k=>periodTotals(cur-k).ingreso).filter(v=>v>0); inc0 = ps.length ? ps.reduce((a,b)=>a+b,0)/ps.length : 0; }
   const ingCat = (recI[0] && catByName(recI[0].cat)) || ingresoCats().find(c=>catBudget(c)>0) || ingresoCats()[0] || null;
-  const incIn=el('input',{type:'number',min:0,step:'any',inputmode:'decimal',placeholder:'0','aria-label':'Cuánto te pagan',value:inc0?Math.round(quin?inc0/2:inc0):''});
-  const modo=el('select',{'aria-label':'Cada cuándo'},el('option',{value:'q',text:'por quincena',selected:quin}),el('option',{value:'m',text:'al mes',selected:!quin}));
+  const incIn=el('input',{type:'number',min:0,step:'any',inputmode:'decimal',placeholder:'0','aria-label':'Cuánto te pagan',value:inc0?Math.round(inc0/K[modo0]):''});
+  const modo=el('select',{'aria-label':'Cada cuándo'},...[['s','por semana'],['q','por quincena'],['m','al mes']].map(([v,t])=>el('option',{value:v,text:t,selected:v===modo0})));
   const mesTxt=el('span',{class:'sub'}), list=el('div',{class:'arm'}), foot=el('div',{class:'armfoot'}), avBox=el('div');
   const ingChk=el('input',{type:'checkbox',checked:true});
-  const mensual = () => { const v=num(incIn.value); return modo.value==='q' ? v*2 : v; };
+  const mensual = () => num(incIn.value)*K[modo.value];   // semanal = 4 pagos al mes
   let rows=[];
   const totales = () => {
     const inc=mensual(), queda=r=>r.on?r.v:r.hoy, asig=rows.reduce((a,r)=>a+queda(r),0), sob=inc-asig;
@@ -2770,7 +2849,7 @@ function openArmar(){
   };
   const calc = () => {
     const inc=mensual();
-    mesTxt.textContent = modo.value==='q' && inc ? `= ${money.format(inc)} al mes` : '';
+    mesTxt.textContent = modo.value!=='m' && inc ? `= ${money.format(inc)} al mes` : '';
     if(!inc){ rows=[]; fill(list, el('div',{class:'empty',text:'Escribe cuánto te pagan para ver la sugerencia.'})); foot.replaceChildren(); avBox.replaceChildren(); return; }
     const s=sugerirPresupuesto(inc); rows=s.rows;
     fill(avBox, ...s.avisos.map(a=>el('p',{class:'armav',text:'⚠ '+a})));
@@ -2786,7 +2865,7 @@ function openArmar(){
           return row; })]; }));
     totales();
   };
-  incIn.oninput=()=>{ mesTxt.textContent = modo.value==='q' && num(incIn.value) ? `= ${money.format(mensual())} al mes` : ''; };
+  incIn.oninput=()=>{ mesTxt.textContent = modo.value!=='m' && num(incIn.value) ? `= ${money.format(mensual())} al mes` : ''; };
   incIn.onchange=calc; modo.onchange=calc;
   fill(body,
     el('div',{class:'mhead'},el('h3',{text:'Armar mi presupuesto'}),el('button',{class:'icon',text:'✕','aria-label':'Cerrar',onclick:close})),
@@ -2840,20 +2919,26 @@ function renderTjTable(){
     el('thead',{},el('tr',{},...['Nombre','Día de corte','Día límite de pago',''].map(h=>el('th',{text:h})))), tbody));
 }
 
-function recFreq(r){ return r.cada==='Quincena' ? 'cada quincena' : r.cada==='Año' ? `cada año, ${r.dia||1} ${MESES[(r.mes||1)-1]}` : `cada mes, día ${r.dia||1}`; }
+function recFreq(r){ return r.cada==='Semana' ? `cada ${DIAS_SEM[recDia(r)-1]}` : r.cada==='Quincena' ? 'cada quincena' : r.cada==='Año' ? `cada año, ${r.dia||1} ${MESES[(r.mes||1)-1]}` : `cada mes, día ${r.dia||1}`; }
 function recCtl(r, ix){
   const upd=(k,v)=>{ r[k]=v; changed(); };
   const catSel=el('select',{onchange:e=>upd('cat',e.target.value)},
     ...['Gasto','Ingreso'].map(t=>el('optgroup',{label:t},...S.cats.filter(c=>c.tipo===t).map(c=>el('option',{value:c.nombre,text:c.nombre,selected:c.nombre===r.cat})))));
-  const dia=el('input',{type:'number',min:1,max:31,step:1,inputmode:'numeric',value:r.cada!=='Quincena'&&r.dia?r.dia:'',placeholder:r.cada==='Quincena'?'—':'1',disabled:r.cada==='Quincena',title:'Día en que se paga',style:{width:sm()?'auto':'58px'},
-    onchange:e=>upd('dia',Math.min(31,Math.max(0,Math.round(num(e.target.value)))))});
+  const dia = r.cada==='Semana'
+    ? el('select',{title:'Día de la semana en que se paga',style:{width:'auto'},onchange:e=>upd('dia',+e.target.value)},
+        ...DIAS_SEM.map((n,i)=>el('option',{value:i+1,text:cap1(n),selected:i+1===recDia(r)})))
+    : el('input',{type:'number',min:1,max:31,step:1,inputmode:'numeric',value:r.cada!=='Quincena'&&r.dia?r.dia:'',placeholder:r.cada==='Quincena'?'—':'1',disabled:r.cada==='Quincena',title:'Día en que se paga',style:{width:sm()?'auto':'58px'},
+        onchange:e=>upd('dia',Math.min(31,Math.max(0,Math.round(num(e.target.value)))))});
+  // al cambiar a semanal (o dejar de serlo) el "día" cambia de significado: se pone el de hoy
+  const setCada = v => { const td=today(); if(v==='Semana') r.dia=isoDia(td); else if(r.cada==='Semana') r.dia=v==='Quincena'?0:td.getDate(); upd('cada',v); };
   const mes = r.cada==='Año' ? el('select',{title:'Mes en que se paga',style:{width:'auto'},onchange:e=>upd('mes',+e.target.value)},...MESES.map((n,i)=>el('option',{value:i+1,text:n,selected:i+1===(r.mes||1)}))) : null;
   const f=[
     ['Nombre',el('input',{type:'text',value:r.nombre,placeholder:'ej. Netflix',onchange:e=>{ const v=e.target.value.trim(); if(!v){ toast('Ponle un nombre',true); render(); return; } upd('nombre',v); }})],
     ['Categoría',catSel],
     ['Monto',el('input',{type:'number',class:'money',min:0,step:'any',inputmode:'decimal',value:r.monto||'',placeholder:'0',onchange:e=>upd('monto',num(e.target.value))})],
     ['Método',el('select',{onchange:e=>{ const p=metParse(e.target.value); r.tarjeta=p.tarjeta; upd('metodo',p.metodo); }},el('option',{value:'',text:'—',selected:!r.metodo}),...metOpts(metVal(r.metodo,r.tarjeta)))],
-    ['Frecuencia',el('select',{onchange:e=>upd('cada',e.target.value)},el('option',{value:'Mes',text:'Cada mes',selected:r.cada==='Mes'}),el('option',{value:'Quincena',text:'Cada quincena (15 y último)',selected:r.cada==='Quincena'}),el('option',{value:'Año',text:'Cada año',selected:r.cada==='Año'}))],
+    ['Frecuencia',el('select',{onchange:e=>setCada(e.target.value)},...[['Semana','Cada semana'],['Quincena','Cada quincena (15 y último)'],['Mes','Cada mes'],['Año','Cada año']]
+      .map(([v,t])=>el('option',{value:v,text:t,selected:r.cada===v})))],
     ['Cuándo (día'+(r.cada==='Año'?' y mes)':')'), sm()&&mes ? el('div',{class:'two'},dia,mes) : dia, sm()?null:mes, {whiteSpace:'nowrap'}],
     ['Activo (desmárcalo para pausarlo sin borrarlo)',el('input',{type:'checkbox',checked:r.activo,title:'Activo (desmárcalo para pausarlo sin borrarlo)',onchange:e=>upd('activo',e.target.checked)}),null,{textAlign:'center'}]];
   return {f, extra: r.activo && r.monto>0 ? el('a',{class:'btn small ghost',href:gcalUrl(r),target:'_blank',rel:'noopener',title:'Agregarlo a Google Calendar (se repite solo)',text:sm()?'Google Calendar':'📅'}) : null,
@@ -2864,17 +2949,19 @@ function renderRecTable(){
     sub:`${r.cat} · ${recFreq(r)}${r.activo?'':' · pausado'}`,
     amt:r.monto ? (recTipo(r)==='Ingreso'?'+':'')+money.format(r.monto) : '—', build:()=>recCtl(r,ix)}));
   ctlBox($('#recTable'), rows, ['Nombre','Categoría',{t:'Monto',money:1},'Método','Frecuencia','Cuándo','Activo'],
-    el('div',{class:'empty',text:'Lo que pagas o cobras seguido (Netflix, renta, sueldo, seguro anual). Aparecen en el Resumen para registrarlos con un clic.'}));
+    el('div',{class:'empty',text:'Lo que pagas o cobras seguido: Netflix, renta, tu sueldo (semanal o por quincena), un seguro anual. Te aparecen en el Resumen unos días antes para registrarlos con un toque.'}));
   $('#recIcs').classList.toggle('hidden', !S.recs.some(r=>r.activo && r.monto>0));
 }
 // ---------- recordatorios en el calendario del celular (la app no puede mandar avisos con la app cerrada) ----------
-// Regla de repetición: cada mes el día X (29-31 = último día), quincena = 15 y último, cada año = mes y día
+// Regla de repetición: cada mes el día X (29-31 = último día), quincena = 15 y último, cada año = mes y día, cada semana = ese día
 function recRule(r){
+  if(r.cada==='Semana') return `FREQ=WEEKLY;BYDAY=${['SU','MO','TU','WE','TH','FR','SA'][recWd(r)]}`;
   const d=r.dia||1, md = r.cada==='Quincena' ? '15,-1' : d>28 ? '-1' : String(d);
   return r.cada==='Año' ? `FREQ=YEARLY;BYMONTH=${r.mes||1};BYMONTHDAY=${md}` : `FREQ=MONTHLY;BYMONTHDAY=${md}`;
 }
 function recNext(r){   // primera fecha de hoy en adelante (y no antes de "desde")
   const td=today(), ini=r.desde && r.desde>td ? r.desde : td;
+  if(r.cada==='Semana'){ const f=new Date(ini); f.setDate(f.getDate()+(recWd(r)-f.getDay()+7)%7); return f; }
   for(let k=0;k<14;k++){ const i=mKey(ini)+k, y=Math.floor(i/12), m=i%12, last=daysIn(y,m);
     if(r.cada==='Año' && m!==(r.mes||1)-1) continue;
     const ds = r.cada==='Quincena' ? [15,last] : [(r.dia||1)>28?last:Math.min(r.dia||1,last)];
@@ -3047,16 +3134,16 @@ function moreUI(){
     const [del]=fixPer(parseYM($('#mPDel').value), parseYM($('#mPAl').value)); if(del && !$('#mPerWrap').classList.contains('hidden')) t.push('recibo');
     if($('#mShared').checked) t.push('compartido ÷'+modalMov().entre);
   }
-  if(mRec || $('#mRepeat').checked) t.push('cada mes');
+  if(mRec) t.push('recurrente'); else if($('#mRepeat').value) t.push($('#mRepeat').selectedOptions[0].text.replace(/ \(.*/,'').toLowerCase());
   splitTags($('#mTags').value).forEach(x=>t.push('#'+x));
   $('#mMoreTxt').textContent=t.join(' · ');
 }
 function setMore(open){ $('#mMore').classList.toggle('hidden',!open); $('#mMoreBtn').setAttribute('aria-expanded',open); $('#mMoreLbl').textContent=open?'Ocultar ▴':'Cambiar ▾'; }
 $('#mMoreBtn').onclick=()=>setMore($('#mMore').classList.contains('hidden'));
-// "Se repite cada mes": al guardar crea el pago recurrente; si ya viene de uno, solo lo dice
+// "¿Se repite?": al guardar crea el pago recurrente con esa frecuencia; si ya viene de uno, solo lo dice
 function recUI(){
   const r = mRec && S.recs.find(x=>mRec.startsWith(x.id+'@'));
-  $('#mRepeat').parentElement.classList.toggle('hidden', !!mRec);
+  $('#mRepLbl').classList.toggle('hidden', !!mRec);
   $('#mRecHint').textContent = mRec ? `↻ Pago recurrente${r?': '+r.nombre:''}` : '';
   moreUI();
 }
@@ -3151,7 +3238,7 @@ function openModal(m, pre){
   $('#mEntre').value = sh ? (m?m.entre:pre.entre) : '';
   $('#mCon').value = sh ? (m?personas(m).join(', '):(pre.con??roomies().join(', '))) : '';
   mReemb = m ? [...(m.reemb||[])] : [];
-  mRec = m ? (m.rec||'') : (pre.rec||''); $('#mRepeat').checked=false;
+  mRec = m ? (m.rec||'') : (pre.rec||''); $('#mRepeat').value='';
   $('#mTags').value = ((m?m.tags:pre.tags)||[]).join(', ');
   $('#mDesc').value = m?m.desc:(pre.desc||''); setMet(m?metVal(m.metodo||TC,m.tarjeta):(pre.metodo||metVal(TC)));
   const preCat = m?m.cat:(pre.cat||S.selCat||undefined);
@@ -3178,16 +3265,18 @@ async function saveModal(more){
   const data={fecha,tipo:mTipo,desc:dRaw.replace(/\s*#[^\s#,]+/g,'').trim(),cat,monto,metodo,tarjeta,meses,tags,
     ...(()=>{ const [pdel,pal]=gasto && meses<=1 ? fixPer(parseYM($('#mPDel').value), parseYM($('#mPAl').value)) : [null,null]; return {pdel,pal}; })(),
     entre: sh?mm.entre:1, con, reemb: sh?mReemb.filter(p=>splitNames(con).includes(p)):[], rec:mRec};
-  if(!mRec && $('#mRepeat').checked){
-    const r={id:newRecId(), nombre:data.desc||cat, cat, monto, metodo, tarjeta, cada:'Mes', dia:fecha.getDate(), activo:true, desde:new Date(fecha.getFullYear(),fecha.getMonth(),1)};
-    S.recs.push(r); data.rec=recKey(r,fecha,'');
+  const rep=$('#mRepeat').value;
+  if(!mRec && rep){
+    const r={id:newRecId(), nombre:data.desc||cat, cat, monto, metodo, tarjeta, cada:rep, dia:rep==='Semana'?isoDia(fecha):rep==='Quincena'?0:fecha.getDate(),
+      mes:fecha.getMonth()+1, activo:true, desde:new Date(fecha.getFullYear(),fecha.getMonth(),1)};
+    S.recs.push(r); data.rec=recKeyFor(r,fecha);
   }
   if(!editing) mLastDate = +fecha===+today() ? null : {d:fecha, t:Date.now()};
   const meta=S.metas.find(x=>x.nombre===cat && x.objetivo>0), antes=meta?metaAcum(meta.nombre):0;
   let guardado = editing;
   if(editing) Object.assign(editing,data); else S.movs.push(guardado={id:S.nextId++,...data,comp:[]});
   FX.flash=guardado; setTimeout(()=>{ if(FX.flash===guardado) FX.flash=null; },1700);
-  if(!more) closeModal(); else { $('#mMonto').value=''; $('#mDesc').value=''; $('#mTags').value=''; mReemb=[]; mRec=''; $('#mRepeat').checked=false; recUI(); shareUI(); fillFreq(true); $('#mMonto').focus(); }
+  if(!more) closeModal(); else { $('#mMonto').value=''; $('#mDesc').value=''; $('#mTags').value=''; mReemb=[]; mRec=''; $('#mRepeat').value=''; recUI(); shareUI(); fillFreq(true); $('#mMonto').focus(); }
   buzz();
   await changed();
   if(meta && antes<meta.objetivo && metaAcum(meta.nombre)>=meta.objetivo){ confeti(); toast(`¡Cumpliste tu meta “${meta.nombre}”!`); return; }
@@ -3217,7 +3306,7 @@ $('#modalBg').addEventListener('mousedown',e=>{ if(e.target.id==='modalBg') clos
 $('.modal').addEventListener('keydown',e=>{ if(e.key==='Enter' && e.target.tagName==='INPUT'){ e.preventDefault(); saveModal(false); } });
 
 // ---------- captura con IA (Gemini, plan gratis de Google AI Studio) ----------
-// La clave se guarda en tu cuenta (Codigo.gs › guardarClave); el modelo elegido, en este navegador.
+// La clave se guarda en tu cuenta (capa de datos › guardarClave); el modelo elegido, en este navegador.
 const GEM = 'https://generativelanguage.googleapis.com/v1beta/';
 const METODOS = ['Tarjeta de crédito','Débito','Efectivo','Transferencia'];
 const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
@@ -3254,7 +3343,7 @@ async function gemFetch(path, body){
   if(!r.ok){
     const msg=j.error?.message||'', st=j.error?.status||'';
     if(r.status===429 || st==='RESOURCE_EXHAUSTED') throw Object.assign(new Error('Se acabó tu límite gratis de Gemini por ahora. Intenta más tarde o captura con “+ Agregar”.'),{quota:1});
-    if(/api key/i.test(msg) || st==='PERMISSION_DENIED' || st==='UNAUTHENTICATED') throw new Error('La clave de Gemini no es válida. Revísala en Presupuesto y categorías › Configuración.');
+    if(/api key/i.test(msg) || st==='PERMISSION_DENIED' || st==='UNAUTHENTICATED') throw new Error('La clave de Gemini no es válida. Revísala en ⚙ Configuración.');
     if(r.status===404) throw Object.assign(new Error('Modelo no disponible: '+msg),{model:1});
     // 503 "high demand" / sobrecarga: es temporal y de Google, no de tu clave
     if(r.status>=500 || st==='UNAVAILABLE' || /overloaded|high demand/i.test(msg)) throw Object.assign(new Error('Gemini está saturado en este momento (es temporal, del lado de Google). Intenta de nuevo en un par de minutos o captura con “+ Agregar”.'),{busy:1});
@@ -3296,7 +3385,7 @@ ${ej||'(sin historial todavía)'}
 Reglas:
 - Un movimiento por cada gasto o ingreso distinto que mencione. Si menciona varios en un párrafo, sepáralos.
 - monto: número positivo sin signo ni comas. "2 mil" = 2000, "mil quinientos" = 1500, "500 varos" = 500.
-- tipo: "Ingreso" si le pagaron, cobró, le depositaron, quincena, sueldo; si no, "Gasto". La categoría debe ser del mismo tipo.
+- tipo: "Ingreso" si le pagaron, cobró, le depositaron, quincena, semana, raya, sueldo; si no, "Gasto". La categoría debe ser del mismo tipo.
 - Si dice que un roomie le pagó/reembolsó su parte de un gasto, NO lo registres (eso se marca aparte en la app); menciónalo en "duda" de otro movimiento si hay.
 - descripcion: corta y clara, en español, con mayúscula inicial (ej. "Comida", "Cine", "Luz CFE", "Quincena").
 - metodo: uno de ${METODOS.join(', ')}, solo si lo dice o es obvio ("con la tarjeta", "en efectivo", "transferí"); si no, "".
@@ -3586,22 +3675,92 @@ $('#cfgBase').onchange=e=>{ S.cfg.BaseIngreso=e.target.value; changed(); };
 $('#cfgTour').onclick=()=>tour(0);
 $('#addTj').onclick=()=>{ let n='Tarjeta 2', k=3; while(S.tarjetas.some(t=>t.nombre===n)) n=`Tarjeta ${k++}`; S.tarjetas.push({nombre:n,corte:S.tarjetas[0].corte,limite:S.tarjetas[0].limite}); changed();
   setTimeout(()=>{ const i=document.querySelector('#tjTable tbody tr:last-child input'); if(i){ i.focus(); i.select(); } },0); };
-// ---------- tutorial de la primera vez (3 pantallas) ----------
+// ---------- tutorial (4 pantallas). TOUR_V sube cuando cambia: quien ya lo vio, ve el nuevo una vez ----------
+const TOUR_V='2';
+const tIco = (...ds) => el('svg',{viewBox:'0 0 24 24',fill:'none',stroke:'currentColor','stroke-width':1.6,'stroke-linecap':'round','stroke-linejoin':'round','aria-hidden':'true'},...ds.map(d=>el('path',{d})));
+// cada renglón: "parte en negritas|resto"
 const TOUR=[
-  ['✍️','Anota cada gasto','Toca “+ Agregar”, pon cuánto y en qué. Lo que más repites aparece listo para un solo toque. Si activas la IA, también puedes escribirlo o dictarlo: “ayer 200 de gasolina”.'],
-  ['👀','Mira cuánto te queda','Arriba ves lo que te queda del periodo y lo que llevas gastado. Las barras de cada categoría se ponen amarillas o rojas cuando te acercas al límite.'],
-  ['🗓️','Arma tu presupuesto','En “Presupuesto” pon cuánto quieres gastar en cada cosa y tus pagos fijos (renta, Netflix, sueldo). La app te recuerda cuáles faltan. En ⚙ puedes cambiar a modo sencillo o letra grande.']];
+  [()=>tIco('M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4z','M13.5 6.5l4 4'),'Anota tus gastos',[
+    '+ Agregar|: pon cuánto y en qué. Lo que más repites sale listo para un toque.',
+    'Con ‹ ›| cambias el día si se te pasó anotar algo.',
+    'Con la IA| (se activa en ⚙) escribes o dictas “ayer 200 de gasolina”, o subes la foto del ticket.']],
+  [()=>tIco('M3 20h18','M6.5 20v-6','M11.5 20V5','M16.5 20v-9'),'Mira cómo vas',[
+    'Te queda|: lo que puedes gastar hasta el cierre. Verde vas bien, ámbar vas rápido, rojo ya te pasaste.',
+    'Categorías|: se ponen ámbar o rojas cerca del límite. Toca una para ver sus movimientos.',
+    'Toca un título| para plegar esa tarjeta y dejar el Resumen a tu gusto.']],
+  [()=>tIco('M17 2l4 4-4 4','M3 11V9a3 3 0 0 1 3-3h15','M7 22l-4-4 4-4','M21 13v2a3 3 0 0 1-3 3H3'),'Pagos que se repiten',[
+    'Renta, Netflix, tu sueldo|: agrégalos en Presupuesto, cada semana, quincena, mes o año.',
+    'Te aparecen| en el Resumen 3 días antes y los registras con un toque.',
+    'Próximos y Registrados| guardan lo que viene y lo que ya anotaste.']],
+  [()=>tIco('M5.5 6h13A2.5 2.5 0 0 1 21 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5v-9A2.5 2.5 0 0 1 5.5 6z','M3 10h18','M16 15h2'),'Arma tu presupuesto',[
+    'En Presupuesto| pon cuánto gastar en cada cosa, o usa “Armar mi presupuesto” y te lo sugiero.',
+    '¿Dudas?| Toca el signo ? junto a los títulos y te explico para qué sirve.',
+    'En ⚙| tienes modo sencillo, letra grande y recordatorios.']]];
 function tour(i){
-  const box=$('#tour'), body=$('#tourBody'), fin=()=>{ hideBg(box); lsSet('pres.tour','1'); };
+  const box=$('#tour'), body=$('#tourBody'), fin=()=>{ hideBg(box); lsSet('pres.tour',TOUR_V); };
   if(i>=TOUR.length) return fin();
-  const [ico,t,p]=TOUR[i];
-  body.replaceChildren(el('div',{class:'ico',text:ico}),el('h3',{text:t}),el('p',{text:p}),
+  const [ico,t,items]=TOUR[i];
+  body.replaceChildren(el('div',{class:'ico'},ico()),el('h3',{text:t}),
+    el('ul',{},...items.map(x=>{ const [b,r]=x.split('|'); return el('li',{},el('b',{text:b}),r); })),
     el('div',{class:'dots'},...TOUR.map((_,k)=>el('i',{class:k===i?'on':null}))),
     el('div',{class:'actions',style:{justifyContent:'center'}},
-      i<TOUR.length-1?el('button',{class:'btn ghost',text:'Saltar',onclick:fin}):null,
+      i>0?el('button',{class:'btn ghost',text:'Atrás',onclick:()=>tour(i-1)}):el('button',{class:'btn ghost',text:'Saltar',onclick:fin}),
       el('button',{class:'btn primary',text:i<TOUR.length-1?'Siguiente':'Empezar',onclick:()=>tour(i+1)})));
   box.classList.add('open');
 }
+// ---------- ayuda: un "?" junto a algunos títulos; al tocarlo sale una explicación corta (y se va al tocar fuera) ----------
+const HELP = {
+  ia:'Escribe o dicta lo que gastaste (“ayer 200 de tacos”) y la IA lo anota por ti. Con el botón del documento subes la foto de un ticket o tu estado de cuenta. Si escribes una pregunta (“¿cuánto gasté en Uber?”), te contesta con tus datos.',
+  tequeda:'Lo que te queda para gastar hasta el cierre: tu ingreso del periodo (el que esperas, si todavía no te llega todo) menos lo que ya gastaste y apartaste. Verde: vas bien. Ámbar: gastas más rápido de lo que avanza el periodo. Rojo: ya te pasaste.',
+  cats:'Cuánto llevas en cada categoría contra lo que le diste en tu presupuesto. Se pone ámbar cerca del límite y roja si te pasas. Toca una para ver solo sus movimientos.',
+  semana:'Cuánto puedes gastar al día para llegar bien al cierre, lo que llevas de lunes a domingo (la línea punteada es lo que te toca por día) y los pagos de los próximos 7 días. No cuenta pagos fijos ni ahorro.',
+  recs:'Lo que pagas o cobras seguido (renta, Netflix, tu sueldo). Aquí salen cuando faltan 3 días o menos, o si ya pasó la fecha y no lo has registrado. “Registrar” lo anota con un toque; si el monto cambió, toca el nombre. En Próximos ves lo que viene y en Registrados lo que ya anotaste.',
+  tc:'Lo que llevas en cada corte de tu tarjeta y la fecha límite para pagarlo sin intereses. Incluye las mensualidades de compras a meses.',
+  cob:'Lo que te deben (gastos compartidos y préstamos) y lo que tú debes. Toca a una persona para marcar lo que ya te pagó o mandarle la cuenta por WhatsApp.',
+  metas:'Lo que llevas juntado para cada meta. Para abonar, registra un gasto en la categoría de la meta (botón “+ Abonar”).',
+  iares:'La IA revisa tus números del periodo y te da tres renglones de cómo vas y una sugerencia.',
+  top:'Tus gastos agrupados por lugar o concepto (Oxxo, Uber, súper…), aunque los hayas escrito un poco distinto. Si dos son lo mismo y no se juntaron, usa “Unir nombres”.',
+  hormiga:'Compras chicas (de $200 o menos) que se repiten 3 veces o más en el periodo. Solas no se notan; juntas, sí.',
+  ritmo:'La línea azul es lo que llevas gastado día por día. La punteada es cómo irías si gastaras tu presupuesto parejo. Si la azul va arriba, vas gastando rápido.',
+  regla:'Una forma sencilla de repartir lo que ganas: 50% para necesidades, 30% para gustos y 20% para ahorro. La rayita es la meta; los porcentajes los cambias en ⚙.',
+  trend:'Lo que gastaste en cada periodo comparado con tu presupuesto (la línea punteada). Toca una barra para ir a ese periodo.',
+  pcats:'Cuánto quieres gastar al mes en cada cosa. Grupo: Necesidad (lo indispensable), Gusto (lo que podrías recortar) o Ahorro. “Armar mi presupuesto” te sugiere montos con tu sueldo y lo que de verdad gastas.',
+  precs:'Pagos o cobros que se repiten cada semana, quincena, mes o año. Te aparecen en el Resumen unos días antes para registrarlos con un toque. Para pausar uno sin borrarlo, desmarca “Activo”.',
+  pmetas:'Algo para lo que estás juntando (un viaje, un enganche). Pon cuánto necesitas y para cuándo, y te digo cuánto apartar al mes.',
+  sinasignar:'Tu ingreso del mes menos lo que ya repartiste en categorías. Lo ideal es dejarlo cerca de cero: que cada peso tenga un destino, aunque sea el ahorro.',
+  ingesp:'Lo que esperas ganar al mes: tus cobros recurrentes (un sueldo semanal cuenta como 4 pagos) o lo que pusiste en tus categorías de ingreso, lo que sea mayor.',
+  periodo:'Corte de tarjeta: cada periodo va de un corte al siguiente; conviene si pagas casi todo con tarjeta. Mes calendario: del día 1 al último.',
+  base:'“Lo que espero ganar” cuenta tu sueldo aunque todavía no te llegue. “Solo lo que ya me entró” es más estricto: solo cuenta lo que ya registraste.',
+  roomies:'Roomies: con quién sueles dividir gastos; se llenan solos al marcar “Gasto compartido”. Los porcentajes son tus metas de la regla 50/30/20.',
+  msi:'Si compraste a meses sin intereses, cada mensualidad cuenta en su periodo y no todo de golpe.',
+  compartido:'Pagaste todo, pero solo te toca tu parte. Lo de los demás queda como “te deben” hasta que marques que ya te pagaron.',
+  repite:'Si lo pagas o cobras seguido (renta, sueldo, Netflix), elige cada cuándo y la app te lo recordará en el Resumen para registrarlo con un toque.'
+};
+const helpBtn = k => el('button',{type:'button',class:'help','data-k':k,'aria-label':'¿Qué es esto?','aria-expanded':'false'});
+$$('[data-h]').forEach(x=>x.append(helpBtn(x.dataset.h)));
+let helpCur=null, helpT=0;
+function helpHide(e){
+  // al desplazarte se cierra, salvo el movimiento que hace el propio navegador justo al tocar el "?"
+  if(!helpCur || (e && e.type==='scroll' && Date.now()-helpT<400)) return;
+  helpCur.setAttribute('aria-expanded','false'); helpCur=null; $('#helpPop').hidden=true;
+}
+function helpShow(b){
+  const pop=$('#helpPop'), t=HELP[b.dataset.k]; if(!t) return;
+  helpHide(); helpCur=b; helpT=Date.now(); b.setAttribute('aria-expanded','true');
+  pop.textContent=t; pop.hidden=false;
+  const r=b.getBoundingClientRect(), w=pop.offsetWidth, h=pop.offsetHeight, vw=document.documentElement.clientWidth;
+  pop.style.left=Math.max(16,Math.min(vw-w-16, r.left+r.width/2-w/2))+'px';
+  pop.style.top=(r.bottom+8+h<=innerHeight-8 ? r.bottom+8 : Math.max(8,r.top-h-8))+'px';
+}
+// en captura: tocar el "?" no pliega la tarjeta ni marca la casilla de al lado
+document.addEventListener('click',e=>{
+  const b=e.target.closest?.('.help');
+  if(b){ e.preventDefault(); e.stopPropagation(); helpCur===b ? helpHide() : helpShow(b); return; }
+  if(!e.target.closest?.('#helpPop')) helpHide();
+},true);
+document.addEventListener('scroll',helpHide,{capture:true,passive:true});
+addEventListener('resize',helpHide);
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') helpHide(); });
 $('#btnTheme').onclick=()=>{
   const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches;
   const t = dark?'light':'dark'; document.documentElement.dataset.theme=t; lsSet('pres.theme',t); render();
