@@ -49,6 +49,7 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0}
+html{-webkit-tap-highlight-color:transparent}
 body{background:var(--page);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit}
 a{color:var(--accent)}
@@ -489,7 +490,7 @@ tr.mv td{will-change:auto}
 .kpi .v.ok{color:var(--good-ink)}.kpi .v.warn{color:var(--warn-ink)}
 .hbar{position:relative;height:5px;background:var(--track);border-radius:4px;margin-top:10px}
 .hbar i{display:block;height:100%;border-radius:4px;background:var(--s3)}
-.hbar i.warn{background:var(--warn)}.hbar i.neg{background:var(--crit)}
+.hbar i.warn{background:var(--warn)}.hbar i.neg{background:var(--crit)}.hbar i.neu{background:var(--muted)}
 .hbar b{position:absolute;top:-3px;bottom:-3px;width:2px;margin-left:-1px;background:var(--ink2);border-radius:1px;opacity:.7}
 /* encabezado mini al bajar */
 .mini{position:fixed;top:0;left:0;right:0;z-index:34;display:flex;align-items:center;gap:8px;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;
@@ -559,7 +560,7 @@ button.pl{border:0;background:transparent;padding:0;text-align:left;font:inherit
 /* ---------- v14: racha (frasco de monedas) y calendario ---------- */
 .racha{display:flex;gap:14px;align-items:center}
 .jar{width:150px;height:180px;flex:none;position:relative;touch-action:manipulation;cursor:pointer}
-.jar canvas{display:block}
+.jar canvas{display:block;outline:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .rinfo{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
 .rnum{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
 .rnum b{display:inline-block;font-size:40px;font-weight:780;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
@@ -686,7 +687,7 @@ button.pl{border:0;background:transparent;padding:0;text-align:left;font:inherit
     <button class="icon" id="btnCfg" title="Configuración" aria-label="Configuración">⚙</button>
   </header>
 
-  <div class="mini" id="mini" title="Subir"><span class="ml" id="miniP"></span><span class="spacer"></span><span>Te queda</span><b id="miniV"></b></div>
+  <div class="mini" id="mini" title="Subir"><span class="ml" id="miniP"></span><span class="spacer"></span><span id="miniK">Te queda</span><b id="miniV"></b></div>
   <div class="bar hidden" id="roBanner"><span id="roTxt"></span></div>
 
   <nav class="tabs" id="tabsNav">
@@ -1998,12 +1999,14 @@ function salud(i=S.P){
   const t=periodTotals(i), disp=t.base-t.gasto-t.ahorro, [a,b]=rangeOf(i), td=today();
   const N=dayDiff(a,b)+1, cur=td>=a && td<=b, pe=cur ? (dayDiff(a,td)+1)/N : td>b ? 1 : 0;
   const used=t.base>0 ? (t.base-disp)/t.base : 0;
-  const cls = disp<0 ? 'neg' : !t.base || td<a ? '' : used>pe+0.08 ? 'warn' : 'ok';
-  return {t, disp, cls, used, pe, cur};
+  // pend = cuenta con ingreso que aún no registras: es una estimación, no se pinta de verde ni ámbar
+  const pend = !t.real && t.ingreso < t.esperado-0.5;
+  const cls = disp<0 ? 'neg' : !t.base || td<a || pend ? '' : used>pe+0.08 ? 'warn' : 'ok';
+  return {t, disp, cls, used, pe, cur, pend};
 }
 function miniUpd(){
   const h=salud(); $('#miniP').textContent=labelOf(S.P);
-  const v=$('#miniV'); v.textContent=money.format(h.disp); v.className=h.cls;
+  const v=$('#miniV'); v.textContent=money.format(h.disp); v.className=h.cls; $('#miniK').textContent=h.pend?'Te quedaría':'Te queda';
 }
 function renderKpis(){
   const t=periodTotals(S.P);
@@ -2012,22 +2015,17 @@ function renderKpis(){
   const [a,b]=rangeOf(S.P); const td=today();
   const left = td>=a && td<=b ? `${dayDiff(td,b)===0?'hoy es el último día':`${dayDiff(td,b)} día${dayDiff(td,b)>1?'s':''} para el ${S.mode==='corte'?'corte':'fin de mes'}`}` : (td>b?'periodo cerrado':'periodo futuro');
   $('#kpis').replaceChildren(
-    kpi('Te queda', money.format(disp), left+(!t.real && t.ingreso<t.esperado?' · con ingreso esperado':''), disp<0, null, 'tequeda'),
+    kpi(salud().pend?'Te quedaría':'Te queda', money.format(disp), left+(salud().pend?` · si te pagan los ${money.format(t.esperado-t.ingreso)} que faltan`:''), disp<0, null, 'tequeda'),
     kpi('Gastado', money.format(t.gasto), budG?`de ${money.format(budG)} (${Math.round(t.gasto/budG*100)}%)`:'', false, vsPrev()));
   const vs=$$('#kpis .kpi .v'); countUp(vs[0], disp, 'queda'); countUp(vs[1], t.gasto, 'gastado');
   const h=salud(); if(h.cls && h.cls!=='neg') vs[0].classList.add(h.cls);
   if(t.base>0 && (h.cur || td>b)){
     const u=Math.max(0,Math.min(1,h.used));
     vs[0].parentNode.append(el('div',{class:'hbar',title:`Llevas ${Math.round(u*100)}% de tu dinero del periodo; la rayita es dónde va el periodo (${Math.round(h.pe*100)}%)`},
-      el('i',{class:h.cls||null,style:{width:u*100+'%'}}), h.cur?el('b',{style:{left:h.pe*100+'%'}}):null));
+      el('i',{class:h.cls||(h.pend?'neu':null),style:{width:u*100+'%'}}), h.cur?el('b',{style:{left:h.pe*100+'%'}}):null));
   }
   const f=simple()?'':fondoTxt();
-  // cobros recurrentes del periodo que aún no registras: un toque abre la captura con el monto listo para cambiarlo
-  const done=recDone(), faltan=recIngOcc(S.P).filter(o=>!done.has(o.key)).sort((x,y)=>x.fecha-y.fecha);
-  const falta = faltan.length ? [' · falta ', ...faltan.slice(0,2).flatMap((o,k)=>[k?', ':null,
-    el('button',{type:'button',class:'klink',title:'Registrar (puedes cambiar el monto)',onclick:()=>openModal(null,recPre(o)),
-      text:`${o.r.nombre} ${shortDate(o.fecha)}`})]), faltan.length>2?` y ${faltan.length-2} más`:null] : [];
-  fill($('#kline'),'Ingresos ', el('b',{text:money.format(t.ingreso)}), t.ingreso<t.esperado?` de ${money.format(t.esperado)}`:'', ...falta,
+  fill($('#kline'),'Ingresos ', el('b',{text:money.format(t.ingreso)}), t.ingreso<t.esperado?` de ${money.format(t.esperado)} esperados`:'',
     ' · Ahorrado ', el('b',{text:money.format(t.ahorro)}), f?` · ${f}`:'');
   const p=proyeccion(), pj=$('#proj');
   pj.classList.toggle('hidden', !p || !t.base);
@@ -3931,7 +3929,7 @@ function tour(i){
 // ---------- ayuda: un "?" junto a algunos títulos; al tocarlo sale una explicación corta (y se va al tocar fuera) ----------
 const HELP = {
   ia:'Escribe o dicta lo que gastaste (“ayer 200 de tacos”) y la IA lo anota por ti. Con el botón del documento subes la foto de un ticket o tu estado de cuenta. Si escribes una pregunta (“¿cuánto gasté en Uber?”), te contesta con tus datos.',
-  tequeda:'Lo que te queda para gastar hasta el cierre: tu ingreso del periodo (el que esperas, si todavía no te llega todo) menos lo que ya gastaste y apartaste. Verde: vas bien. Ámbar: gastas más rápido de lo que avanza el periodo. Rojo: ya te pasaste.',
+  tequeda:'Lo que te queda para gastar hasta el cierre: tu ingreso del periodo menos lo que ya gastaste y apartaste. Si todavía no registras todo lo que esperas ganar, dice “Te quedaría” en gris: es lo que te quedaría cuando te paguen. Ya con tus ingresos registrados se pinta: verde vas bien, ámbar gastas más rápido de lo que avanza el periodo, rojo ya te pasaste. Esto se cambia en ⚙ › “Te queda se calcula con”.',
   cats:'Cuánto llevas en cada categoría contra lo que le diste en tu presupuesto. Se pone ámbar cerca del límite y roja si te pasas. Toca una para ver solo sus movimientos.',
   semana:'Cuánto puedes gastar al día para llegar bien al cierre, lo que llevas de lunes a domingo (la línea punteada es lo que te toca por día) y los pagos de los próximos 7 días. No cuenta pagos fijos ni ahorro.',
   recs:'Lo que pagas o cobras seguido (renta, Netflix, tu sueldo). Aquí salen cuando faltan 3 días o menos, o si ya pasó la fecha y no lo has registrado. “Registrar” lo anota con un toque; si el monto cambió, toca el nombre. En Próximos ves lo que viene y en Registrados lo que ya anotaste.',
