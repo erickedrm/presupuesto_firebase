@@ -2348,15 +2348,17 @@ function renderMetas(){
   S.metas.forEach(mt=>{
     const acum=S.movs.filter(m=>m.cat===mt.nombre && m.tipo==='Gasto').reduce((s,m)=>s+m.monto,0);
     const obj=mt.objetivo||0, pct=obj?Math.min(100,acum/obj*100):0, falta=Math.max(0,obj-acum);
-    let sub = obj ? (falta<=0 ? '✓ ¡Meta cumplida!' : `faltan ${money.format(falta)}`) : 'ponle un objetivo en la pestaña Presupuesto';
+    let sub = obj ? (falta<=0 ? '✓ ¡Meta cumplida!' : `faltan ${money.format(falta)}`) : 'sin límite: abona lo que quieras';
     if(obj && falta>0 && mt.fecha){
       const ml=(mt.fecha.getFullYear()-td.getFullYear())*12+(mt.fecha.getMonth()-td.getMonth());
       sub += mt.fecha<td ? ' · la fecha límite ya pasó' : ` · aparta ${money.format(falta/Math.max(1,ml))} al mes${pc.n>1?` (${money.format(falta/Math.max(1,ml)/pc.n)} ${pc.t})`:''} hasta ${MESES[mt.fecha.getMonth()]} ${mt.fecha.getFullYear()}`;
     }
     const sel=S.selCat===mt.nombre;
     box.append(el('div',{class:'mrow'+(sel?' sel':''),role:'button',tabindex:0,onclick:()=>{ S.selCat=sel?null:mt.nombre; S.selGroup=null; render(); }},
-      el('div',{class:'mt'},el('b',{text:mt.nombre}),el('span',{text:`${money.format(acum)} de ${money.format(obj)} · ${Math.round(pct)}%`})),
-      el('div',{class:'mb'},el('i',{style:{width:pct+'%'}})),
+      el('div',{class:'mt'},el('b',{text:mt.nombre}),el('span',{text: obj
+        ? `${money.format(acum)} de ${money.format(obj)} · ${Math.round(pct)}%`
+        : `${money.format(acum)} ahorrados`})),
+      obj ? el('div',{class:'mb'},el('i',{style:{width:pct+'%'}})) : null,
       el('div',{class:'ms'},falta>0||!obj?el('button',{class:'btn small mbtn',text:'+ Abonar',onclick:e=>{ e.stopPropagation(); openModal(null,{tipo:'Gasto',cat:mt.nombre,desc:'Ahorro '+mt.nombre,metodo:'Transferencia'}); }}):null,sub)));
   });
 }
@@ -3103,7 +3105,7 @@ function metaCtl(mt, ix){
     mt[k]=v; changed(); };
   return {f:[
     ['Meta',el('input',{type:'text',value:mt.nombre,onchange:e=>upd('nombre',e.target.value)})],
-    ['Objetivo',el('input',{type:'number',class:'money',min:0,step:'any',inputmode:'decimal',value:mt.objetivo||'',placeholder:'0',onchange:e=>upd('objetivo',num(e.target.value))})],
+    ['Objetivo',el('input',{type:'number',class:'money',min:0,step:'any',inputmode:'decimal',value:mt.objetivo||'',placeholder:'Sin límite',onchange:e=>upd('objetivo',num(e.target.value))})],
     ['Fecha límite',el('input',{type:'date',value:mt.fecha?isoDate(mt.fecha):'',onchange:e=>upd('fecha',parseDate(e.target.value))})],
     ['Ahorrado',el('span',{text:money.format(acum)}),null,{textAlign:'right',whiteSpace:'nowrap'}]],
     del:{dis:false,title:'Quitar la meta (la categoría y sus movimientos se quedan)',fn:()=>{ S.metas.splice(ix,1); changed(); }}};
@@ -3111,9 +3113,9 @@ function metaCtl(mt, ix){
 function renderMetaTable(){
   const rows=S.metas.map((mt,ix)=>({name:mt.nombre, title:'Meta de ahorro',
     sub:`ahorrado ${money.format(metaAcum(mt.nombre))}${mt.fecha?` · para el ${shortDate(mt.fecha)} ${mt.fecha.getFullYear()}`:''}`,
-    amt:mt.objetivo?money.format(mt.objetivo):'—', build:()=>metaCtl(mt,ix)}));
+    amt:mt.objetivo?money.format(mt.objetivo):'Sin límite', build:()=>metaCtl(mt,ix)}));
   ctlBox($('#metaTable'), rows, ['Meta',{t:'Objetivo',money:1},'Fecha límite',{t:'Ahorrado',money:1}],
-    el('div',{class:'empty',text:'Sin metas todavía. Ej.: “Viaje”, $8,000 para marzo.'}));
+    el('div',{class:'empty',text:'Sin metas todavía. Ej.: “Viaje”, $8,000 para marzo, o “Ahorro” sin objetivo para juntar sin límite.'}));
 }
 
 // ---------- modal ----------
